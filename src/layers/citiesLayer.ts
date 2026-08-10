@@ -21,7 +21,7 @@ import {
 } from '../types/mapFeatures'
 import type { WorldPoint } from '../types/world'
 
-const CITIES_URL = '/data/cities.geojson'
+const CITIES_URL = `${import.meta.env.BASE_URL}data/cities.geojson`
 const CITIES_SOURCE_ID = 'cities'
 const cityPointLayerId = (rank: CityRank) => `cities-${rank}-points`
 const cityLabelLayerId = (rank: CityRank) => `cities-${rank}-labels`

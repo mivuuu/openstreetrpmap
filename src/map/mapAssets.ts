@@ -4,8 +4,8 @@
  * high-resolution raster or raster-tile source becomes available.
  */
 export const MAP_ASSETS = Object.freeze({
-  originalReference: '/worldmap.png',
-  terrainPrototype: '/worldmap.png',
-  countriesMaskReference: '/countries-mask.png',
-  landMaskReference: '/land-mask.png',
+  originalReference: `${import.meta.env.BASE_URL}worldmap.png`,
+  terrainPrototype: `${import.meta.env.BASE_URL}worldmap.png`,
+  countriesMaskReference: `${import.meta.env.BASE_URL}countries-mask.png`,
+  landMaskReference: `${import.meta.env.BASE_URL}land-mask.png`,
 })

@@ -44,31 +44,31 @@ export async function addBaseMapLayers(
     regionLabels,
     rawRegions,
   ] = await Promise.all([
-    loadWorldFeatureCollection('/data/land.geojson', signal),
-    loadWorldFeatureCollection('/data/countries-display.geojson', signal),
-    loadWorldFeatureCollection('/data/country-borders-display.geojson', signal),
-    loadWorldFeatureCollection('/data/coastline.geojson', signal),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/land.geojson`, signal),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/countries-display.geojson`, signal),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/country-borders-display.geojson`, signal),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/coastline.geojson`, signal),
     options.debugGeometry
-      ? loadWorldFeatureCollection('/data/countries-raw.geojson', signal)
+      ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/countries-raw.geojson`, signal)
       : Promise.resolve(undefined),
     options.debugGeometry
-      ? loadWorldFeatureCollection('/data/country-vertices.geojson', signal)
+      ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/country-vertices.geojson`, signal)
       : Promise.resolve(undefined),
     options.debugGeometry
-      ? loadWorldFeatureCollection('/data/unassigned-land.geojson', signal)
+      ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/unassigned-land.geojson`, signal)
       : Promise.resolve(undefined),
     options.debugGeometry
-      ? loadWorldFeatureCollection('/data/countries-original-display.geojson', signal)
+      ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/countries-original-display.geojson`, signal)
       : Promise.resolve(undefined),
     options.debugGeometry
-      ? loadWorldFeatureCollection('/data/country-borders-original-display.geojson', signal)
+      ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/country-borders-original-display.geojson`, signal)
       : Promise.resolve(undefined),
-    loadWorldFeatureCollection('/data/unclaimed.geojson', signal),
-    loadWorldFeatureCollection('/data/regions.geojson', signal),
-    loadWorldFeatureCollection('/data/region-borders.geojson', signal),
-    loadWorldFeatureCollection('/data/region-label-points.geojson', signal),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/unclaimed.geojson`, signal),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/regions.geojson`, signal),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/region-borders.geojson`, signal),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/region-label-points.geojson`, signal),
     options.debugGeometry
-      ? loadWorldFeatureCollection('/data/regions-raw-world.geojson', signal)
+      ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/regions-raw-world.geojson`, signal)
       : Promise.resolve(undefined),
   ])
   if (signal.aborted) return
