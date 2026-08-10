@@ -1,0 +1,30 @@
+{
+  "correction": "target-island-beige-territory-to-explicit-unclaimed",
+  "unclaimedRgb": [
+    128,
+    128,
+    128
+  ],
+  "mainLandComponent": 172,
+  "mainTerritory": {
+    "area": 8015,
+    "bbox": [
+      887,
+      939,
+      120,
+      138
+    ]
+  },
+  "northIsland": {
+    "landComponent": 171,
+    "area": 153,
+    "bbox": [
+      928,
+      921,
+      20,
+      15
+    ]
+  },
+  "totalPixelsMarkedUnclaimed": 8168,
+  "existingCountryPixelsChanged": 0
+}

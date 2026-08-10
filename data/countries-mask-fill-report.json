@@ -1,0 +1,264 @@
+{
+  "mode": "safe",
+  "algorithm": "8-neighbour multi-source BFS constrained to land minus explicit unclaimed",
+  "oceanIsBarrier": true,
+  "unclaimedIsBarrier": true,
+  "rgbDistanceUsed": false,
+  "maskStates": {
+    "oceanRgb": [
+      0,
+      0,
+      0
+    ],
+    "unclaimedRgb": [
+      128,
+      128,
+      128
+    ]
+  },
+  "sourceHashes": {
+    "landMaskSha256": "685c998e6c9e7b9ab72131f1a58daf2a779642451f4bc61089ad873045738af8",
+    "countriesMaskSha256": "bbfad997886328dd4195cec570a529f55f7f77ceab54598636c4a5fcc61b5847"
+  },
+  "landRaster": {
+    "threshold": 128,
+    "blackPixelCount": 1423099,
+    "whitePixelCount": 609295,
+    "intermediatePixelCount": 46606,
+    "binaryLandPixelCount": 641229,
+    "binaryOceanPixelCount": 1437771
+  },
+  "paletteCountryCount": 23,
+  "propagationComponentCount": 190,
+  "seedlessLandComponentCount": 6,
+  "seedlessLandComponents": [
+    {
+      "component": 1,
+      "area": 4574,
+      "bbox": {
+        "x": 1480,
+        "y": 0,
+        "width": 138,
+        "height": 64
+      },
+      "centroid": [
+        1550.8764757324004,
+        22.329033668561433
+      ]
+    },
+    {
+      "component": 2,
+      "area": 3278,
+      "bbox": {
+        "x": 1703,
+        "y": 0,
+        "width": 139,
+        "height": 44
+      },
+      "centroid": [
+        1765.9087858450275,
+        14.896888346552776
+      ]
+    },
+    {
+      "component": 3,
+      "area": 1700,
+      "bbox": {
+        "x": 1621,
+        "y": 24,
+        "width": 72,
+        "height": 51
+      },
+      "centroid": [
+        1658.8870588235295,
+        51.37647058823529
+      ]
+    },
+    {
+      "component": 62,
+      "area": 12,
+      "bbox": {
+        "x": 1838,
+        "y": 352,
+        "width": 4,
+        "height": 4
+      },
+      "centroid": [
+        1839.5,
+        353.5
+      ]
+    },
+    {
+      "component": 109,
+      "area": 73,
+      "bbox": {
+        "x": 1051,
+        "y": 553,
+        "width": 9,
+        "height": 17
+      },
+      "centroid": [
+        1054.5342465753424,
+        561.2602739726027
+      ]
+    },
+    {
+      "component": 132,
+      "area": 39,
+      "bbox": {
+        "x": 510,
+        "y": 725,
+        "width": 8,
+        "height": 7
+      },
+      "centroid": [
+        513.3589743589744,
+        728.1025641025641
+      ]
+    }
+  ],
+  "pixels": {
+    "missingLandBeforeFill": 16706,
+    "reachableMissingLand": 7030,
+    "seedlessMissingLand": 9676,
+    "filledAutomatically": 7030,
+    "unresolvedAfterFill": 9676,
+    "existingCountryInsideLand": 616355,
+    "existingCountryOutsideLandClearedInCandidate": 12296,
+    "explicitUnclaimedInsideLand": 8168,
+    "unclaimedOutsideLand": 0
+  },
+  "distanceDistributionPx": {
+    "p50": 1,
+    "p90": 2,
+    "p95": 2,
+    "p99": 3,
+    "maximum": 7
+  },
+  "reachablePixelsWithinDistancePx": {
+    "4": 7017,
+    "8": 7030,
+    "16": 7030,
+    "32": 7030,
+    "42": 7030,
+    "61": 7030,
+    "79": 7030
+  },
+  "safeMaxFillDistancePx": 42,
+  "maximumAppliedFillDistancePx": 7,
+  "unresolvedRegionCount": 6,
+  "unresolvedRegions": [
+    {
+      "area": 4574,
+      "bbox": {
+        "x": 1480,
+        "y": 0,
+        "width": 138,
+        "height": 64
+      },
+      "centroid": [
+        1550.8764757324004,
+        22.329033668561433
+      ],
+      "cause": "seedless-land-component",
+      "maximumReachableDistancePx": null
+    },
+    {
+      "area": 3278,
+      "bbox": {
+        "x": 1703,
+        "y": 0,
+        "width": 139,
+        "height": 44
+      },
+      "centroid": [
+        1765.9087858450275,
+        14.896888346552776
+      ],
+      "cause": "seedless-land-component",
+      "maximumReachableDistancePx": null
+    },
+    {
+      "area": 1700,
+      "bbox": {
+        "x": 1621,
+        "y": 24,
+        "width": 72,
+        "height": 51
+      },
+      "centroid": [
+        1658.8870588235295,
+        51.37647058823529
+      ],
+      "cause": "seedless-land-component",
+      "maximumReachableDistancePx": null
+    },
+    {
+      "area": 73,
+      "bbox": {
+        "x": 1051,
+        "y": 553,
+        "width": 9,
+        "height": 17
+      },
+      "centroid": [
+        1054.5342465753424,
+        561.2602739726027
+      ],
+      "cause": "seedless-land-component",
+      "maximumReachableDistancePx": null
+    },
+    {
+      "area": 39,
+      "bbox": {
+        "x": 510,
+        "y": 725,
+        "width": 8,
+        "height": 7
+      },
+      "centroid": [
+        513.3589743589744,
+        728.1025641025641
+      ],
+      "cause": "seedless-land-component",
+      "maximumReachableDistancePx": null
+    },
+    {
+      "area": 12,
+      "bbox": {
+        "x": 1838,
+        "y": 352,
+        "width": 4,
+        "height": 4
+      },
+      "centroid": [
+        1839.5,
+        353.5
+      ],
+      "cause": "seedless-land-component",
+      "maximumReachableDistancePx": null
+    }
+  ],
+  "ilyraRegression": {
+    "center": [
+      840,
+      740
+    ],
+    "radius": 140,
+    "missingBefore": 661,
+    "filled": 661,
+    "unresolved": 0,
+    "maximumReachableMissingDistance": 4
+  },
+  "validation": {
+    "existingCountryPixelsChangedInsideLand": 0,
+    "candidateCountryPixelsInOcean": 0,
+    "candidateUnclaimedPixelsInOcean": 0,
+    "sourceUnclaimedPixelsOutsideLand": 0,
+    "unclaimedPixelsChangedInsideLand": 0,
+    "candidateAssignedLandPixels": 623385,
+    "candidateUnclaimedLandPixels": 8168,
+    "explicitUnresolvedLandPixels": 9676,
+    "landCoverageBalanced": true
+  }
+}
