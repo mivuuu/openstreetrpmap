@@ -172,4 +172,5 @@ town — 4.75, village — 6. MapLibre автоматически разреша
  #   o p e n s t r e e t r p m a p  
  #   o p e n s t r e e t r p m a p  
  #   o p e n s t r e e t r p m a p  
+ #   o p e n s t r e e t r p m a p  
  
