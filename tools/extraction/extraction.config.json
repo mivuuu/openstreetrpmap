@@ -1,0 +1,26 @@
+{
+  "landMask": {
+    "threshold": 128,
+    "worldWidth": 1925,
+    "worldHeight": 1080,
+    "simplificationTolerance": 0.0,
+    "snapTolerancePx": 0.05
+  },
+  "countryFill": {
+    "maxFillDistancePx": 42
+  },
+  "maskStates": {
+    "oceanRgb": [0, 0, 0],
+    "unclaimedRgb": [128, 128, 128],
+    "alphaMinimum": 1
+  },
+  "countries": {
+    "simplificationTolerance": 0.55,
+    "snapTolerancePx": 0.05,
+    "minimumPolygonArea": 0.5,
+    "maskBackgroundRgb": [0, 0, 0],
+    "maskAlphaMinimum": 1,
+    "paletteMinimumConnectedArea": 20,
+    "paletteMinimumOpaqueRatio": 0.5
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "fictional-world-map",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "extract:land": "python tools/extraction/extract_land.py",
+    "fill:countries": "python tools/extraction/fill_countries_mask.py --mode safe",
+    "extract:vectors": "python tools/extraction/extract_map.py",
+    "prepare:regions": "python tools/extraction/prepare_regions_mask.py public/data/regions/country-019/regions-config.json",
+    "extract:regions": "python tools/extraction/extract_regions.py public/data/regions/country-019/regions-config.json"
+  },
+  "dependencies": {
+    "maplibre-gl": "^6.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/geojson": "^7946.0.16",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1"
+  },
+  "packageManager": "pnpm@11.16.0"
+}

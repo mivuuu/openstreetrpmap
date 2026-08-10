@@ -1,0 +1,3 @@
+numpy
+opencv-python-headless
+shapely>=2.1
