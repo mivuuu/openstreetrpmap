@@ -32,6 +32,18 @@ X grows right, and Y grows down.
   `countryId`.
 - `region-borders.geojson` stores deduplicated internal boundaries;
   `region-label-points.geojson` stores representative label points.
+
+Country names are maintained in `tools/extraction/country-names.json` and
+applied with `pnpm generate:country-labels`. The command changes country
+properties only and writes `country-label-points.geojson`; it never changes
+country geometry. Political entities may group multiple country features:
+`country-001` and `country-012` share `stateGroupId: "prosperia"`, while only
+`country-012` produces the single production label `Просперия`. Debug country
+IDs remain an independent optional layer.
+Production anchors are computed directly from the selected polygon component
+with Shapely `polylabel` at `0.05` world-unit tolerance. Manual production
+corrections live separately in `tools/extraction/country-label-overrides.json`;
+they are not shared with debug-ID placement.
 - `regions-validation-report.json` records silhouette alignment, clipping,
   overlap, coverage, border and label validation.
 - `regions/country-019/` is the first config-driven local authoring package.
