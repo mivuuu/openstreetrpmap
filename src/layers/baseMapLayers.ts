@@ -5,6 +5,8 @@ import {
   addCountriesBorderLayers,
   addCountriesDebugLayers,
   addCountriesFillLayer,
+  addCountryDebugIdLayer,
+  addCountryLabelLayer,
 } from './countriesLayer'
 import {
   addCoastlineLayer,
@@ -43,6 +45,8 @@ export async function addBaseMapLayers(
     regionBorders,
     regionLabels,
     rawRegions,
+    countryDebugLabels,
+    countryLabels,
   ] = await Promise.all([
     loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/land.geojson`, signal),
     loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/countries-display.geojson`, signal),
@@ -70,6 +74,8 @@ export async function addBaseMapLayers(
     options.debugGeometry
       ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/regions-raw-world.geojson`, signal)
       : Promise.resolve(undefined),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/country-debug-label-points.geojson`, signal),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/country-label-points.geojson`, signal),
   ])
   if (signal.aborted) return
 
@@ -82,6 +88,8 @@ export async function addBaseMapLayers(
   addRegionAreaLayers(map, regions, regionBorders)
   addCountriesBorderLayers(map, borders)
   addCoastlineLayer(map, coastline)
+  addCountryLabelLayer(map, countryLabels)
+  addCountryDebugIdLayer(map, countryDebugLabels)
   addRegionLabelLayer(map, regionLabels)
   addCountryMaskReferenceLayer(map)
   addLandDebugLayer(map)

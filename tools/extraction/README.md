@@ -101,6 +101,35 @@ intermediate antialias shades never become additional categories. No connected
 land component is removed. `pnpm extract:land` updates land/coastline and the
 derived display clips without modifying authoritative `countries.geojson`.
 
+## Country-local regional datasets
+
+Regional data is addressed as `country -> territory/component -> regions`, so a
+MultiPolygon country may have independent datasets for its mainland and each
+overseas territory. The country-008 dataset lives under
+`public/data/regions/country-008/mainland-southwest/`. Its config selects the
+principal southwest component by an interior world-coordinate anchor and an
+expected bbox, then lists any explicitly associated island components by their
+own anchors. Component area and GeoJSON array order are never used as semantic
+identifiers. Only the principal component bbox determines the common affine
+local-to-world transform; associated islands and overseas components cannot
+change its scale or offset.
+
+The extractor validates containment, contour IoU, overseas/wrong-country
+intersection, label placement and preservation of one common affine transform
+before publishing global GeoJSON. With `debug.enabled`, it also writes source
+and world-alignment overlays to `public/debug/`.
+
+Regenerate this dataset with:
+
+```powershell
+pnpm place:regions:country-008-mainland-southwest
+```
+
+This placement command reads the frozen `regions-local.geojson`, local shared
+borders and local label points. It does not re-read or trace the PNG. One
+uniform scale plus translation is selected by maximum contour IoU with the
+configured target component; `scaleX` and `scaleY` are always identical.
+
 ## Country-local region masks
 
 Regions are authored per country under `public/data/regions/<country-id>/`.

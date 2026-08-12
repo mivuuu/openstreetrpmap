@@ -14,7 +14,9 @@ export function GeometryDebugControl({ visibility, onChange }: GeometryDebugCont
     <aside className="geometry-debug" aria-label="Отладочные слои геометрии">
       <span className="geometry-debug__title">Отладка геометрии</span>
       <div className="geometry-debug__options">
-        {(Object.keys(GEOMETRY_DEBUG_LABELS) as Array<keyof GeometryDebugVisibility>).map((key) => (
+        {(Object.keys(GEOMETRY_DEBUG_LABELS) as Array<keyof GeometryDebugVisibility>)
+          .filter((key) => key !== 'countryIds' && key !== 'countryLabelPoints')
+          .map((key) => (
           <label key={key}>
             <input
               type="checkbox"
@@ -26,7 +28,7 @@ export function GeometryDebugControl({ visibility, onChange }: GeometryDebugCont
             />
             <span>{GEOMETRY_DEBUG_LABELS[key]}</span>
           </label>
-        ))}
+          ))}
       </div>
     </aside>
   )

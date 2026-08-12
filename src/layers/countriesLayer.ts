@@ -15,6 +15,8 @@ const RAW_COUNTRIES_SOURCE_ID = 'countries-raw'
 const COUNTRY_VERTICES_SOURCE_ID = 'country-vertices'
 const ORIGINAL_COUNTRIES_SOURCE_ID = 'countries-original'
 const ORIGINAL_COUNTRY_BORDERS_SOURCE_ID = 'country-borders-original'
+const COUNTRY_DEBUG_LABELS_SOURCE_ID = 'country-debug-label-points'
+const COUNTRY_LABELS_SOURCE_ID = 'country-label-points'
 
 export function addCountriesFillLayer(
   map: Map,
@@ -65,6 +67,120 @@ export function addCountriesBorderLayers(
       'line-color': MAP_THEME.colors.countryBorder,
       'line-width': MAP_EXPRESSIONS.countryBorderWidth,
       'line-opacity': 0.88,
+    },
+  })
+}
+
+export function addCountryDebugIdLayer(
+  map: Map,
+  labels: FeatureCollection<Geometry, GeoJsonProperties>,
+) {
+  map.addSource(COUNTRY_DEBUG_LABELS_SOURCE_ID, {
+    type: 'geojson',
+    data: worldFeatureCollectionToMap(labels),
+    promoteId: 'id',
+  })
+  map.addLayer({
+    id: LAYER_IDS.countryDebugIds,
+    type: 'symbol',
+    source: COUNTRY_DEBUG_LABELS_SOURCE_ID,
+    layout: {
+      visibility: 'none',
+      'text-field': ['get', 'label'],
+      'text-font': [...MAP_THEME.typography.fonts],
+      'text-size': 12,
+      'text-allow-overlap': true,
+      'text-ignore-placement': true,
+      'text-padding': 1,
+      'symbol-sort-key': 0,
+    },
+    paint: {
+      'text-color': '#fffdf6',
+      'text-halo-color': '#263638',
+      'text-halo-width': 1.6,
+      'text-halo-blur': 0.3,
+    },
+  })
+}
+
+export function addCountryLabelLayer(
+  map: Map,
+  labels: FeatureCollection<Geometry, GeoJsonProperties>,
+) {
+  map.addSource(COUNTRY_LABELS_SOURCE_ID, {
+    type: 'geojson',
+    data: worldFeatureCollectionToMap(labels),
+    promoteId: 'id',
+  })
+  map.addLayer({
+    id: LAYER_IDS.countryLabels,
+    type: 'symbol',
+    source: COUNTRY_LABELS_SOURCE_ID,
+    minzoom: 0,
+    layout: {
+      'text-field': ['get', 'name'],
+      'text-font': [...MAP_THEME.typography.fonts],
+      'text-size': [
+        'interpolate', ['linear'], ['zoom'],
+        0, [
+          'case',
+          ['==', ['get', 'labelRank'], 1], 15,
+          ['==', ['get', 'labelRank'], 2], 13.5,
+          11.5,
+        ],
+        4, [
+          'case',
+          ['==', ['get', 'labelRank'], 1], 17,
+          ['==', ['get', 'labelRank'], 2], 15,
+          13,
+        ],
+        7, [
+          'case',
+          ['==', ['get', 'labelRank'], 1], 15,
+          ['==', ['get', 'labelRank'], 2], 13,
+          11,
+        ],
+      ],
+      'text-max-width': 12,
+      'text-line-height': 1.05,
+      'text-letter-spacing': 0.025,
+      'text-anchor': 'center',
+      'text-offset': [0, 0],
+      'text-justify': 'center',
+      'text-padding': 3,
+      'text-allow-overlap': false,
+      'text-ignore-placement': false,
+      'symbol-sort-key': ['get', 'labelRank'],
+    },
+    paint: {
+      'text-color': '#3f4645',
+      'text-halo-color': MAP_THEME.colors.labels.halo,
+      'text-halo-width': 1.25,
+      'text-halo-blur': MAP_THEME.typography.haloBlur,
+      'text-opacity': [
+        'interpolate', ['linear'], ['zoom'],
+        0, 0.96,
+        4, 0.9,
+        6.5, 0.55,
+        9, 0.22,
+        12, 0,
+      ],
+    },
+  })
+  map.addLayer({
+    id: LAYER_IDS.countryLabelPoints,
+    type: 'circle',
+    source: COUNTRY_LABELS_SOURCE_ID,
+    layout: { visibility: 'none' },
+    paint: {
+      'circle-radius': 3,
+      'circle-color': [
+        'case',
+        ['==', ['get', 'placementMethod'], 'manual-override'], '#ff3fa4',
+        '#fff36c',
+      ],
+      'circle-stroke-color': '#263638',
+      'circle-stroke-width': 1,
     },
   })
 }

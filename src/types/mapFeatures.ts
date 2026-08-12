@@ -19,6 +19,7 @@ export type CityProperties = {
   type: 'city'
   rank: CityRank
   population: number
+  isCapital?: boolean
 }
 
 export type CityFeature = Feature<Point, CityProperties>

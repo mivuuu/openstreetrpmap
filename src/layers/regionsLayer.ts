@@ -10,6 +10,13 @@ import { MAP_THEME } from '../map/mapTheme'
 import { mapToWorld } from '../map/worldCoordinates'
 import { REGION_LABEL_MIN_ZOOM, REGION_MIN_ZOOM, ZOOM_LEVELS } from '../map/zoomLevels'
 import type { SelectedMapFeature } from '../types/mapFeatures'
+import {
+  CAPITAL_FILTER,
+  CAPITAL_LABEL_FONT,
+  CAPITAL_LABEL_SIZE,
+  CAPITAL_POINT_RADIUS,
+  CAPITAL_STYLE,
+} from './capitalStyle'
 import { LAYER_IDS } from './layerIds'
 
 const REGIONS_SOURCE_ID = 'regions'
@@ -119,19 +126,15 @@ export function addRegionLabelLayer(
     promoteId: 'id',
   })
   map.addLayer({
-    id: LAYER_IDS.kleropolCapitalPoint,
+    id: LAYER_IDS.capitalsPoint,
     type: 'circle',
     source: REGION_LABELS_SOURCE_ID,
-    filter: ['==', ['get', 'isCity'], true],
+    filter: CAPITAL_FILTER,
     paint: {
-      'circle-radius': [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false], 4,
-        3.2,
-      ],
-      'circle-color': '#263638',
-      'circle-stroke-color': '#fffdf6',
-      'circle-stroke-width': 1.25,
+      'circle-radius': CAPITAL_POINT_RADIUS,
+      'circle-color': CAPITAL_STYLE.pointColor,
+      'circle-stroke-color': CAPITAL_STYLE.pointStrokeColor,
+      'circle-stroke-width': CAPITAL_STYLE.pointStrokeWidth,
     },
   })
   map.addLayer({
@@ -139,9 +142,14 @@ export function addRegionLabelLayer(
     type: 'symbol',
     source: REGION_LABELS_SOURCE_ID,
     minzoom: 3,
-    filter: ['!=', ['get', 'isCity'], true],
+    filter: ['all', ['!', CAPITAL_FILTER], ['!=', ['get', 'isCity'], true]],
     layout: {
-      'text-field': ['get', 'name'],
+      'text-field': [
+        'case',
+        ['boolean', ['get', 'isCapital'], false],
+        ['concat', '● ', ['get', 'name']],
+        ['get', 'name'],
+      ],
       'text-font': [...MAP_THEME.typography.fonts],
       'text-size': [
         'interpolate', ['linear'], ['zoom'],
@@ -200,31 +208,26 @@ export function addRegionLabelLayer(
     },
   })
   map.addLayer({
-    id: LAYER_IDS.kleropolLabel,
+    id: LAYER_IDS.capitalsLabel,
     type: 'symbol',
     source: REGION_LABELS_SOURCE_ID,
-    filter: ['==', ['get', 'isCity'], true],
+    filter: CAPITAL_FILTER,
     layout: {
       'text-field': ['get', 'name'],
-      'text-font': ['Segoe UI Semibold', 'Arial Bold', 'sans-serif'],
-      'text-size': [
-        'interpolate', ['linear'], ['zoom'],
-        ZOOM_LEVELS.WORLD, 12,
-        ZOOM_LEVELS.LOCAL, 14.5,
-        ZOOM_LEVELS.DETAIL, 15,
-      ],
+      'text-font': [...CAPITAL_LABEL_FONT],
+      'text-size': CAPITAL_LABEL_SIZE,
       'text-anchor': 'left',
       'text-offset': [0.75, 0],
       'text-padding': 4,
       'text-max-width': 9,
-      'text-allow-overlap': false,
+      'text-allow-overlap': true,
       'text-ignore-placement': false,
       'symbol-sort-key': 0,
     },
     paint: {
-      'text-color': '#263638',
-      'text-halo-color': MAP_THEME.colors.labels.halo,
-      'text-halo-width': 1.3,
+      'text-color': CAPITAL_STYLE.textColor,
+      'text-halo-color': CAPITAL_STYLE.textHaloColor,
+      'text-halo-width': CAPITAL_STYLE.textHaloWidth,
       'text-halo-blur': MAP_THEME.typography.haloBlur,
     },
   })
@@ -237,7 +240,7 @@ function isKleropolFeature(feature: MapGeoJSONFeature) {
 function firstKleropolFeature(map: Map, event: MapMouseEvent) {
   return map
     .queryRenderedFeatures(event.point, {
-      layers: [LAYER_IDS.kleropolCapitalPoint, LAYER_IDS.kleropolLabel],
+      layers: [LAYER_IDS.capitalsPoint, LAYER_IDS.capitalsLabel],
     })
     .find(isKleropolFeature)
 }

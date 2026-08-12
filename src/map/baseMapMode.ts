@@ -62,6 +62,9 @@ export function applyBaseMapMode(
     LAYER_IDS.countriesBorder,
     showVector && !landComparison && geometryDebug.countryBorders,
   )
+  setVisibility(map, LAYER_IDS.countryDebugIds, geometryDebug.countryIds)
+  setVisibility(map, LAYER_IDS.countryLabels, showVector && !landComparison)
+  setVisibility(map, LAYER_IDS.countryLabelPoints, geometryDebug.countryLabelPoints)
   setVisibility(
     map,
     LAYER_IDS.regionsFill,
@@ -79,12 +82,12 @@ export function applyBaseMapMode(
   )
   setVisibility(
     map,
-    LAYER_IDS.kleropolCapitalPoint,
+    LAYER_IDS.capitalsPoint,
     showVector && !landComparison && geometryDebug.regionLabels && !geometryDebug.regionNumbers,
   )
   setVisibility(
     map,
-    LAYER_IDS.kleropolLabel,
+    LAYER_IDS.capitalsLabel,
     showVector && !landComparison && geometryDebug.regionLabels && !geometryDebug.regionNumbers,
   )
   setVisibility(

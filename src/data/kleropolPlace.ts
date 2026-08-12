@@ -7,10 +7,10 @@ export type CityPlaceDetails = Readonly<{
 }>
 
 export const KLEROPOL_PLACE_DETAILS: CityPlaceDetails = Object.freeze({
-  population: 1250000,
+  population: 7890000,
   status: 'Столица',
   description:
-    'Клерополь — столица и главный административный, политический и культурный центр страны.',
+    'Клерополь — столица и главный административный, политический центр страны.',
   founded: '742 год',
-  area: '620 км²',
+  area: '2435 км²',
 })

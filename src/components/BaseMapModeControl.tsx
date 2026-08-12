@@ -10,6 +10,10 @@ type BaseMapModeControlProps = {
   extractionDebug: boolean
   onModeChange: (mode: BaseMapMode) => void
   onExtractionDebugChange: (enabled: boolean) => void
+  countryIds: boolean
+  onCountryIdsChange: (enabled: boolean) => void
+  countryLabelPoints: boolean
+  onCountryLabelPointsChange: (enabled: boolean) => void
   development?: boolean
 }
 
@@ -18,6 +22,10 @@ export function BaseMapModeControl({
   extractionDebug,
   onModeChange,
   onExtractionDebugChange,
+  countryIds,
+  onCountryIdsChange,
+  countryLabelPoints,
+  onCountryLabelPointsChange,
   development = false,
 }: BaseMapModeControlProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -92,6 +100,22 @@ export function BaseMapModeControl({
                 onChange={(event) => onExtractionDebugChange(event.target.checked)}
               />
               <span>Маска выравнивания</span>
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={countryIds}
+                onChange={(event) => onCountryIdsChange(event.target.checked)}
+              />
+              <span>ID стран</span>
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={countryLabelPoints}
+                onChange={(event) => onCountryLabelPointsChange(event.target.checked)}
+              />
+              <span>Точки названий стран</span>
             </label>
           </div>
         </aside>

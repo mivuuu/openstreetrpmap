@@ -1,0 +1,281 @@
+{
+  "countryCount": 23,
+  "countries": [
+    {
+      "countryId": "country-001",
+      "componentCount": 24,
+      "largestComponentAreaShare": 0.29836062542186387,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        184.5,
+        390.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": true
+    },
+    {
+      "countryId": "country-002",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9481353420597678,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        1007.0,
+        457.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-003",
+      "componentCount": 8,
+      "largestComponentAreaShare": 0.8797823218997362,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        305.5,
+        506.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-004",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9742458174153603,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        378.75,
+        683.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-005",
+      "componentCount": 2,
+      "largestComponentAreaShare": 0.9535433070866142,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        328.5,
+        755.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-006",
+      "componentCount": 9,
+      "largestComponentAreaShare": 0.968552036199095,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        410.5,
+        558.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-007",
+      "componentCount": 2,
+      "largestComponentAreaShare": 0.9999079274468281,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        919.25,
+        492.0
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-008",
+      "componentCount": 53,
+      "largestComponentAreaShare": 0.29724222950220874,
+      "selectionMethod": "manual-override",
+      "labelPointWorld": [
+        546.0,
+        850.0
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-009",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9977515652564946,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        928.0,
+        358.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-010",
+      "componentCount": 4,
+      "largestComponentAreaShare": 0.9842150910667823,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        799.5,
+        434.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-011",
+      "componentCount": 1,
+      "largestComponentAreaShare": 1.0,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        619.75,
+        618.25
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-012",
+      "componentCount": 7,
+      "largestComponentAreaShare": 0.9420520395409613,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        690.0,
+        433.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-013",
+      "componentCount": 2,
+      "largestComponentAreaShare": 0.9947560273709791,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        502.0,
+        665.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-014",
+      "componentCount": 2,
+      "largestComponentAreaShare": 0.9990111597683289,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        720.75,
+        703.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-015",
+      "componentCount": 8,
+      "largestComponentAreaShare": 0.9312249443207127,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        835.0,
+        770.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-016",
+      "componentCount": 22,
+      "largestComponentAreaShare": 0.9398422090729783,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        374.25,
+        902.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": true
+    },
+    {
+      "countryId": "country-017",
+      "componentCount": 5,
+      "largestComponentAreaShare": 0.9753873339433908,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        568.0,
+        558.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-018",
+      "componentCount": 2,
+      "largestComponentAreaShare": 0.9686558167570826,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        993.5,
+        816.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-019",
+      "componentCount": 39,
+      "largestComponentAreaShare": 0.7200321223526027,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        1194.75,
+        549.0
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": true
+    },
+    {
+      "countryId": "country-020",
+      "componentCount": 1,
+      "largestComponentAreaShare": 1.0,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        671.0,
+        679.0
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-021",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9872846818453513,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        749.0,
+        611.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-022",
+      "componentCount": 9,
+      "largestComponentAreaShare": 0.9750660501981506,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        1426.25,
+        622.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-023",
+      "componentCount": 7,
+      "largestComponentAreaShare": 0.9383947658223748,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        1157.75,
+        372.0
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    }
+  ]
+}

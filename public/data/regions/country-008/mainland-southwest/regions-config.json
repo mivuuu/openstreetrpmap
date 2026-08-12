@@ -1,0 +1,78 @@
+{
+  "datasetId": "country-008/mainland-southwest",
+  "parentCountryId": "country-008",
+  "targetComponentId": "mainland-southwest",
+  "legacyParentCountryIds": ["country-023"],
+  "geometrySources": {
+    "regions": "regions-local.geojson",
+    "borders": "region-borders-local.geojson",
+    "labels": "region-label-points-local.geojson"
+  },
+  "source": "regions-source.png",
+  "capitalRegionNumber": 14,
+  "targetTerritory": {
+    "transformComponentAnchorWorld": [546, 850],
+    "expectedTransformComponentBoundsWorld": [472, 812, 632, 896],
+    "associatedComponentAnchorsWorld": [
+      [469, 794],
+      [544, 798],
+      [507, 819],
+      [595, 821],
+      [608, 846],
+      [467, 855],
+      [496, 892]
+    ],
+    "boundsToleranceWorld": 0.01
+  },
+  "alignment": {
+    "localLandBoundsPx": [127, 304, 1891, 1664],
+    "minimumRegionalAreaInsideTerritory": 0.75,
+    "minimumContourIoU": 0.4,
+    "maximumOverseasIntersectionArea": 0.000001,
+    "maximumWrongCountryIntersectionArea": 0.000001
+  },
+  "debug": {
+    "enabled": true
+  },
+  "linework": {
+    "darknessThreshold": 48,
+    "closeKernel": 3,
+    "minimumFaceArea": 1000
+  },
+  "extraction": {
+    "simplificationTolerancePx": 0.45,
+    "snapTolerancePx": 0.05
+  },
+  "regionNames": {
+    "1": "Инсел",
+    "2": "Хэйлищланд",
+    "3": "Исгеция",
+    "4": "Кудос",
+    "5": "Штифтерланд",
+    "6": "Револьн",
+    "7": "Веренланд",
+    "8": "Норланд",
+    "9": "Кюстен",
+    "10": "Интермариум",
+    "11": "Джюдион",
+    "12": "Немланд",
+    "13": "Мительланд",
+    "14": "Немецк"
+  },
+  "regionSeeds": {
+    "1": [[390, 484]],
+    "2": [[366, 1056]],
+    "3": [[630, 1398]],
+    "4": [[1101, 1124]],
+    "5": [[756, 1049]],
+    "6": [[586, 881]],
+    "7": [[814, 811]],
+    "8": [[1129, 798], [1071, 531], [1546, 736]],
+    "9": [[1379, 950], [1659, 973]],
+    "10": [[1327, 1089]],
+    "11": [[1604, 1228]],
+    "12": [[880, 949]],
+    "13": [[1091, 973]],
+    "14": [[930, 888]]
+  }
+}

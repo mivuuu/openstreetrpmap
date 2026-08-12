@@ -1,6 +1,8 @@
 export type GeometryDebugVisibility = {
   countryFills: boolean
   countryBorders: boolean
+  countryIds: boolean
+  countryLabelPoints: boolean
   borderCasing: boolean
   coastline: boolean
   vertices: boolean
@@ -18,6 +20,8 @@ export type GeometryDebugVisibility = {
 export const DEFAULT_GEOMETRY_DEBUG: GeometryDebugVisibility = Object.freeze({
   countryFills: true,
   countryBorders: true,
+  countryIds: false,
+  countryLabelPoints: false,
   borderCasing: true,
   coastline: true,
   vertices: false,
@@ -35,6 +39,8 @@ export const DEFAULT_GEOMETRY_DEBUG: GeometryDebugVisibility = Object.freeze({
 export const GEOMETRY_DEBUG_LABELS: Readonly<Record<keyof GeometryDebugVisibility, string>> = {
   countryFills: 'Заливка стран',
   countryBorders: 'Границы стран',
+  countryIds: 'ID стран',
+  countryLabelPoints: 'Точки названий стран',
   borderCasing: 'Обводка границ',
   coastline: 'Береговая линия',
   vertices: 'Вершины',

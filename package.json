@@ -10,8 +10,12 @@
     "extract:land": "python tools/extraction/extract_land.py",
     "fill:countries": "python tools/extraction/fill_countries_mask.py --mode safe",
     "extract:vectors": "python tools/extraction/extract_map.py",
+    "generate:country-debug-labels": "python tools/extraction/generate_country_debug_labels.py",
+    "generate:country-labels": "python tools/extraction/generate_country_labels.py",
     "prepare:regions": "python tools/extraction/prepare_regions_mask.py public/data/regions/country-019/regions-config.json",
-    "extract:regions": "python tools/extraction/extract_regions.py public/data/regions/country-019/regions-config.json"
+    "extract:regions": "python tools/extraction/extract_regions.py public/data/regions/country-019/regions-config.json",
+    "extract:regions:country-008-mainland-southwest": "python tools/extraction/place_existing_regions.py public/data/regions/country-008/mainland-southwest/regions-config.json",
+    "place:regions:country-008-mainland-southwest": "python tools/extraction/place_existing_regions.py public/data/regions/country-008/mainland-southwest/regions-config.json"
   },
   "dependencies": {
     "maplibre-gl": "^6.2.0",

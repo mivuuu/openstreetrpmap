@@ -110,6 +110,14 @@ export function MapViewport() {
         extractionDebug={extractionDebug}
         onModeChange={setBaseMapMode}
         onExtractionDebugChange={setExtractionDebug}
+        countryIds={geometryDebug.countryIds}
+        onCountryIdsChange={(enabled) => {
+          setGeometryDebug((current) => ({ ...current, countryIds: enabled }))
+        }}
+        countryLabelPoints={geometryDebug.countryLabelPoints}
+        onCountryLabelPointsChange={(enabled) => {
+          setGeometryDebug((current) => ({ ...current, countryLabelPoints: enabled }))
+        }}
         development={DEBUG_MAP}
       />
       {DEBUG_MAP && (
