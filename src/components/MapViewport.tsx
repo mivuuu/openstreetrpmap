@@ -8,6 +8,7 @@ import { DEFAULT_GEOMETRY_DEBUG } from '../map/geometryDebug'
 import { worldToMap } from '../map/worldCoordinates'
 import type { SelectedMapFeature } from '../types/mapFeatures'
 import { BaseMapModeControl } from './BaseMapModeControl'
+import { CountryRankings } from './CountryRankings'
 import { FeatureInfoPanel } from './FeatureInfoPanel'
 import { GeometryDebugControl } from './GeometryDebugControl'
 import { MapControls } from './MapControls'
@@ -120,6 +121,7 @@ export function MapViewport() {
         }}
         development={DEBUG_MAP}
       />
+      <CountryRankings />
       {DEBUG_MAP && (
         <GeometryDebugControl visibility={geometryDebug} onChange={setGeometryDebug} />
       )}
