@@ -1,6 +1,7 @@
 import { Map as MapLibreMap, setWorkerUrl, type Map } from 'maplibre-gl'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
-import { BASE_MAP_STYLE } from './mapStyle'
+import type { MapColorScheme } from './mapColorScheme'
+import { createBaseMapStyle } from './mapStyle'
 import { MAP_BOUNDS, WORLD_BOUNDS, WORLD_CENTER } from './worldCoordinates'
 
 const MAX_ZOOM = 18
@@ -22,11 +23,11 @@ function calculateInitialMinZoom(container: HTMLElement) {
   return oldCalculatedMinZoom - MIN_ZOOM_EXTRA
 }
 
-export function createWorldMap(container: HTMLElement): Map {
+export function createWorldMap(container: HTMLElement, colorScheme: MapColorScheme): Map {
   const minZoom = calculateInitialMinZoom(container)
   const map = new MapLibreMap({
     container,
-    style: BASE_MAP_STYLE,
+    style: createBaseMapStyle(colorScheme),
     center: WORLD_CENTER,
     zoom: minZoom,
     minZoom,

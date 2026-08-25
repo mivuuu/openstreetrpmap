@@ -4,6 +4,7 @@ export const LAYER_IDS = Object.freeze({
   terrain: 'terrain-reference',
   countryMaskReference: 'countries-mask-reference',
   landFill: 'land-fill',
+  unassignedFill: 'unassigned-fill',
   unclaimedFill: 'unclaimed-fill',
   unclaimedBorder: 'unclaimed-border',
   countriesFill: 'countries-fill',
@@ -37,6 +38,7 @@ export const LAYER_IDS = Object.freeze({
 export const BASE_LAYER_ORDER = [
   LAYER_IDS.ocean,
   LAYER_IDS.landFill,
+  LAYER_IDS.unassignedFill,
   LAYER_IDS.originalReference,
   LAYER_IDS.terrain,
   LAYER_IDS.unclaimedFill,

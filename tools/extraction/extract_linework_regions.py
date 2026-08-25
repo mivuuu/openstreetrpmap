@@ -12,8 +12,8 @@ from typing import Any
 import cv2
 import numpy as np
 from shapely import affinity
-from shapely.geometry import GeometryCollection, MultiLineString, MultiPolygon, Point, Polygon, mapping, shape
-from shapely.ops import unary_union
+from shapely.geometry import GeometryCollection, LineString, MultiLineString, MultiPolygon, Point, Polygon, mapping, shape
+from shapely.ops import nearest_points, unary_union
 
 from region_pipeline import atomic_write_json
 from topology import polygons_from_shared_arcs, raster_interface_segments, shared_arcs
@@ -37,6 +37,15 @@ def polygonal(geometry):
         parts = [part for part in geometry.geoms if isinstance(part, Polygon)]
         return unary_union(parts) if parts else GeometryCollection()
     return GeometryCollection()
+
+
+def remove_tiny_polygon_parts(geometry, minimum_area: float):
+    geometry = polygonal(geometry)
+    if minimum_area <= 0 or geometry.is_empty:
+        return geometry
+    parts = [geometry] if isinstance(geometry, Polygon) else list(geometry.geoms)
+    kept = [part for part in parts if part.area >= minimum_area]
+    return unary_union(kept) if kept else GeometryCollection()
 
 
 def collection(path: Path) -> dict[str, Any]:
@@ -160,8 +169,11 @@ def main() -> None:
     if missing:
         raise RuntimeError(f"Regions without an assigned face: {missing}")
 
+    # Only explicitly assigned administrative faces may guide the final fill.
+    # Treating unassigned enclosed fragments as distance seeds gave them region
+    # number 0 and left short holes in otherwise continuous shared borders.
     face_seeds = np.zeros_like(face_labels, dtype=np.int32)
-    for component in kept_faces:
+    for component in face_to_number:
         face_seeds[face_labels == component] = component
     distance_input = np.where(face_seeds > 0, 0, 1).astype(np.uint8)
     _, nearest_pixels = cv2.distanceTransformWithLabels(
@@ -239,6 +251,9 @@ def main() -> None:
     raw_features: list[dict[str, Any]] = []
     label_features: list[dict[str, Any]] = []
     world_geometries: dict[int, Any] = {}
+    raw_world_geometries: dict[int, Any] = {}
+    clip_to_target = bool(config.get("clipToTargetTerritory", False))
+    minimum_world_polygon_area = float(extraction.get("minimumWorldPolygonArea", 0))
     capital_number = int(config["capitalRegionNumber"])
     target_component_id = config["targetComponentId"]
     dataset_slug = dataset_id.replace("/", "-")
@@ -247,7 +262,12 @@ def main() -> None:
         if local_geometry is None:
             raise RuntimeError(f"No geometry produced for region {number}")
         raw_geometry = polygonal(to_world(local_geometry))
-        world_geometry = raw_geometry
+        raw_world_geometries[number] = raw_geometry
+        world_geometry = (
+            polygonal(raw_geometry.intersection(target_territory))
+            if clip_to_target else raw_geometry
+        )
+        world_geometry = remove_tiny_polygon_parts(world_geometry, minimum_world_polygon_area)
         if world_geometry.is_empty or not world_geometry.is_valid:
             raise RuntimeError(f"Invalid geometry produced for region {number}")
         world_geometries[number] = world_geometry
@@ -283,11 +303,15 @@ def main() -> None:
         })
 
     border_features: list[dict[str, Any]] = []
+    rendered_border_pairs: set[tuple[int, int]] = set()
+    rendered_lines_by_pair: dict[tuple[int, int], list[Any]] = {}
     for (first, second), lines in sorted(arcs.items()):
         if first <= 0 or second <= 0 or first == second:
             continue
         for part_index, line in enumerate(lines, start=1):
             world_line = to_world(line)
+            if clip_to_target:
+                world_line = world_line.intersection(target_territory)
             if world_line.is_empty:
                 continue
             if isinstance(world_line, GeometryCollection):
@@ -306,6 +330,82 @@ def main() -> None:
                 },
                 "geometry": mapping(world_line),
             })
+            pair = tuple(sorted((first, second)))
+            rendered_border_pairs.add(pair)
+            rendered_lines_by_pair.setdefault(pair, []).append(world_line)
+
+    # A reviewed source can contain a tiny raster break at an otherwise intended
+    # administrative junction. Keep such corrections explicit in dataset config
+    # and draw only the shortest closure between the two existing region edges.
+    for first, second in config.get("manualBorderClosures", []):
+        pair = tuple(sorted((int(first), int(second))))
+        if pair in rendered_border_pairs:
+            continue
+        first_point, second_point = nearest_points(
+            world_geometries[pair[0]], world_geometries[pair[1]]
+        )
+        closure = LineString([first_point, second_point])
+        if closure.is_empty or closure.length <= 0:
+            continue
+        border_id = f"{dataset_slug}-region-border-{pair[0]:03d}-{pair[1]:03d}-manual-001"
+        border_features.append({
+            "type": "Feature", "id": border_id,
+            "properties": {
+                "id": border_id, "type": "region-border", "countryId": country_id,
+                "targetComponentId": target_component_id, "datasetId": dataset_id,
+                "leftRegionId": f"{dataset_slug}-region-{pair[0]:03d}",
+                "rightRegionId": f"{dataset_slug}-region-{pair[1]:03d}",
+                "manualCorrection": True,
+                "correctionMethod": "nearest-boundary-closure",
+            },
+            "geometry": mapping(closure),
+        })
+        rendered_border_pairs.add(pair)
+        rendered_lines_by_pair.setdefault(pair, []).append(closure)
+
+    applied_coast_extensions: list[dict[str, Any]] = []
+    maximum_coast_extension = float(config.get("maximumCoastBorderExtensionWorld", 8))
+    for first, second in config.get("coastBorderExtensions", []):
+        pair = tuple(sorted((int(first), int(second))))
+        pair_lines = rendered_lines_by_pair.get(pair, [])
+        if not pair_lines:
+            raise RuntimeError(f"Cannot extend missing region border {pair} to the coast")
+        endpoints: list[Point] = []
+        for geometry in pair_lines:
+            line_parts = list(geometry.geoms) if isinstance(geometry, MultiLineString) else [geometry]
+            for line_part in line_parts:
+                coordinates = list(line_part.coords)
+                endpoints.extend((Point(coordinates[0]), Point(coordinates[-1])))
+        endpoint = min(endpoints, key=lambda point: point.distance(target_territory.boundary))
+        coast_point = nearest_points(endpoint, target_territory.boundary)[1]
+        extension = LineString([endpoint, coast_point])
+        if extension.length <= 1e-9:
+            continue
+        if extension.length > maximum_coast_extension:
+            raise RuntimeError(
+                f"Region border {pair} needs an unsafe coast extension of "
+                f"{extension.length:.3f} world units"
+            )
+        border_id = f"{dataset_slug}-region-border-{pair[0]:03d}-{pair[1]:03d}-coast-001"
+        border_features.append({
+            "type": "Feature", "id": border_id,
+            "properties": {
+                "id": border_id, "type": "region-border", "countryId": country_id,
+                "targetComponentId": target_component_id, "datasetId": dataset_id,
+                "leftRegionId": f"{dataset_slug}-region-{pair[0]:03d}",
+                "rightRegionId": f"{dataset_slug}-region-{pair[1]:03d}",
+                "manualCorrection": True,
+                "correctionMethod": "coast-border-extension",
+            },
+            "geometry": mapping(extension),
+        })
+        rendered_lines_by_pair.setdefault(pair, []).append(extension)
+        applied_coast_extensions.append({
+            "pair": list(pair),
+            "lengthWorld": extension.length,
+            "from": list(endpoint.coords[0]),
+            "to": list(coast_point.coords[0]),
+        })
 
     overlap_area = 0.0
     numbers = sorted(world_geometries)
@@ -336,8 +436,9 @@ def main() -> None:
     local_topology_hash = hashlib.sha256(
         b"".join(local_geometries[number].wkb for number in sorted(local_geometries))
     ).hexdigest()
+    raw_region_union = unary_union(list(raw_world_geometries.values()))
     transform_integrity_ratio = (
-        region_union.area / max(1e-12, local_region_union.area * scale_x * scale_y)
+        raw_region_union.area / max(1e-12, local_region_union.area * scale_x * scale_y)
     )
     alignment_settings = config["alignment"]
     alignment_failures = []
@@ -353,6 +454,15 @@ def main() -> None:
         alignment_failures.append("one or more label points are outside their regions")
     if abs(transform_integrity_ratio - 1.0) > 1e-8:
         alignment_failures.append("the common affine transform changed relative regional geometry")
+    required_border_pairs = {
+        tuple(sorted((int(first), int(second))))
+        for first, second in config.get("requiredBorderPairs", [])
+    }
+    missing_required_border_pairs = sorted(required_border_pairs - rendered_border_pairs)
+    if missing_required_border_pairs:
+        alignment_failures.append(
+            f"required region borders are missing: {missing_required_border_pairs}"
+        )
     validation = {
         "datasetId": dataset_id,
         "parentCountryId": country_id,
@@ -368,6 +478,9 @@ def main() -> None:
         ],
         "regionCount": len(region_features),
         "borderFeatureCount": len(border_features),
+        "requiredBorderPairs": [list(pair) for pair in sorted(required_border_pairs)],
+        "missingRequiredBorderPairs": [list(pair) for pair in missing_required_border_pairs],
+        "appliedCoastBorderExtensions": applied_coast_extensions,
         "invalidGeometryCount": sum(not geometry.is_valid for geometry in world_geometries.values()),
         "overlapArea": overlap_area,
         "alignmentAccepted": not alignment_failures,
@@ -379,6 +492,7 @@ def main() -> None:
         "wrongCountryIntersectionArea": wrong_country_intersection_area,
         "labelPointsOutsideRegions": label_points_outside_regions,
         "commonAffineTransformIntegrityRatio": transform_integrity_ratio,
+        "clippedToTargetTerritory": clip_to_target,
         "localTopologySha256": local_topology_hash,
         "assignedNumbers": numbers,
         "capitalRegionNumber": capital_number,

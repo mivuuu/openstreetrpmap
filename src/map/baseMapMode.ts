@@ -40,6 +40,7 @@ export function applyBaseMapMode(
   const landComparison = mode === 'land' || mode === 'landOverlay'
   const showVector = mode !== 'original' || extractionDebug
   setVisibility(map, LAYER_IDS.landFill, showVector && mode !== 'landOverlay')
+  setVisibility(map, LAYER_IDS.unassignedFill, showVector && !landComparison)
   setVisibility(map, LAYER_IDS.unclaimedFill, showVector && !landComparison)
   setVisibility(map, LAYER_IDS.unclaimedBorder, showVector && !landComparison)
   setVisibility(

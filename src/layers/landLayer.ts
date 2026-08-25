@@ -79,6 +79,26 @@ export function addUnclaimedLandLayer(
   })
 }
 
+export function addUnassignedLandLayer(
+  map: Map,
+  unassignedLand: FeatureCollection<Geometry, GeoJsonProperties>,
+) {
+  map.addSource(UNASSIGNED_LAND_SOURCE_ID, {
+    type: 'geojson',
+    data: worldFeatureCollectionToMap(unassignedLand),
+    promoteId: 'id',
+  })
+  map.addLayer({
+    id: LAYER_IDS.unassignedFill,
+    type: 'fill',
+    source: UNASSIGNED_LAND_SOURCE_ID,
+    paint: {
+      'fill-color': MAP_THEME.colors.unclaimedLand,
+      'fill-opacity': 1,
+    },
+  })
+}
+
 export function addLandDebugLayer(map: Map) {
   map.addLayer({
     id: LAYER_IDS.debugLandFill,
@@ -108,11 +128,6 @@ export function addUnassignedLandDebugLayer(
   unassignedLand?: FeatureCollection<Geometry, GeoJsonProperties>,
 ) {
   if (!unassignedLand) return
-  map.addSource(UNASSIGNED_LAND_SOURCE_ID, {
-    type: 'geojson',
-    data: worldFeatureCollectionToMap(unassignedLand),
-    promoteId: 'id',
-  })
   map.addLayer({
     id: LAYER_IDS.debugUnassignedLand,
     type: 'fill',

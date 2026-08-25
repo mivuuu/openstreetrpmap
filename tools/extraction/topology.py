@@ -120,19 +120,22 @@ def polygons_from_shared_arcs(
     }
 
 
-def _country_id(label: int) -> str:
-    return f"country-{label:03d}"
+def _country_id(label: int, country_ids: list[str] | None = None) -> str:
+    if country_ids is None:
+        return f"country-{label:03d}"
+    return country_ids[label - 1]
 
 
 def country_feature_collection(
     geometries: dict[int, Polygon | MultiPolygon],
     colors: list[tuple[int, int, int]],
+    country_ids: list[str],
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     features: list[dict[str, Any]] = []
     report: list[dict[str, Any]] = []
     for label, geometry in sorted(geometries.items()):
         color = colors[label - 1]
-        country_id = _country_id(label)
+        country_id = _country_id(label, country_ids)
         polygons = [geometry] if isinstance(geometry, Polygon) else list(geometry.geoms)
         hole_count = sum(len(polygon.interiors) for polygon in polygons)
         properties = {
@@ -146,7 +149,7 @@ def country_feature_collection(
             "color": "#" + "".join(f"{channel:02x}" for channel in color),
             "polygonCount": len(polygons),
             "holeCount": hole_count,
-            "styleIndex": (label - 1) % 6,
+            "styleIndex": (int(country_id.removeprefix("country-")) - 1) % 6,
         }
         features.append({
             "type": "Feature",
@@ -165,6 +168,7 @@ def country_feature_collection(
 
 def boundary_feature_collections(
     arcs: dict[LabelPair, list[LineString]],
+    country_ids: list[str] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     borders: list[dict[str, Any]] = []
     coastlines: list[dict[str, Any]] = []
@@ -177,25 +181,33 @@ def boundary_feature_collections(
             for x, y in line.coords:
                 vertex_coordinates[(float(x), float(y), boundary_type)] = None
             if first == 0:
+                country_id = _country_id(second, country_ids)
+                country_suffix = country_id.removeprefix("country-")
                 coastlines.append({
                     "type": "Feature",
-                    "id": f"coast-{second:03d}-{part_index:04d}",
+                    "id": f"coast-{country_suffix}-{part_index:04d}",
                     "properties": {
-                        "id": f"coast-{second:03d}-{part_index:04d}",
+                        "id": f"coast-{country_suffix}-{part_index:04d}",
                         "type": "coastline",
-                        "country": _country_id(second),
+                        "country": country_id,
                     },
                     "geometry": mapping(line),
                 })
             else:
+                left_country = _country_id(first, country_ids)
+                right_country = _country_id(second, country_ids)
+                border_key = (
+                    f"{left_country.removeprefix('country-')}-"
+                    f"{right_country.removeprefix('country-')}"
+                )
                 borders.append({
                     "type": "Feature",
-                    "id": f"border-{first:03d}-{second:03d}-{part_index:04d}",
+                    "id": f"border-{border_key}-{part_index:04d}",
                     "properties": {
-                        "id": f"border-{first:03d}-{second:03d}-{part_index:04d}",
+                        "id": f"border-{border_key}-{part_index:04d}",
                         "type": "international",
-                        "leftCountry": _country_id(first),
-                        "rightCountry": _country_id(second),
+                        "leftCountry": left_country,
+                        "rightCountry": right_country,
                     },
                     "geometry": mapping(line),
                 })

@@ -3,5 +3,9 @@
     "labelX": 546,
     "labelY": 850,
     "reason": "Негеция: основной production label закреплён на mainland-southwest"
+  },
+  "country-012": {
+    "componentAnchors": [[185, 391], [690, 434]],
+    "reason": "Просперия: показывать название на западной и основной частях государства"
   }
 }

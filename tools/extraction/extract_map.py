@@ -248,6 +248,7 @@ def unclaimed_feature_collection(
 def countries_feature_collection(
     labels: np.ndarray,
     colors: list[tuple[int, int, int]],
+    country_ids: list[str],
     settings: dict[str, Any],
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     features: list[dict[str, Any]] = []
@@ -263,7 +264,7 @@ def countries_feature_collection(
         )
         if not polygons:
             continue
-        feature_id = f"country-{index:03d}"
+        feature_id = country_ids[index - 1]
         rgb = list(color)
         hex_color = "#" + "".join(f"{channel:02x}" for channel in color)
         hole_count = sum(max(0, len(polygon) - 1) for polygon in polygons)
@@ -289,6 +290,28 @@ def countries_feature_collection(
         )
         report.append({"id": feature_id, "rgb": rgb, "polygons": len(polygons), "holes": hole_count})
     return {"type": "FeatureCollection", "features": features}, report
+
+
+def country_ids_for_palette(
+    colors: list[tuple[int, int, int]],
+    settings: dict[str, Any],
+) -> list[str]:
+    """Resolve stable political IDs independently from RGB sort order."""
+    configured = settings.get("idByRgb", {})
+    country_ids: list[str] = []
+    missing: list[str] = []
+    for color in colors:
+        key = ",".join(str(channel) for channel in color)
+        country_id = configured.get(key)
+        if not isinstance(country_id, str):
+            missing.append(key)
+            continue
+        country_ids.append(country_id)
+    if missing:
+        raise RuntimeError(f"No stable country ID configured for RGB: {', '.join(missing)}")
+    if len(country_ids) != len(set(country_ids)):
+        raise RuntimeError("Each active country color must map to a unique stable country ID")
+    return country_ids
 
 
 def render_preview(
@@ -334,6 +357,7 @@ def main() -> None:
         config["countries"],
         config["maskStates"],
     )
+    country_ids = country_ids_for_palette(colors, config["countries"])
     physical_land = binary_land > 0
     unclaimed_inside_land = raw_unclaimed & physical_land
     unclaimed_outside_land = raw_unclaimed & ~physical_land
@@ -342,7 +366,12 @@ def main() -> None:
         config["countries"],
         config["maskStates"],
     )
-    raw_countries, _ = countries_feature_collection(country_labels, colors, config["countries"])
+    raw_countries, _ = countries_feature_collection(
+        country_labels,
+        colors,
+        country_ids,
+        config["countries"],
+    )
     topology_settings = config["countries"]
     interface_segments = raster_interface_segments(country_labels)
     arcs = shared_arcs(
@@ -351,8 +380,8 @@ def main() -> None:
         topology_settings["snapTolerancePx"],
     )
     country_geometries = polygons_from_shared_arcs(country_labels, arcs)
-    countries, report = topology_country_feature_collection(country_geometries, colors)
-    borders, _, vertices = boundary_feature_collections(arcs)
+    countries, report = topology_country_feature_collection(country_geometries, colors, country_ids)
+    borders, _, vertices = boundary_feature_collections(arcs, country_ids)
     display_countries, display_borders, unassigned_land, clipping_report = clip_politics_to_land(
         countries,
         borders,

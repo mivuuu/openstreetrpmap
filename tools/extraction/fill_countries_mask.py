@@ -13,7 +13,7 @@ from typing import Any
 import cv2
 import numpy as np
 
-from extract_map import mask_country_labels
+from extract_map import country_ids_for_palette, mask_country_labels
 from land_pipeline import read_binary_land_mask
 from mask_states import classify_mask_states, configured_colors
 
@@ -170,6 +170,50 @@ def main() -> None:
     component_count, component_labels, component_stats, component_centroids = (
         cv2.connectedComponentsWithStats(walkable.astype(np.uint8), 8)
     )
+    country_ids = country_ids_for_palette(palette, config["countries"])
+    label_by_country_id = {
+        country_id: label
+        for label, country_id in enumerate(country_ids, start=1)
+    }
+    assigned_components: set[int] = set()
+    manual_island_assignments: list[dict[str, Any]] = []
+    for assignment in fill_settings.get("seedlessIslandAssignments", []):
+        x, y = (int(value) for value in assignment["anchor"])
+        country_id = str(assignment["countryId"])
+        if not (0 <= y < land.shape[0] and 0 <= x < land.shape[1]):
+            raise RuntimeError(f"Island assignment anchor is outside the mask: {[x, y]}")
+        component = int(component_labels[y, x])
+        if component == 0 or not states.unknown_land[y, x]:
+            raise RuntimeError(
+                f"Island assignment anchor must be on unknown land: {[x, y]}"
+            )
+        if component in assigned_components:
+            raise RuntimeError(f"Duplicate island assignment for component {component}")
+        target_label = label_by_country_id.get(country_id)
+        if target_label is None:
+            raise RuntimeError(f"Unknown island assignment country ID: {country_id}")
+        component_mask = component_labels == component
+        existing_labels = np.unique(seed_labels[component_mask])
+        existing_labels = existing_labels[existing_labels > 0]
+        if existing_labels.size:
+            raise RuntimeError(
+                f"Island assignment component {component} already contains a country seed"
+            )
+        seed_labels[component_mask] = target_label
+        assigned_components.add(component)
+        manual_island_assignments.append({
+            "anchor": [x, y],
+            "countryId": country_id,
+            "component": component,
+            "area": int(component_stats[component, cv2.CC_STAT_AREA]),
+            "bbox": {
+                "x": int(component_stats[component, cv2.CC_STAT_LEFT]),
+                "y": int(component_stats[component, cv2.CC_STAT_TOP]),
+                "width": int(component_stats[component, cv2.CC_STAT_WIDTH]),
+                "height": int(component_stats[component, cv2.CC_STAT_HEIGHT]),
+            },
+            "note": assignment.get("note"),
+        })
     seed_count_by_component = np.bincount(
         component_labels[seed_labels > 0],
         minlength=component_count,
@@ -239,6 +283,7 @@ def main() -> None:
         "propagationComponentCount": component_count - 1,
         "seedlessLandComponentCount": len(seedless_components),
         "seedlessLandComponents": seedless_components,
+        "manualSeedlessIslandAssignments": manual_island_assignments,
         "pixels": {
             "missingLandBeforeFill": int(np.count_nonzero(missing_land)),
             "reachableMissingLand": int(np.count_nonzero(reachable_missing)),

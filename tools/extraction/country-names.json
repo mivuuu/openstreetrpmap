@@ -1,7 +1,5 @@
 {
-  "country-001": { "name": "Западная Просперия", "stateGroupId": "prosperia", "stateName": "Просперия", "productionLabel": false },
   "country-002": { "name": "Асмаин" },
-  "country-003": { "name": "Сапах" },
   "country-004": { "name": "Роха" },
   "country-005": { "name": "Этрория" },
   "country-006": { "name": "Ярландия" },
@@ -10,7 +8,7 @@
   "country-009": { "name": "Пагристан" },
   "country-010": { "name": "Гайяна" },
   "country-011": { "name": "Урия" },
-  "country-012": { "name": "Просперия", "stateGroupId": "prosperia", "stateName": "Просперия", "productionLabel": true },
+  "country-012": { "name": "Просперия" },
   "country-013": { "name": "Эшкирия" },
   "country-014": { "name": "Энландия" },
   "country-015": { "name": "Гросс" },
@@ -21,5 +19,7 @@
   "country-020": { "name": "Ферондия" },
   "country-021": { "name": "Критания" },
   "country-022": { "name": "Аустра" },
-  "country-023": { "name": "Новая Кайландия" }
+  "country-023": { "name": "Новая Кайландия" },
+  "country-024": { "name": "Южный Сапах" },
+  "country-025": { "name": "Северный Сапах" }
 }

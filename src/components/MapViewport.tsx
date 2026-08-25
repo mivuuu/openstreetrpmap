@@ -5,6 +5,12 @@ import { addKleropolInteractions } from '../layers/regionsLayer'
 import { applyBaseMapMode, type BaseMapMode } from '../map/baseMapMode'
 import { createWorldMap } from '../map/createWorldMap'
 import { DEFAULT_GEOMETRY_DEBUG } from '../map/geometryDebug'
+import {
+  applyMapColorScheme,
+  readStoredMapColorScheme,
+  storeMapColorScheme,
+  type MapColorScheme,
+} from '../map/mapColorScheme'
 import { worldToMap } from '../map/worldCoordinates'
 import type { SelectedMapFeature } from '../types/mapFeatures'
 import { BaseMapModeControl } from './BaseMapModeControl'
@@ -12,6 +18,8 @@ import { CountryRankings } from './CountryRankings'
 import { FeatureInfoPanel } from './FeatureInfoPanel'
 import { GeometryDebugControl } from './GeometryDebugControl'
 import { MapControls } from './MapControls'
+import { MapThemeControl } from './MapThemeControl'
+import { usePresence } from './usePresence'
 
 const ZOOM_DURATION_MS = 300
 const CITY_PANEL_WIDTH = 390
@@ -34,15 +42,21 @@ export function MapViewport() {
   const [isReady, setIsReady] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [selectedCity, setSelectedCity] = useState<SelectedMapFeature | null>(null)
+  const selectedCityRef = useRef<SelectedMapFeature | null>(null)
+  const featurePanelPresence = usePresence(Boolean(selectedCity), 220)
   const [baseMapMode, setBaseMapMode] = useState<BaseMapMode>('vector')
+  const [mapColorScheme, setMapColorScheme] = useState<MapColorScheme>(readStoredMapColorScheme)
+  const mapColorSchemeRef = useRef(mapColorScheme)
   const [extractionDebug, setExtractionDebug] = useState(DEBUG_MAP)
   const [geometryDebug, setGeometryDebug] = useState(DEFAULT_GEOMETRY_DEBUG)
+
+  if (selectedCity) selectedCityRef.current = selectedCity
 
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    const map = createWorldMap(container)
+    const map = createWorldMap(container, mapColorSchemeRef.current)
     mapRef.current = map
     const abortController = new AbortController()
     let removeKleropolInteractions: (() => void) | undefined
@@ -50,6 +64,7 @@ export function MapViewport() {
     const handleLoad = async () => {
       try {
         await addBaseMapLayers(map, abortController.signal, { debugGeometry: DEBUG_MAP })
+        applyMapColorScheme(map, mapColorSchemeRef.current)
         applyBaseMapMode(map, baseMapMode, extractionDebug, geometryDebug)
         removeKleropolInteractions = addKleropolInteractions(map, (city) => {
           setSelectedCity(city)
@@ -85,6 +100,13 @@ export function MapViewport() {
   }, [])
 
   useEffect(() => {
+    mapColorSchemeRef.current = mapColorScheme
+    storeMapColorScheme(mapColorScheme)
+    const map = mapRef.current
+    if (map && isReady) applyMapColorScheme(map, mapColorScheme)
+  }, [isReady, mapColorScheme])
+
+  useEffect(() => {
     const map = mapRef.current
     if (map && isReady) applyBaseMapMode(map, baseMapMode, extractionDebug, geometryDebug)
   }, [baseMapMode, extractionDebug, geometryDebug, isReady])
@@ -100,11 +122,20 @@ export function MapViewport() {
   }
 
   return (
-    <section className="map-frame" aria-label="Интерактивная карта вымышленного мира">
+    <section
+      className={`map-frame map-frame--${mapColorScheme}`}
+      aria-label="Интерактивная карта вымышленного мира"
+    >
       <div ref={containerRef} className="map-canvas" />
       <MapControls
         onZoomIn={() => changeZoom(1)}
         onZoomOut={() => changeZoom(-1)}
+      />
+      <MapThemeControl
+        scheme={mapColorScheme}
+        onToggle={() => {
+          setMapColorScheme((current) => current === 'dark' ? 'light' : 'dark')
+        }}
       />
       <BaseMapModeControl
         mode={baseMapMode}
@@ -125,13 +156,17 @@ export function MapViewport() {
       {DEBUG_MAP && (
         <GeometryDebugControl visibility={geometryDebug} onChange={setGeometryDebug} />
       )}
-      {selectedCity && (
-        <FeatureInfoPanel city={selectedCity} onClose={() => setSelectedCity(null)} />
+      {featurePanelPresence.isMounted && selectedCityRef.current && (
+        <FeatureInfoPanel
+          city={selectedCityRef.current}
+          open={Boolean(selectedCity)}
+          presenceState={featurePanelPresence.state}
+          onClose={() => setSelectedCity(null)}
+        />
       )}
       <div className={`map-status${isReady ? ' map-status--hidden' : ''}`} role="status">
         {loadError ?? 'Загрузка карты…'}
       </div>
-      <div className="map-hint">Перетащите карту · Масштабируйте колесом</div>
     </section>
   )
 }

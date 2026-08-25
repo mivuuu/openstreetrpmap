@@ -1,20 +1,35 @@
 import { KLEROPOL_PLACE_DETAILS } from '../data/kleropolPlace'
 import type { SelectedMapFeature } from '../types/mapFeatures'
+import { CloseIcon } from './UiIcons'
+import type { PresenceState } from './usePresence'
 
 type FeatureInfoPanelProps = {
   city: SelectedMapFeature
   onClose: () => void
+  open: boolean
+  presenceState: PresenceState
 }
 
 const populationFormatter = new Intl.NumberFormat('ru-RU')
 
-export function FeatureInfoPanel({ city, onClose }: FeatureInfoPanelProps) {
+export function FeatureInfoPanel({
+  city,
+  onClose,
+  open,
+  presenceState,
+}: FeatureInfoPanelProps) {
   const { properties } = city
   const details = KLEROPOL_PLACE_DETAILS
   const population = populationFormatter.format(details.population)
 
   return (
-    <aside className="feature-panel" aria-label={`Информация о городе ${properties.name}`}>
+    <aside
+      className="feature-panel"
+      aria-label={`Информация о городе ${properties.name}`}
+      aria-hidden={!open}
+      data-state={presenceState}
+      inert={!open}
+    >
       <header className="feature-panel__header">
         <div>
           <h2>{properties.name}</h2>
@@ -29,7 +44,7 @@ export function FeatureInfoPanel({ city, onClose }: FeatureInfoPanelProps) {
           onClick={onClose}
           aria-label="Закрыть информационную панель"
         >
-          ×
+          <CloseIcon className="ui-icon" />
         </button>
       </header>
 

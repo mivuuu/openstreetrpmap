@@ -1,0 +1,141 @@
+{
+  "referenceSource": "D:\\hard-disk-folder\\Programming\\openstreetmap\\public\\data\\regions\\country-006\\mainland\\regions-reference.png",
+  "imageSize": [
+    1541,
+    1080
+  ],
+  "keptTerritoryComponents": [
+    {
+      "component": 1,
+      "area": 1214,
+      "bbox": [
+        494,
+        53,
+        61,
+        36
+      ]
+    },
+    {
+      "component": 2,
+      "area": 999,
+      "bbox": [
+        306,
+        56,
+        39,
+        67
+      ]
+    },
+    {
+      "component": 3,
+      "area": 686138,
+      "bbox": [
+        195,
+        91,
+        1219,
+        816
+      ]
+    },
+    {
+      "component": 4,
+      "area": 135,
+      "bbox": [
+        939,
+        119,
+        13,
+        19
+      ]
+    },
+    {
+      "component": 5,
+      "area": 332,
+      "bbox": [
+        551,
+        147,
+        20,
+        30
+      ]
+    },
+    {
+      "component": 6,
+      "area": 94,
+      "bbox": [
+        866,
+        171,
+        15,
+        17
+      ]
+    },
+    {
+      "component": 7,
+      "area": 175,
+      "bbox": [
+        1116,
+        225,
+        17,
+        22
+      ]
+    },
+    {
+      "component": 8,
+      "area": 1937,
+      "bbox": [
+        56,
+        546,
+        75,
+        57
+      ]
+    },
+    {
+      "component": 9,
+      "area": 243,
+      "bbox": [
+        200,
+        555,
+        23,
+        20
+      ]
+    },
+    {
+      "component": 10,
+      "area": 88,
+      "bbox": [
+        399,
+        693,
+        14,
+        10
+      ]
+    },
+    {
+      "component": 12,
+      "area": 270,
+      "bbox": [
+        355,
+        710,
+        31,
+        16
+      ]
+    },
+    {
+      "component": 13,
+      "area": 842,
+      "bbox": [
+        270,
+        712,
+        36,
+        41
+      ]
+    },
+    {
+      "component": 26,
+      "area": 8257,
+      "bbox": [
+        253,
+        879,
+        207,
+        104
+      ]
+    }
+  ],
+  "territoryPixels": 700724,
+  "internalBoundaryPixels": 32381
+}

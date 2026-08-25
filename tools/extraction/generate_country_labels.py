@@ -57,11 +57,14 @@ def main() -> None:
             feature["properties"]["productionLabel"] = metadata.get("productionLabel", True)
         write_json(path, collection)
 
-    state_area = {
+    country_area = {
         country_id: shape(feature["geometry"]).area
         for country_id, feature in country_by_id.items()
     }
-    state_area["country-012"] += state_area["country-001"]
+    state_area: dict[str, float] = {}
+    for country_id, metadata in names.items():
+        state_group_id = metadata.get("stateGroupId", country_id)
+        state_area[state_group_id] = state_area.get(state_group_id, 0.0) + country_area[country_id]
 
     labels = []
     report_rows = []
@@ -71,53 +74,89 @@ def main() -> None:
         geometry = shape(country_by_id[country_id]["geometry"])
         components = list(geometry.geoms) if isinstance(geometry, MultiPolygon) else [geometry]
         override = overrides.get(country_id)
-        if override is not None:
+        placements = []
+        if override is not None and "componentAnchors" in override:
+            selected_components = []
+            for coordinates in override["componentAnchors"]:
+                anchor = Point(float(coordinates[0]), float(coordinates[1]))
+                matches = [component for component in components if component.covers(anchor)]
+                if len(matches) != 1:
+                    raise RuntimeError(
+                        f"Component anchor for {country_id} must be inside exactly one component"
+                    )
+                selected_component = matches[0]
+                if any(selected_component.equals(existing) for existing in selected_components):
+                    raise RuntimeError(f"Duplicate component anchor for {country_id}")
+                selected_components.append(selected_component)
+                placements.append((
+                    polylabel(selected_component, tolerance=0.05),
+                    selected_component,
+                    "component-anchor-polylabel",
+                ))
+        elif override is not None:
             point = Point(float(override["labelX"]), float(override["labelY"]))
             matches = [component for component in components if component.covers(point)]
             if len(matches) != 1:
                 raise RuntimeError(f"Production override for {country_id} must be inside exactly one component")
             selected_component = matches[0]
-            placement_method = "manual-override"
+            placements.append((point, selected_component, "manual-override"))
         else:
             selected_component = max(components, key=lambda component: component.area)
             point = polylabel(selected_component, tolerance=0.05)
-            placement_method = "largest-component-polylabel"
-        clearance = point.distance(selected_component.boundary)
-        if clearance <= 0:
-            raise RuntimeError(f"Production label point for {country_id} is not safely inside its component")
+            placements.append((point, selected_component, "largest-component-polylabel"))
         state_name = metadata.get("stateName", metadata["name"])
-        properties = {
-            "id": f"{country_id}-production-label",
-            "countryId": country_id,
-            "name": state_name,
-            "type": "country-label",
-            "stateGroupId": metadata.get("stateGroupId", country_id),
-            "labelRank": label_rank(state_area[country_id]),
-            "areaWorld": state_area[country_id],
-            "placementMethod": placement_method,
-            "boundaryClearanceWorld": clearance,
-        }
-        labels.append({
-            "type": "Feature",
-            "id": properties["id"],
-            "properties": properties,
-            "geometry": mapping(point),
-        })
-        report_rows.append({
-            "countryId": country_id,
-            "name": state_name,
-            "componentCount": len(components),
-            "placementMethod": placement_method,
-            "labelPointWorld": [point.x, point.y],
-            "boundaryClearanceWorld": clearance,
-            "manualOverrideReason": override.get("reason") if override else None,
-        })
+        for placement_index, (point, selected_component, placement_method) in enumerate(
+            placements,
+            start=1,
+        ):
+            clearance = point.distance(selected_component.boundary)
+            if clearance <= 0:
+                raise RuntimeError(
+                    f"Production label point for {country_id} is not safely inside its component"
+                )
+            label_id = f"{country_id}-production-label"
+            if len(placements) > 1:
+                label_id += f"-{placement_index}"
+            properties = {
+                "id": label_id,
+                "countryId": country_id,
+                "name": state_name,
+                "type": "country-label",
+                "stateGroupId": metadata.get("stateGroupId", country_id),
+                "labelRank": label_rank(state_area[metadata.get("stateGroupId", country_id)]),
+                "areaWorld": state_area[metadata.get("stateGroupId", country_id)],
+                "placementMethod": placement_method,
+                "boundaryClearanceWorld": clearance,
+            }
+            labels.append({
+                "type": "Feature",
+                "id": properties["id"],
+                "properties": properties,
+                "geometry": mapping(point),
+            })
+            report_rows.append({
+                "countryId": country_id,
+                "name": state_name,
+                "labelIndex": placement_index,
+                "componentCount": len(components),
+                "placementMethod": placement_method,
+                "labelPointWorld": [point.x, point.y],
+                "boundaryClearanceWorld": clearance,
+                "manualOverrideReason": override.get("reason") if override else None,
+            })
 
-    if len(labels) != 22:
-        raise RuntimeError(f"Expected 22 political-entity labels, generated {len(labels)}")
+    expected_label_count = sum(
+        len(overrides.get(country_id, {}).get("componentAnchors", [None]))
+        for country_id, metadata in names.items()
+        if metadata.get("productionLabel", True)
+    )
+    if len(labels) != expected_label_count:
+        raise RuntimeError(
+            f"Expected {expected_label_count} political-entity labels, generated {len(labels)}"
+        )
     write_json(OUTPUT_PATH, {"type": "FeatureCollection", "features": labels})
     write_json(REPORT_PATH, {"productionLabelCount": len(labels), "labels": report_rows})
-    print("Named 23 country features and generated 22 production state labels")
+    print(f"Named {len(country_by_id)} country features and generated {len(labels)} production state labels")
 
 
 if __name__ == "__main__":

@@ -2,11 +2,9 @@ import type { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson'
 import { MAP_THEME } from './mapTheme'
 
 // Deterministic greedy coloring of the current country adjacency graph.
-// Eight palette slots cover all 40 neighboring pairs with zero color conflicts.
+// Eight palette slots cover the current adjacency graph with zero color conflicts.
 const COUNTRY_COLOR_INDEX: Readonly<Record<string, number>> = {
-  'country-001': 0,
   'country-002': 5,
-  'country-003': 2,
   'country-004': 7,
   'country-005': 4,
   'country-006': 1,
@@ -27,6 +25,8 @@ const COUNTRY_COLOR_INDEX: Readonly<Record<string, number>> = {
   'country-021': 4,
   'country-022': 1,
   'country-023': 6,
+  'country-024': 2,
+  'country-025': 0,
 }
 
 function fallbackColorIndex(id: string) {

@@ -12,8 +12,19 @@ python tools/extraction/extract_map.py
 python tools/extraction/extract_land.py
 ```
 
-Before regenerating political vectors, missing ownership can be filled from the
-two independent masks:
+The normal political rebuild now performs the safe fill automatically, then
+extracts vectors and regenerates production/debug labels:
+
+```powershell
+pnpm extract:vectors
+```
+
+The source `countries-mask.png` is never overwritten. The derived
+`countries-mask-filled.png` is constrained to binary land and is the input for
+the generated political vectors. Intentional gray unclaimed land is immutable.
+The default safe distance is configured by `countryFill.maxFillDistancePx`.
+
+The fill stage can also be inspected or run separately:
 
 ```powershell
 python tools/extraction/fill_countries_mask.py --mode analyze
@@ -42,8 +53,9 @@ The pipeline is `label raster → exact pixel interfaces → shared arcs → sna
 → shared simplification → polygonize → validation`. A shared political edge is
 constructed and simplified once, then reused by both adjacent country fills.
 Thresholds and the small `snapTolerancePx`/`simplificationTolerance` values are
-kept in `extraction.config.json`. Countries remain unnamed and receive
-deterministic IDs ordered by RGB.
+kept in `extraction.config.json`. Country IDs come from the stable
+`countries.idByRgb` mapping and therefore do not change when RGB sort order
+changes or a new country color is added.
 
 Generated datasets:
 

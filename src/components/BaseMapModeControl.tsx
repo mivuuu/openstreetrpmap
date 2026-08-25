@@ -4,6 +4,8 @@ import {
   BASE_MAP_MODES,
   type BaseMapMode,
 } from '../map/baseMapMode'
+import { LayersIcon } from './UiIcons'
+import { usePresence } from './usePresence'
 
 type BaseMapModeControlProps = {
   mode: BaseMapMode
@@ -32,6 +34,7 @@ export function BaseMapModeControl({
   const controlRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuId = useId()
+  const menuPresence = usePresence(isOpen, 180)
   const visibleModes = development
     ? BASE_MAP_MODES
     : BASE_MAP_MODES.filter((option) => option !== 'land' && option !== 'landOverlay')
@@ -66,17 +69,25 @@ export function BaseMapModeControl({
         aria-controls={menuId}
         onClick={() => setIsOpen((open) => !open)}
       >
-        <span className="layers-control__icon" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </span>
+        <LayersIcon className="ui-icon" />
         <span>Слои</span>
       </button>
 
-      {isOpen && (
-        <aside id={menuId} className="layers-menu" aria-label="Слои карты">
-          <h2>Слои</h2>
+      {menuPresence.isMounted && (
+        <aside
+          id={menuId}
+          className="layers-menu"
+          aria-label="Слои карты"
+          aria-hidden={!isOpen}
+          data-state={menuPresence.state}
+          inert={!isOpen}
+        >
+          <header className="layers-menu__header">
+            <span className="ui-eyebrow">Отображение</span>
+            <h2>Слои карты</h2>
+            <p>Выберите основу и служебные обозначения.</p>
+          </header>
+          <span className="layers-menu__section-title">Вид карты</span>
           <div className="layers-menu__options">
             {visibleModes.map((option) => (
               <label key={option}>
@@ -92,7 +103,7 @@ export function BaseMapModeControl({
             ))}
           </div>
           <div className="layers-menu__technical">
-            <span className="layers-menu__section-title">Технический слой</span>
+            <span className="layers-menu__section-title">Служебные данные</span>
             <label>
               <input
                 type="checkbox"

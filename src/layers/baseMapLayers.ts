@@ -13,6 +13,7 @@ import {
   addLandDebugLayer,
   addLandLayer,
   addUnclaimedLandLayer,
+  addUnassignedLandLayer,
   addUnassignedLandDebugLayer,
 } from './landLayer'
 import { addOriginalReferenceLayer } from './originalReferenceLayer'
@@ -58,9 +59,7 @@ export async function addBaseMapLayers(
     options.debugGeometry
       ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/country-vertices.geojson`, signal)
       : Promise.resolve(undefined),
-    options.debugGeometry
-      ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/unassigned-land.geojson`, signal)
-      : Promise.resolve(undefined),
+    loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/unassigned-land.geojson`, signal),
     options.debugGeometry
       ? loadWorldFeatureCollection(`${import.meta.env.BASE_URL}data/countries-original-display.geojson`, signal)
       : Promise.resolve(undefined),
@@ -83,6 +82,7 @@ export async function addBaseMapLayers(
   addLandLayer(map, land)
   addOriginalReferenceLayer(map)
   addTerrainLayer(map)
+  addUnassignedLandLayer(map, unassignedLand)
   addUnclaimedLandLayer(map, unclaimed)
   addCountriesFillLayer(map, countries)
   addRegionAreaLayers(map, regions, regionBorders)
