@@ -2,37 +2,13 @@
   "countryCount": 23,
   "countries": [
     {
-      "countryId": "country-001",
-      "componentCount": 24,
-      "largestComponentAreaShare": 0.29836062542186387,
-      "selectionMethod": "largest-component-polylabel",
-      "labelPointWorld": [
-        184.5,
-        390.5
-      ],
-      "pointInsideSelectedComponent": true,
-      "questionableAutomaticSelection": true
-    },
-    {
       "countryId": "country-002",
       "componentCount": 3,
-      "largestComponentAreaShare": 0.9481353420597678,
+      "largestComponentAreaShare": 0.948415622697126,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        1007.0,
+        1006.5,
         457.5
-      ],
-      "pointInsideSelectedComponent": true,
-      "questionableAutomaticSelection": false
-    },
-    {
-      "countryId": "country-003",
-      "componentCount": 8,
-      "largestComponentAreaShare": 0.8797823218997362,
-      "selectionMethod": "largest-component-polylabel",
-      "labelPointWorld": [
-        305.5,
-        506.5
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
@@ -40,11 +16,11 @@
     {
       "countryId": "country-004",
       "componentCount": 3,
-      "largestComponentAreaShare": 0.9742458174153603,
+      "largestComponentAreaShare": 0.9737724711564261,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        378.75,
-        683.5
+        377.25,
+        684.0
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
@@ -52,7 +28,7 @@
     {
       "countryId": "country-005",
       "componentCount": 2,
-      "largestComponentAreaShare": 0.9535433070866142,
+      "largestComponentAreaShare": 0.9531746031746032,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
         328.5,
@@ -63,12 +39,12 @@
     },
     {
       "countryId": "country-006",
-      "componentCount": 9,
-      "largestComponentAreaShare": 0.968552036199095,
+      "componentCount": 10,
+      "largestComponentAreaShare": 0.9713669025436463,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        410.5,
-        558.5
+        410.25,
+        558.25
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
@@ -76,19 +52,19 @@
     {
       "countryId": "country-007",
       "componentCount": 2,
-      "largestComponentAreaShare": 0.9999079274468281,
+      "largestComponentAreaShare": 0.999906568251892,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        919.25,
-        492.0
+        916.75,
+        493.25
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
     },
     {
       "countryId": "country-008",
-      "componentCount": 53,
-      "largestComponentAreaShare": 0.29724222950220874,
+      "componentCount": 232,
+      "largestComponentAreaShare": 0.2949613102623683,
       "selectionMethod": "manual-override",
       "labelPointWorld": [
         546.0,
@@ -100,11 +76,11 @@
     {
       "countryId": "country-009",
       "componentCount": 3,
-      "largestComponentAreaShare": 0.9977515652564946,
+      "largestComponentAreaShare": 0.9977616309101554,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        928.0,
-        358.5
+        928.5,
+        359.75
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
@@ -112,11 +88,11 @@
     {
       "countryId": "country-010",
       "componentCount": 4,
-      "largestComponentAreaShare": 0.9842150910667823,
+      "largestComponentAreaShare": 0.9844302498003878,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        799.5,
-        434.5
+        801.75,
+        433.5
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
@@ -127,40 +103,52 @@
       "largestComponentAreaShare": 1.0,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        619.75,
-        618.25
+        619.5,
+        618.75
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
     },
     {
-      "countryId": "country-012",
-      "componentCount": 7,
-      "largestComponentAreaShare": 0.9420520395409613,
+      "countryId": "country-024",
+      "componentCount": 5,
+      "largestComponentAreaShare": 0.7106040268456376,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        690.0,
-        433.75
+        314.25,
+        547.75
       ],
       "pointInsideSelectedComponent": true,
-      "questionableAutomaticSelection": false
+      "questionableAutomaticSelection": true
+    },
+    {
+      "countryId": "country-012",
+      "componentCount": 32,
+      "largestComponentAreaShare": 0.2557197765186036,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        184.5,
+        390.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": true
     },
     {
       "countryId": "country-013",
       "componentCount": 2,
-      "largestComponentAreaShare": 0.9947560273709791,
+      "largestComponentAreaShare": 0.994598511297016,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        502.0,
-        665.75
+        501.25,
+        664.75
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
     },
     {
       "countryId": "country-014",
-      "componentCount": 2,
-      "largestComponentAreaShare": 0.9990111597683289,
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.997893850042123,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
         720.75,
@@ -171,12 +159,24 @@
     },
     {
       "countryId": "country-015",
-      "componentCount": 8,
-      "largestComponentAreaShare": 0.9312249443207127,
+      "componentCount": 7,
+      "largestComponentAreaShare": 0.9404497378010843,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
         835.0,
         770.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-025",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9794808405438813,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        311.5,
+        497.0
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
@@ -196,7 +196,7 @@
     {
       "countryId": "country-017",
       "componentCount": 5,
-      "largestComponentAreaShare": 0.9753873339433908,
+      "largestComponentAreaShare": 0.9754500818330606,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
         568.0,
@@ -208,7 +208,7 @@
     {
       "countryId": "country-018",
       "componentCount": 2,
-      "largestComponentAreaShare": 0.9686558167570826,
+      "largestComponentAreaShare": 0.9685325264750378,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
         993.5,
@@ -219,20 +219,20 @@
     },
     {
       "countryId": "country-019",
-      "componentCount": 39,
-      "largestComponentAreaShare": 0.7200321223526027,
+      "componentCount": 347,
+      "largestComponentAreaShare": 0.7147517259851207,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        1194.75,
-        549.0
+        1194.5,
+        548.75
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": true
     },
     {
       "countryId": "country-020",
-      "componentCount": 1,
-      "largestComponentAreaShare": 1.0,
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9848484848484849,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
         671.0,
@@ -243,12 +243,12 @@
     },
     {
       "countryId": "country-021",
-      "componentCount": 3,
-      "largestComponentAreaShare": 0.9872846818453513,
+      "componentCount": 4,
+      "largestComponentAreaShare": 0.9869870978459494,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        749.0,
-        611.75
+        741.25,
+        618.75
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
@@ -256,19 +256,19 @@
     {
       "countryId": "country-022",
       "componentCount": 9,
-      "largestComponentAreaShare": 0.9750660501981506,
+      "largestComponentAreaShare": 0.9752958499209249,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
-        1426.25,
-        622.5
+        1426.0,
+        621.5
       ],
       "pointInsideSelectedComponent": true,
       "questionableAutomaticSelection": false
     },
     {
       "countryId": "country-023",
-      "componentCount": 7,
-      "largestComponentAreaShare": 0.9383947658223748,
+      "componentCount": 6,
+      "largestComponentAreaShare": 0.9651757825480162,
       "selectionMethod": "largest-component-polylabel",
       "labelPointWorld": [
         1157.75,

@@ -1,0 +1,118 @@
+{
+  "datasetId": "country-006/mainland",
+  "parentCountryId": "country-006",
+  "targetComponentId": "mainland",
+  "clipToTargetTerritory": true,
+  "referenceSource": "regions-reference.png",
+  "source": "regions-linework.png",
+  "capitalRegionNumber": 17,
+  "preparation": {
+    "countryFillRgb": [48, 63, 60],
+    "capturedRegionFillRgb": [26, 75, 105],
+    "fillColorTolerance": 22,
+    "capturedColorTolerance": 24,
+    "capturedBoundaryExclusionTolerance": 28,
+    "territoryCloseKernel": 5,
+    "minimumTerritoryComponentArea": 35,
+    "boundaryGreenMinusRed": 18,
+    "boundaryBlueMinusRed": 15,
+    "boundaryMinimumGreen": 78,
+    "boundaryBlueGreenTolerance": 25,
+    "boundaryMaximumRed": 110,
+    "boundaryDilationKernel": 3,
+    "outerBoundaryThickness": 1
+  },
+  "targetTerritory": {
+    "transformComponentAnchorWorld": [420, 550],
+    "expectedTransformComponentBoundsWorld": [321, 489, 514, 621],
+    "associatedComponentAnchorsWorld": [
+      [372.5, 487.5],
+      [341, 491],
+      [336.5, 504.5],
+      [336, 592]
+    ],
+    "boundsToleranceWorld": 0.01
+  },
+  "alignment": {
+    "localLandBoundsPx": [195, 91, 1414, 907],
+    "minimumRegionalAreaInsideTerritory": 0.9,
+    "minimumContourIoU": 0.75,
+    "maximumOverseasIntersectionArea": 0.000001,
+    "maximumWrongCountryIntersectionArea": 0.000001
+  },
+  "debug": { "enabled": true },
+  "printDetectedFaces": false,
+  "linework": {
+    "darknessThreshold": 48,
+    "closeKernel": 3,
+    "minimumFaceArea": 1
+  },
+  "extraction": {
+    "simplificationTolerancePx": 0.45,
+    "snapTolerancePx": 0.05,
+    "minimumWorldPolygonArea": 0.2
+  },
+  "requiredBorderPairs": [
+    [1, 2],
+    [3, 4],
+    [7, 8],
+    [6, 16],
+    [9, 10]
+  ],
+  "manualBorderClosures": [
+    [1, 2]
+  ],
+  "coastBorderExtensions": [
+    [1, 2],
+    [3, 4],
+    [7, 8],
+    [6, 16],
+    [9, 10]
+  ],
+  "maximumCoastBorderExtensionWorld": 8,
+  "regionNames": {
+    "1": "Остерская область",
+    "2": "Северская область",
+    "3": "Арланская область",
+    "4": "Республика Дравия",
+    "5": "Республика Ялания",
+    "6": "Юголанская Республика",
+    "7": "Республика Изматия",
+    "8": "Рычевская область",
+    "9": "Милская область",
+    "10": "Республика Алавэй",
+    "11": "Межовская область",
+    "12": "Кровятская Республика",
+    "13": "Христианская область",
+    "14": "Сапахский край",
+    "15": "Республика Алтария",
+    "16": "Изматия",
+    "17": "Алавэй"
+  },
+  "regionSeeds": {
+    "1": [[450, 200], [525, 72], [324, 100]],
+    "2": [[670, 190], [559, 160], [727, 137]],
+    "3": [[910, 430], [874, 204]],
+    "4": [[1090, 320], [945, 128], [1125, 235]],
+    "5": [[1125, 550]],
+    "6": [[1300, 680]],
+    "7": [[1050, 730]],
+    "8": [[810, 675]],
+    "9": [[630, 770]],
+    "10": [[610, 550]],
+    "11": [[730, 350]],
+    "12": [[530, 350]],
+    "13": [[365, 420]],
+    "14": [[275, 335]],
+    "15": [[335, 610], [285, 730], [370, 718], [404, 697]],
+    "16": [[1246, 799]],
+    "17": [
+      [705, 465],
+      [710, 515],
+      [699, 448],
+      [718, 447],
+      [733, 473],
+      [714, 481]
+    ]
+  }
+}

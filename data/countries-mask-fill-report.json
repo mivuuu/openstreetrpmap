@@ -18,7 +18,7 @@
   },
   "sourceHashes": {
     "landMaskSha256": "685c998e6c9e7b9ab72131f1a58daf2a779642451f4bc61089ad873045738af8",
-    "countriesMaskSha256": "bbfad997886328dd4195cec570a529f55f7f77ceab54598636c4a5fcc61b5847"
+    "countriesMaskSha256": "5e92d5d8f3fc2a3b062caf73365c5431a0bee4b3f414102d24930286d23ea5d0"
   },
   "landRaster": {
     "threshold": 128,
@@ -29,80 +29,31 @@
     "binaryOceanPixelCount": 1437771
   },
   "paletteCountryCount": 23,
-  "propagationComponentCount": 190,
-  "seedlessLandComponentCount": 6,
+  "propagationComponentCount": 208,
+  "seedlessLandComponentCount": 1,
   "seedlessLandComponents": [
     {
-      "component": 1,
-      "area": 4574,
+      "component": 111,
+      "area": 45,
       "bbox": {
-        "x": 1480,
-        "y": 0,
-        "width": 138,
-        "height": 64
+        "x": 319,
+        "y": 580,
+        "width": 8,
+        "height": 9
       },
       "centroid": [
-        1550.8764757324004,
-        22.329033668561433
+        322.7111111111111,
+        584.1777777777778
       ]
-    },
+    }
+  ],
+  "manualSeedlessIslandAssignments": [
     {
-      "component": 2,
-      "area": 3278,
-      "bbox": {
-        "x": 1703,
-        "y": 0,
-        "width": 139,
-        "height": 44
-      },
-      "centroid": [
-        1765.9087858450275,
-        14.896888346552776
-      ]
-    },
-    {
-      "component": 3,
-      "area": 1700,
-      "bbox": {
-        "x": 1621,
-        "y": 24,
-        "width": 72,
-        "height": 51
-      },
-      "centroid": [
-        1658.8870588235295,
-        51.37647058823529
-      ]
-    },
-    {
-      "component": 62,
-      "area": 12,
-      "bbox": {
-        "x": 1838,
-        "y": 352,
-        "width": 4,
-        "height": 4
-      },
-      "centroid": [
-        1839.5,
-        353.5
-      ]
-    },
-    {
-      "component": 109,
-      "area": 73,
-      "bbox": {
-        "x": 1051,
-        "y": 553,
-        "width": 9,
-        "height": 17
-      },
-      "centroid": [
-        1054.5342465753424,
-        561.2602739726027
-      ]
-    },
-    {
+      "anchor": [
+        513,
+        728
+      ],
+      "countryId": "country-006",
       "component": 132,
       "area": 39,
       "bbox": {
@@ -111,129 +62,99 @@
         "width": 8,
         "height": 7
       },
-      "centroid": [
-        513.3589743589744,
-        728.1025641025641
-      ]
+      "note": "island-1"
+    },
+    {
+      "anchor": [
+        418,
+        496
+      ],
+      "countryId": "country-006",
+      "component": 100,
+      "area": 73,
+      "bbox": {
+        "x": 412,
+        "y": 492,
+        "width": 13,
+        "height": 8
+      },
+      "note": "island-2"
+    },
+    {
+      "anchor": [
+        289,
+        470
+      ],
+      "countryId": "country-025",
+      "component": 93,
+      "area": 49,
+      "bbox": {
+        "x": 285,
+        "y": 468,
+        "width": 10,
+        "height": 6
+      },
+      "note": "island-3"
+    },
+    {
+      "anchor": [
+        278,
+        464
+      ],
+      "countryId": "country-025",
+      "component": 90,
+      "area": 34,
+      "bbox": {
+        "x": 275,
+        "y": 461,
+        "width": 7,
+        "height": 7
+      },
+      "note": "island-4"
     }
   ],
   "pixels": {
-    "missingLandBeforeFill": 16706,
-    "reachableMissingLand": 7030,
-    "seedlessMissingLand": 9676,
-    "filledAutomatically": 7030,
-    "unresolvedAfterFill": 9676,
-    "existingCountryInsideLand": 616355,
-    "existingCountryOutsideLandClearedInCandidate": 12296,
-    "explicitUnclaimedInsideLand": 8168,
-    "unclaimedOutsideLand": 0
+    "missingLandBeforeFill": 1704,
+    "reachableMissingLand": 1659,
+    "seedlessMissingLand": 45,
+    "filledAutomatically": 1659,
+    "unresolvedAfterFill": 45,
+    "existingCountryInsideLand": 622907,
+    "existingCountryOutsideLandClearedInCandidate": 23795,
+    "explicitUnclaimedInsideLand": 16618,
+    "unclaimedOutsideLand": 118
   },
   "distanceDistributionPx": {
     "p50": 1,
-    "p90": 2,
-    "p95": 2,
-    "p99": 3,
-    "maximum": 7
+    "p90": 3,
+    "p95": 4,
+    "p99": 6,
+    "maximum": 9
   },
   "reachablePixelsWithinDistancePx": {
-    "4": 7017,
-    "8": 7030,
-    "16": 7030,
-    "32": 7030,
-    "42": 7030,
-    "61": 7030,
-    "79": 7030
+    "4": 1598,
+    "8": 1657,
+    "16": 1659,
+    "32": 1659,
+    "42": 1659,
+    "61": 1659,
+    "79": 1659
   },
-  "safeMaxFillDistancePx": 42,
-  "maximumAppliedFillDistancePx": 7,
-  "unresolvedRegionCount": 6,
+  "safeMaxFillDistancePx": 12,
+  "maximumAppliedFillDistancePx": 9,
+  "unresolvedRegionCount": 1,
   "unresolvedRegions": [
     {
-      "area": 4574,
+      "area": 45,
       "bbox": {
-        "x": 1480,
-        "y": 0,
-        "width": 138,
-        "height": 64
-      },
-      "centroid": [
-        1550.8764757324004,
-        22.329033668561433
-      ],
-      "cause": "seedless-land-component",
-      "maximumReachableDistancePx": null
-    },
-    {
-      "area": 3278,
-      "bbox": {
-        "x": 1703,
-        "y": 0,
-        "width": 139,
-        "height": 44
-      },
-      "centroid": [
-        1765.9087858450275,
-        14.896888346552776
-      ],
-      "cause": "seedless-land-component",
-      "maximumReachableDistancePx": null
-    },
-    {
-      "area": 1700,
-      "bbox": {
-        "x": 1621,
-        "y": 24,
-        "width": 72,
-        "height": 51
-      },
-      "centroid": [
-        1658.8870588235295,
-        51.37647058823529
-      ],
-      "cause": "seedless-land-component",
-      "maximumReachableDistancePx": null
-    },
-    {
-      "area": 73,
-      "bbox": {
-        "x": 1051,
-        "y": 553,
-        "width": 9,
-        "height": 17
-      },
-      "centroid": [
-        1054.5342465753424,
-        561.2602739726027
-      ],
-      "cause": "seedless-land-component",
-      "maximumReachableDistancePx": null
-    },
-    {
-      "area": 39,
-      "bbox": {
-        "x": 510,
-        "y": 725,
+        "x": 319,
+        "y": 580,
         "width": 8,
-        "height": 7
+        "height": 9
       },
       "centroid": [
-        513.3589743589744,
-        728.1025641025641
-      ],
-      "cause": "seedless-land-component",
-      "maximumReachableDistancePx": null
-    },
-    {
-      "area": 12,
-      "bbox": {
-        "x": 1838,
-        "y": 352,
-        "width": 4,
-        "height": 4
-      },
-      "centroid": [
-        1839.5,
-        353.5
+        322.7111111111111,
+        584.1777777777778
       ],
       "cause": "seedless-land-component",
       "maximumReachableDistancePx": null
@@ -245,20 +166,20 @@
       740
     ],
     "radius": 140,
-    "missingBefore": 661,
-    "filled": 661,
+    "missingBefore": 118,
+    "filled": 118,
     "unresolved": 0,
-    "maximumReachableMissingDistance": 4
+    "maximumReachableMissingDistance": 9
   },
   "validation": {
     "existingCountryPixelsChangedInsideLand": 0,
     "candidateCountryPixelsInOcean": 0,
     "candidateUnclaimedPixelsInOcean": 0,
-    "sourceUnclaimedPixelsOutsideLand": 0,
+    "sourceUnclaimedPixelsOutsideLand": 118,
     "unclaimedPixelsChangedInsideLand": 0,
-    "candidateAssignedLandPixels": 623385,
-    "candidateUnclaimedLandPixels": 8168,
-    "explicitUnresolvedLandPixels": 9676,
+    "candidateAssignedLandPixels": 624566,
+    "candidateUnclaimedLandPixels": 16618,
+    "explicitUnresolvedLandPixels": 45,
     "landCoverageBalanced": true
   }
 }
