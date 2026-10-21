@@ -44,7 +44,7 @@ export function StudioToolbar({
         <span className="studio-toolbar__logo">🗺️</span>
         <div className="studio-toolbar__title-group">
           <strong>Студия карты</strong>
-          <span className="studio-toolbar__badge">v1.2</span>
+          <span className="studio-toolbar__badge">v1.3</span>
         </div>
       </div>
 
