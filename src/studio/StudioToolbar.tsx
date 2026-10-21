@@ -17,6 +17,10 @@ type Props = {
   onSave: () => void
   onPublishClick: () => void
   onExit: () => void
+  canUndo: boolean
+  canRedo: boolean
+  onUndo: () => void
+  onRedo: () => void
 }
 
 export function StudioToolbar({
@@ -35,6 +39,10 @@ export function StudioToolbar({
   onSave,
   onPublishClick,
   onExit,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
 }: Props) {
   const currentCountryRegions = regions.filter((r) => r.properties?.countryId === fillCountryId)
 
@@ -137,6 +145,32 @@ export function StudioToolbar({
             <span>Удалить регион</span>
           </button>
         )}
+      </div>
+
+      <div className="studio-toolbar__separator" />
+
+      {/* Undo / Redo */}
+      <div className="studio-toolbar__history">
+        <button
+          type="button"
+          className="studio-tool-btn"
+          onClick={onUndo}
+          disabled={!canUndo}
+          title="Отменить шаг назад (Ctrl+Z)"
+        >
+          <span className="studio-tool-icon">↩️</span>
+          <span>Назад</span>
+        </button>
+        <button
+          type="button"
+          className="studio-tool-btn"
+          onClick={onRedo}
+          disabled={!canRedo}
+          title="Вернуть отменённый шаг вперёд (Ctrl+Y или Ctrl+Shift+Z)"
+        >
+          <span className="studio-tool-icon">↪️</span>
+          <span>Вперёд</span>
+        </button>
       </div>
 
       {/* Island Fill Country/Region Selector */}

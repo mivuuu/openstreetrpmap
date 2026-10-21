@@ -33,6 +33,8 @@ export function StudioManager({ map, onExit }: Props) {
   const [isSaving, setIsSaving] = useState<boolean>(false)
   const [isPublishOpen, setIsPublishOpen] = useState<boolean>(false)
   const [toasts, setToasts] = useState<StudioToast[]>([])
+  const [history, setHistory] = useState<GeoJsonDataState[]>([])
+  const [future, setFuture] = useState<GeoJsonDataState[]>([])
 
   const dataRef = useRef<GeoJsonDataState | null>(null)
   dataRef.current = data
@@ -173,6 +175,11 @@ export function StudioManager({ map, onExit }: Props) {
           countryNames,
         }
 
+        // Record undo history (preserve up to 30 past steps)
+        setHistory((h) => [...h.slice(-29), prev])
+        // Clear redo stack on new operation
+        setFuture([])
+
         syncMapSources(nextState)
         setUnsavedCount((c) => c + 1)
         return nextState
@@ -180,6 +187,44 @@ export function StudioManager({ map, onExit }: Props) {
     },
     [syncMapSources],
   )
+
+  // Undo: Step back 1 action
+  const handleUndo = useCallback(() => {
+    setHistory((prevHistory) => {
+      if (prevHistory.length === 0) return prevHistory
+      const lastState = prevHistory[prevHistory.length - 1]
+      const newHistory = prevHistory.slice(0, -1)
+      const currentData = dataRef.current
+
+      if (currentData) {
+        setFuture((prevFuture) => [...prevFuture.slice(-29), currentData])
+      }
+
+      setData(lastState)
+      syncMapSources(lastState)
+      addToast('↩️ Отмена действия (шаг назад)', 'info')
+      return newHistory
+    })
+  }, [syncMapSources])
+
+  // Redo: Step forward 1 action
+  const handleRedo = useCallback(() => {
+    setFuture((prevFuture) => {
+      if (prevFuture.length === 0) return prevFuture
+      const nextState = prevFuture[prevFuture.length - 1]
+      const newFuture = prevFuture.slice(0, -1)
+      const currentData = dataRef.current
+
+      if (currentData) {
+        setHistory((prevHistory) => [...prevHistory.slice(-29), currentData])
+      }
+
+      setData(nextState)
+      syncMapSources(nextState)
+      addToast('↪️ Повтор действия (шаг вперёд)', 'info')
+      return newFuture
+    })
+  }, [syncMapSources])
 
   // Zoom map to feature bbox
   const zoomToFeature = useCallback(
@@ -735,10 +780,29 @@ export function StudioManager({ map, onExit }: Props) {
     [],
   )
 
-  // Hotkeys (Ctrl+S / Cmd+S to save)
+  // Hotkeys (Ctrl+S to save, Ctrl+Z to undo, Ctrl+Y / Ctrl+Shift+Z to redo, Esc to select)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      const target = e.target as HTMLElement | null
+      const isInput =
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (!isInput) {
+          e.preventDefault()
+          if (e.shiftKey) {
+            handleRedo()
+          } else {
+            handleUndo()
+          }
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        if (!isInput) {
+          e.preventDefault()
+          handleRedo()
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault()
         handleSave()
       } else if (e.key === 'Escape') {
@@ -748,7 +812,7 @@ export function StudioManager({ map, onExit }: Props) {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handleSave])
+  }, [handleSave, handleUndo, handleRedo])
 
   return (
     <div className="studio-root">
@@ -776,6 +840,10 @@ export function StudioManager({ map, onExit }: Props) {
           onSave={handleSave}
           onPublishClick={() => setIsPublishOpen(true)}
           onExit={onExit}
+          canUndo={history.length > 0}
+          canRedo={future.length > 0}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
         />
       )}
 

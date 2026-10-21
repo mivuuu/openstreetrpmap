@@ -1085,6 +1085,18 @@ button {
   font-weight: 600;
 }
 
+.studio-tool-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+}
+
+.studio-toolbar__history {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .studio-tool-icon {
   font-size: 14px;
 }
