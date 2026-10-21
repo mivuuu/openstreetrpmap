@@ -17,6 +17,7 @@ type Props = {
   onRedrawBorderLine: (points: [number, number][]) => void
   onBucketClick: (worldPt: [number, number]) => void
   onMoveLabel: (labelId: string, newWorldPt: [number, number], type: 'country' | 'region') => void
+  mapOverlay?: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null
 }
 
 export function StudioDrawingCanvas({
@@ -31,11 +32,25 @@ export function StudioDrawingCanvas({
   onRedrawBorderLine,
   onBucketClick,
   onMoveLabel,
+  mapOverlay,
 }: Props) {
   const [isDrawing, setIsDrawing] = useState(false)
   const [screenStroke, setScreenStroke] = useState<[number, number][]>([])
   const worldPointsRef = useRef<[number, number][]>([])
   const containerRef = useRef<SVGSVGElement | null>(null)
+  const [, setMapVersion] = useState(0)
+
+  // Sync canvas with map camera movement
+  useEffect(() => {
+    if (!map) return
+    const update = () => setMapVersion((v) => v + 1)
+    map.on('move', update)
+    map.on('zoom', update)
+    return () => {
+      map.off('move', update)
+      map.off('zoom', update)
+    }
+  }, [map])
 
   // Label dragging state
   const [draggingLabel, setDraggingLabel] = useState<{
@@ -319,6 +334,24 @@ export function StudioDrawingCanvas({
       })
     : []
 
+  // Project reference photo overlay if present
+  const overlayPos =
+    mapOverlay && map
+      ? (() => {
+          const [x0, y0, x1, y1] = mapOverlay.bounds
+          const [lng0, lat0] = worldToMap({ x: x0, y: y0 })
+          const [lng1, lat1] = worldToMap({ x: x1, y: y1 })
+          const p0 = map.project([lng0, lat0])
+          const p1 = map.project([lng1, lat1])
+          return {
+            x: Math.min(p0.x, p1.x),
+            y: Math.min(p0.y, p1.y),
+            width: Math.abs(p1.x - p0.x),
+            height: Math.abs(p1.y - p0.y),
+          }
+        })()
+      : null
+
   return (
     <svg
       ref={containerRef}
@@ -356,6 +389,19 @@ export function StudioDrawingCanvas({
           </feMerge>
         </filter>
       </defs>
+
+      {/* Render persistent reference photo overlay on the map */}
+      {overlayPos && mapOverlay && (
+        <image
+          href={mapOverlay.imageUrl}
+          x={overlayPos.x}
+          y={overlayPos.y}
+          width={overlayPos.width}
+          height={overlayPos.height}
+          opacity={mapOverlay.opacity}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
 
       {/* Lasso closed loop preview and closing dashed chord */}
       {screenStroke.length >= 2 && activeTool === 'redraw-border' && (

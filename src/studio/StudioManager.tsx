@@ -13,6 +13,7 @@ import {
 } from './geometryOperations'
 import { StudioDrawingCanvas } from './StudioDrawingCanvas'
 import { StudioPublishModal } from './StudioPublishModal'
+import { StudioRegionPhotoModal } from './StudioRegionPhotoModal'
 import { StudioSidebar } from './StudioSidebar'
 import { StudioToolbar } from './StudioToolbar'
 import type { GeoJsonDataState, StudioMode, StudioToast, StudioTool } from './types'
@@ -33,6 +34,12 @@ export function StudioManager({ map, onExit }: Props) {
   const [unsavedCount, setUnsavedCount] = useState<number>(0)
   const [isSaving, setIsSaving] = useState<boolean>(false)
   const [isPublishOpen, setIsPublishOpen] = useState<boolean>(false)
+  const [isRegionPhotoModalOpen, setIsRegionPhotoModalOpen] = useState<boolean>(false)
+  const [mapOverlay, setMapOverlay] = useState<{
+    imageUrl: string
+    bounds: [number, number, number, number]
+    opacity: number
+  } | null>(null)
   const [toasts, setToasts] = useState<StudioToast[]>([])
   const [history, setHistory] = useState<GeoJsonDataState[]>([])
   const [future, setFuture] = useState<GeoJsonDataState[]>([])
@@ -825,6 +832,39 @@ export function StudioManager({ map, onExit }: Props) {
     }
   }, [])
 
+  // Apply regions extracted from photo
+  const handleApplyImportedRegions = useCallback(
+    (
+      countryId: string,
+      newRegions: Feature<Polygon | MultiPolygon>[],
+      overlay: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null,
+    ) => {
+      applyDataUpdate((prev) => {
+        const otherRegions = prev.regions.features.filter((r) => r.properties?.countryId !== countryId)
+        const mergedRegions = [...otherRegions, ...newRegions]
+        return {
+          regions: {
+            type: 'FeatureCollection',
+            features: mergedRegions,
+          },
+        }
+      })
+
+      if (overlay) {
+        setMapOverlay(overlay)
+      }
+
+      setMode('regions')
+      setSelectedCountryId(countryId)
+      setFillCountryId(countryId)
+      if (newRegions.length > 0) {
+        setSelectedRegionId(newRegions[0].properties?.id ?? null)
+      }
+      addToast(`Импортировано регионов: ${newRegions.length} для выбранного государства!`, 'success')
+    },
+    [applyDataUpdate],
+  )
+
   // Publish to GitHub
   const handlePublish = useCallback(
     async (message: string, deployGhPages: boolean) => {
@@ -914,6 +954,9 @@ export function StudioManager({ map, onExit }: Props) {
           canRedo={future.length > 0}
           onUndo={handleUndo}
           onRedo={handleRedo}
+          onOpenRegionPhotoModal={() => setIsRegionPhotoModalOpen(true)}
+          hasMapOverlay={!!mapOverlay}
+          onClearOverlay={() => setMapOverlay(null)}
         />
       )}
 
@@ -967,6 +1010,18 @@ export function StudioManager({ map, onExit }: Props) {
           onRedrawBorderLine={handleRedrawBorderLine}
           onBucketClick={handleBucketClick}
           onMoveLabel={handleMoveLabel}
+          mapOverlay={mapOverlay}
+        />
+      )}
+
+      {/* Photo import modal for automatic region tracing */}
+      {data && (
+        <StudioRegionPhotoModal
+          isOpen={isRegionPhotoModalOpen}
+          onClose={() => setIsRegionPhotoModalOpen(false)}
+          countries={data.countries.features}
+          initialCountryId={selectedCountryId || fillCountryId}
+          onApplyRegions={handleApplyImportedRegions}
         />
       )}
 

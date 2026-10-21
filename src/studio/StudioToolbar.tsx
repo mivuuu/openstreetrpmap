@@ -21,6 +21,9 @@ type Props = {
   canRedo: boolean
   onUndo: () => void
   onRedo: () => void
+  onOpenRegionPhotoModal: () => void
+  hasMapOverlay?: boolean
+  onClearOverlay?: () => void
 }
 
 export function StudioToolbar({
@@ -43,6 +46,9 @@ export function StudioToolbar({
   canRedo,
   onUndo,
   onRedo,
+  onOpenRegionPhotoModal,
+  hasMapOverlay,
+  onClearOverlay,
 }: Props) {
   const currentCountryRegions = regions.filter((r) => r.properties?.countryId === fillCountryId)
 
@@ -91,6 +97,31 @@ export function StudioToolbar({
           <span className="studio-tool-icon">👆</span>
           <span>Выбор</span>
         </button>
+
+        {mode === 'regions' && (
+          <button
+            type="button"
+            className="studio-tool-btn studio-tool-btn--accent"
+            onClick={onOpenRegionPhotoModal}
+            title="Автоматически извлечь регионы из фотографии карты"
+          >
+            <span className="studio-tool-icon">📷</span>
+            <span>Импорт по фото</span>
+          </button>
+        )}
+
+        {hasMapOverlay && onClearOverlay && (
+          <button
+            type="button"
+            className="studio-tool-btn"
+            onClick={onClearOverlay}
+            title="Убрать наложенную фотографию карты с экрана"
+            style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#fca5a5' }}
+          >
+            <span className="studio-tool-icon">🖼️✕</span>
+            <span>Скрыть фото-подложку</span>
+          </button>
+        )}
 
         {mode === 'regions' && (
           <button
