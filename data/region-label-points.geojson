@@ -1342,6 +1342,270 @@
         "styleIndex": 1,
         "areaWorld": 1522665300554
       }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-01",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          882.7589703139425,
+          474.4095405450179
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-01",
+        "number": 1,
+        "name": "Биг Йорд",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 9608581224600
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-02",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          928.6794343106001,
+          492.2294279454536
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-02",
+        "number": 2,
+        "name": "Центральный Урих",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 14659748433187
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-03",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          921.9706061554402,
+          471.35075296566015
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-03",
+        "number": 3,
+        "name": "Северный Урих",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 3,
+        "areaWorld": 4053805565395
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-04",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          959.5,
+          463.5
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-04",
+        "number": 4,
+        "name": "Юго-Западный Асмаин",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 3163849458898
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-05",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          959.5,
+          524
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-05",
+        "number": 5,
+        "name": "Белла",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 0,
+        "areaWorld": 10832229051261
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-06",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          902.2341239464246,
+          525.5628343461742
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-06",
+        "number": 6,
+        "name": "Нью Вей",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 8972045951408
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-07",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          872,
+          521.5
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-07",
+        "number": 7,
+        "name": "Нижний Норд",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 8602109061325
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-08",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          940,
+          520.5
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-08",
+        "number": 8,
+        "name": "Хавгрэнс",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 7936850891958
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-09",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          874.5,
+          503
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-09",
+        "number": 9,
+        "name": "Норд",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 6467824610068
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-10",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          923,
+          521.5
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-10",
+        "number": 10,
+        "name": "Южный Урих",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 6019302524617
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-11",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          986.0147870655477,
+          507.849576478113
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-11",
+        "number": 11,
+        "name": "Странд",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 3862510977979
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-007-region-13",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          929.5,
+          462.5
+        ]
+      },
+      "properties": {
+        "id": "country-007-region-13",
+        "number": 13,
+        "name": "Брюттен",
+        "type": "region",
+        "countryId": "country-007",
+        "isCapital": true,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 28202146176
+      }
     }
   ]
 }
