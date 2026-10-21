@@ -13,12 +13,12 @@ export function mapStudioPlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next: Connect.NextFunction) => {
         if (req.method === 'POST' && req.url === '/api/studio/save') {
-          try {
-            let body = ''
-            req.on('data', (chunk: Buffer | string) => {
-              body += chunk.toString()
-            })
-            req.on('end', () => {
+          let body = ''
+          req.on('data', (chunk: Buffer | string) => {
+            body += chunk.toString()
+          })
+          req.on('end', () => {
+            try {
               const data = JSON.parse(body)
               const rootDir = process.cwd()
               const dataDir = path.join(rootDir, 'public', 'data')
@@ -61,61 +61,73 @@ export function mapStudioPlugin(): Plugin {
                   message: 'Все файлы карты успешно сохранены локально!',
                 }),
               )
-            })
-          } catch (error: unknown) {
-            res.statusCode = 500
-            res.setHeader('Content-Type', 'application/json')
-            res.end(
-              JSON.stringify({
-                success: false,
-                error: error instanceof Error ? error.message : String(error),
-              }),
-            )
-          }
+            } catch (error: unknown) {
+              res.statusCode = 500
+              res.setHeader('Content-Type', 'application/json')
+              res.end(
+                JSON.stringify({
+                  success: false,
+                  error: error instanceof Error ? error.message : String(error),
+                }),
+              )
+            }
+          })
           return
         }
 
         if (req.method === 'POST' && req.url === '/api/studio/publish') {
-          try {
-            let body = ''
-            req.on('data', (chunk: Buffer | string) => {
-              body += chunk.toString()
-            })
-            req.on('end', async () => {
+          let body = ''
+          req.on('data', (chunk: Buffer | string) => {
+            body += chunk.toString()
+          })
+          req.on('end', async () => {
+            try {
               const { message, deployGhPages = true } = JSON.parse(body || '{}')
               const commitMsg = message?.trim() || 'Обновление карты через OpenStreetRP Studio'
 
-              const { stdout: commitOut } = await execAsync(
-                `git add public/data tools/extraction && git commit -m "${commitMsg.replace(/"/g, '\\"')}"`,
-              )
-              const { stdout: pushOut } = await execAsync('git push origin main')
+              // Stage data and check if there are actual diffs
+              await execAsync('git add public/data tools/extraction')
+              const { stdout: diffOut } = await execAsync('git status --porcelain public/data tools/extraction')
+
+              let commitOut = ''
+              let pushOut = ''
+              if (diffOut.trim().length > 0) {
+                const commitRes = await execAsync(
+                  `git commit -m "${commitMsg.replace(/"/g, '\\"')}"`,
+                )
+                commitOut = commitRes.stdout
+                const pushRes = await execAsync('git push origin main')
+                pushOut = pushRes.stdout
+              } else {
+                commitOut = 'Файлы карты уже актуальны, новых изменений для коммита не обнаружено.'
+              }
 
               let ghPagesOut = ''
               if (deployGhPages) {
                 await execAsync('pnpm build')
-                const { stdout: deployOut } = await execAsync('pnpm gh-pages -d dist')
-                ghPagesOut = deployOut
+                const deployRes = await execAsync('pnpm gh-pages -d dist')
+                ghPagesOut = deployRes.stdout
               }
 
               res.setHeader('Content-Type', 'application/json')
               res.end(
                 JSON.stringify({
                   success: true,
-                  message: 'Изменения успешно закоммичены и опубликованы на GitHub!',
+                  message: 'Изменения успешно закоммичены и опубликованы на GitHub Pages!',
                   details: { commitOut, pushOut, ghPagesOut },
                 }),
               )
-            })
-          } catch (error: unknown) {
-            res.statusCode = 500
-            res.setHeader('Content-Type', 'application/json')
-            res.end(
-              JSON.stringify({
-                success: false,
-                error: error instanceof Error ? error.message : String(error),
-              }),
-            )
-          }
+            } catch (error: unknown) {
+              res.statusCode = 500
+              res.setHeader('Content-Type', 'application/json')
+              res.end(
+                JSON.stringify({
+                  success: false,
+                  error: error instanceof Error ? error.message : String(error),
+                }),
+              )
+            }
+          })
           return
         }
 
