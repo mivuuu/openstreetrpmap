@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Feature, MultiPolygon, Polygon } from 'geojson'
 import * as turf from '@turf/turf'
 import {
+  detectBorderGridPoints,
   extractRegionsFromImage,
   type ExtractedRegion,
 } from './regionImageExtractor'
@@ -58,7 +59,14 @@ export function StudioRegionPhotoModal({
   // Recognition controls
   const [threshold, setThreshold] = useState<number>(75)
   const [excludeRivers, setExcludeRivers] = useState<boolean>(true)
-  const [minRegionArea, setMinRegionArea] = useState<number>(15)
+  const [minRegionArea, setMinRegionArea] = useState<number>(20)
+  const [showDetectedLines, setShowDetectedLines] = useState<boolean>(true)
+  const [bridgeToolActive, setBridgeToolActive] = useState<boolean>(false)
+  const [manualBridges, setManualBridges] = useState<[number, number][][]>([])
+  const [isDrawingBridge, setIsDrawingBridge] = useState<boolean>(false)
+  const [activeBridgeStroke, setActiveBridgeStroke] = useState<[number, number][]>([])
+  const [detectedPoints, setDetectedPoints] = useState<[number, number][]>([])
+  const cachedImageDataRef = useRef<ImageData | null>(null)
 
   // Overlay option
   const [keepOverlayOnMap, setKeepOverlayOnMap] = useState<boolean>(true)
@@ -88,12 +96,14 @@ export function StudioRegionPhotoModal({
 
   const loadImageFromFile = (file: File) => {
     setImageFile(file)
+    cachedImageDataRef.current = null
     const reader = new FileReader()
     reader.onload = (event) => {
       const url = event.target?.result as string
       setImageDataUrl(url)
       const img = new Image()
       img.onload = () => {
+        cachedImageDataRef.current = null
         setImageElement(img)
       }
       img.src = url
@@ -111,6 +121,98 @@ export function StudioRegionPhotoModal({
   }
 
   const currentCountry = countries.find((c) => c.properties?.id === selectedCountryId)
+
+  // Live boundary points detection
+  useEffect(() => {
+    if (!isOpen || !currentCountry || !imageElement) {
+      setDetectedPoints([])
+      return
+    }
+
+    try {
+      const { points, imageData } = detectBorderGridPoints({
+        countryFeature: currentCountry,
+        imageElement,
+        scaleX,
+        scaleY,
+        offsetX,
+        offsetY,
+        threshold,
+        excludeRivers,
+        cachedImageData: cachedImageDataRef.current,
+        manualBridges,
+      })
+
+      if (imageData && !cachedImageDataRef.current) {
+        cachedImageDataRef.current = imageData
+      }
+
+      setDetectedPoints(points)
+    } catch (err) {
+      console.warn('Border detection preview error:', err)
+    }
+  }, [
+    isOpen,
+    currentCountry,
+    imageElement,
+    scaleX,
+    scaleY,
+    offsetX,
+    offsetY,
+    threshold,
+    excludeRivers,
+    manualBridges,
+  ])
+
+  // Canvas mouse handlers for manual bridges
+  const getCanvasWorldCoords = (e: React.MouseEvent<HTMLCanvasElement>): [number, number] | null => {
+    const canvas = canvasRef.current
+    if (!canvas || !currentCountry) return null
+    const rect = canvas.getBoundingClientRect()
+    const clientX = e.clientX - rect.left
+    const clientY = e.clientY - rect.top
+
+    const [minX, minY, maxX, maxY] = turf.bbox(currentCountry)
+    const cW = Math.max(1, maxX - minX)
+    const cH = Math.max(1, maxY - minY)
+    const pad = 20
+    const scaleFactor = Math.min((canvas.width - pad * 2) / cW, (canvas.height - pad * 2) / cH)
+
+    const cssScaleX = canvas.width / rect.width
+    const cssScaleY = canvas.height / rect.height
+
+    const canvasX = clientX * cssScaleX
+    const canvasY = clientY * cssScaleY
+
+    const wx = minX + (canvasX - pad) / scaleFactor
+    const wy = minY + (canvasY - pad) / scaleFactor
+
+    return [wx, wy]
+  }
+
+  const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!bridgeToolActive) return
+    const pt = getCanvasWorldCoords(e)
+    if (!pt) return
+    setIsDrawingBridge(true)
+    setActiveBridgeStroke([pt])
+  }
+
+  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!bridgeToolActive || !isDrawingBridge) return
+    const pt = getCanvasWorldCoords(e)
+    if (!pt) return
+    setActiveBridgeStroke((prev) => [...prev, pt])
+  }
+
+  const handleCanvasMouseUp = () => {
+    if (!bridgeToolActive || !isDrawingBridge) return
+    setIsDrawingBridge(false)
+    if (activeBridgeStroke.length >= 2) {
+      setManualBridges((prev) => [...prev, activeBridgeStroke])
+    }
+    setActiveBridgeStroke([])
+  }
 
   // Render composite preview onto Canvas
   useEffect(() => {
@@ -152,6 +254,50 @@ export function StudioRegionPhotoModal({
 
       ctx.drawImage(imageElement, imgDestX, imgDestY, imgDestW, imgDestH)
       ctx.restore()
+    }
+
+    // 1.5 Draw live detected boundary lines in neon cyan
+    if (showDetectedLines && detectedPoints.length > 0) {
+      ctx.fillStyle = '#22d3ee'
+      const ptSize = Math.max(2.0, scaleFactor * 1.05)
+      for (let i = 0; i < detectedPoints.length; i++) {
+        const [wx, wy] = detectedPoints[i]
+        ctx.fillRect(toCanvasX(wx) - ptSize / 2, toCanvasY(wy) - ptSize / 2, ptSize, ptSize)
+      }
+    }
+
+    // 1.6 Draw manual user bridge strokes in rose-red
+    if (manualBridges.length > 0) {
+      ctx.strokeStyle = '#f43f5e'
+      ctx.lineWidth = 3.0
+      ctx.lineCap = 'round'
+      ctx.lineJoin = 'round'
+      for (const stroke of manualBridges) {
+        ctx.beginPath()
+        stroke.forEach(([wx, wy], idx) => {
+          const cx = toCanvasX(wx)
+          const cy = toCanvasY(wy)
+          if (idx === 0) ctx.moveTo(cx, cy)
+          else ctx.lineTo(cx, cy)
+        })
+        ctx.stroke()
+      }
+    }
+
+    // 1.7 Draw active bridge stroke being drawn in gold
+    if (activeBridgeStroke.length > 1) {
+      ctx.strokeStyle = '#fbbf24'
+      ctx.lineWidth = 3.0
+      ctx.lineCap = 'round'
+      ctx.lineJoin = 'round'
+      ctx.beginPath()
+      activeBridgeStroke.forEach(([wx, wy], idx) => {
+        const cx = toCanvasX(wx)
+        const cy = toCanvasY(wy)
+        if (idx === 0) ctx.moveTo(cx, cy)
+        else ctx.lineTo(cx, cy)
+      })
+      ctx.stroke()
     }
 
     // 2. Draw extracted regions if any
@@ -216,6 +362,10 @@ export function StudioRegionPhotoModal({
     offsetY,
     opacity,
     extractedRegions,
+    showDetectedLines,
+    detectedPoints,
+    manualBridges,
+    activeBridgeStroke,
   ])
 
   // Run automatic extraction
@@ -237,6 +387,7 @@ export function StudioRegionPhotoModal({
           threshold,
           excludeRivers,
           minRegionArea,
+          manualBridges,
         })
 
         if (result.regions.length > 0) {
@@ -604,7 +755,16 @@ export function StudioRegionPhotoModal({
                   />
                 </div>
 
-                <label className="studio-checkbox-label" style={{ marginTop: '6px' }}>
+                <label className="studio-checkbox-label" style={{ marginTop: '4px' }}>
+                  <input
+                    type="checkbox"
+                    checked={showDetectedLines}
+                    onChange={(e) => setShowDetectedLines(e.target.checked)}
+                  />
+                  <span>⚡ Подсвечивать найденные границы (неон)</span>
+                </label>
+
+                <label className="studio-checkbox-label" style={{ marginTop: '4px' }}>
                   <input
                     type="checkbox"
                     checked={excludeRivers}
@@ -613,7 +773,7 @@ export function StudioRegionPhotoModal({
                   <span>Игнорировать голубые реки</span>
                 </label>
 
-                <div className="studio-slider-row" style={{ marginTop: '8px' }}>
+                <div className="studio-slider-row" style={{ marginTop: '6px' }}>
                   <label>Мин. размер региона: {minRegionArea}px</label>
                   <input
                     type="range"
@@ -623,6 +783,29 @@ export function StudioRegionPhotoModal({
                     value={minRegionArea}
                     onChange={(e) => setMinRegionArea(parseInt(e.target.value, 10))}
                   />
+                </div>
+
+                {/* Manual bridge tool */}
+                <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                  <button
+                    type="button"
+                    className={`studio-btn-tiny ${bridgeToolActive ? 'studio-btn-tiny--accent' : ''}`}
+                    style={{ flex: 1, padding: '4px 6px' }}
+                    onClick={() => setBridgeToolActive(!bridgeToolActive)}
+                    title="Зажмите мышь на предпросмотре и проведите линию, чтобы соединить разорванную границу"
+                  >
+                    {bridgeToolActive ? '✏️ Перемычка (активна)' : '✏️ Провести перемычку'}
+                  </button>
+                  {manualBridges.length > 0 && (
+                    <button
+                      type="button"
+                      className="studio-btn-tiny"
+                      onClick={() => setManualBridges([])}
+                      title="Удалить все нарисованные вручную перемычки"
+                    >
+                      🧹 Сбросить ({manualBridges.length})
+                    </button>
+                  )}
                 </div>
 
                 <button
@@ -678,14 +861,29 @@ export function StudioRegionPhotoModal({
                   width={560}
                   height={440}
                   className="studio-photo-preview-canvas"
+                  style={{ cursor: bridgeToolActive ? 'crosshair' : 'default' }}
+                  onMouseDown={handleCanvasMouseDown}
+                  onMouseMove={handleCanvasMouseMove}
+                  onMouseUp={handleCanvasMouseUp}
+                  onMouseLeave={handleCanvasMouseUp}
                 />
                 <div className="studio-canvas-legend">
                   <span className="legend-item">
-                    <span className="legend-dot legend-dot--white" /> Белый контур — граница государства
+                    <span className="legend-dot legend-dot--white" /> Белый — граница страны
                   </span>
-                  {imageElement && (
+                  {showDetectedLines && (
                     <span className="legend-item">
-                      <span className="legend-dot legend-dot--cyan" /> Цветные области — распознанные регионы
+                      <span className="legend-dot legend-dot--cyan" /> Неон — найденные границы ({detectedPoints.length})
+                    </span>
+                  )}
+                  {manualBridges.length > 0 && (
+                    <span className="legend-item">
+                      <span className="legend-dot" style={{ background: '#f43f5e' }} /> Красный — перемычки
+                    </span>
+                  )}
+                  {extractedRegions.length > 0 && (
+                    <span className="legend-item">
+                      <span className="legend-dot" style={{ background: '#fbbf24' }} /> Цвета — регионы
                     </span>
                   )}
                 </div>

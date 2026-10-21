@@ -24,6 +24,7 @@ export type ExtractionOptions = {
   threshold: number
   excludeRivers: boolean
   minRegionArea: number
+  manualBridges?: [number, number][][]
 }
 
 /**
@@ -130,6 +131,7 @@ export function extractRegionsFromImage(options: ExtractionOptions): {
     threshold,
     excludeRivers,
     minRegionArea,
+    manualBridges,
   } = options
 
   const sX = optScaleX ?? scale ?? 1.0
@@ -162,6 +164,11 @@ export function extractRegionsFromImage(options: ExtractionOptions): {
   const grid = new Int32Array(gridW * gridH)
   grid.fill(-999)
 
+  const stepX = imgW / (cWidth * sX)
+  const stepY = imgH / (cHeight * sY)
+  const rx = Math.max(1, Math.floor(stepX * 0.55))
+  const ry = Math.max(1, Math.floor(stepY * 0.55))
+
   for (let gy = 0; gy < gridH; gy++) {
     for (let gx = 0; gx < gridW; gx++) {
       const worldX = minX + gx / resolution + 0.5
@@ -173,25 +180,96 @@ export function extractRegionsFromImage(options: ExtractionOptions): {
         const normY = (worldY - (minY + offsetY)) / (cHeight * sY)
 
         if (normX >= 0 && normX < 1 && normY >= 0 && normY < 1) {
-          const ix = Math.floor(normX * imgW)
-          const iy = Math.floor(normY * imgH)
-          const pIdx = (iy * imgW + ix) * 4
+          const cx = Math.floor(normX * imgW)
+          const cy = Math.floor(normY * imgH)
 
-          const r = pixels[pIdx]
-          const g = pixels[pIdx + 1]
-          const b = pixels[pIdx + 2]
+          let isBorder = false
+          // Area min-pooling footprint: scan the window of image pixels for any border point
+          for (let dy = -ry; dy <= ry; dy++) {
+            const py = cy + dy
+            if (py < 0 || py >= imgH) continue
+            const rowOffset = py * imgW
+            for (let dx = -rx; dx <= rx; dx++) {
+              const px = cx + dx
+              if (px < 0 || px >= imgW) continue
 
-          const gray = 0.299 * r + 0.587 * g + 0.114 * b
+              const pIdx = (rowOffset + px) * 4
+              const r = pixels[pIdx]
+              const g = pixels[pIdx + 1]
+              const b = pixels[pIdx + 2]
 
-          // River detection: cyan/teal/blue hues where blue > red + 16 and green > red + 10
-          const isRiver = excludeRivers && b > r + 16 && g > r + 10
+              const isRiver = excludeRivers && b > r + 16 && g > r + 10
+              if (isRiver) continue
 
-          // Border detection: dark lines that are not rivers
-          const isBorder = gray < threshold && !isRiver
+              const gray = 0.299 * r + 0.587 * g + 0.114 * b
+              if (gray < threshold) {
+                isBorder = true
+                break
+              }
+            }
+            if (isBorder) break
+          }
 
           grid[gy * gridW + gx] = isBorder ? -1 : 0
         } else {
           grid[gy * gridW + gx] = 0
+        }
+      }
+    }
+  }
+
+  // 1.1 Apply manual bridge strokes if provided
+  if (manualBridges && manualBridges.length > 0) {
+    for (const stroke of manualBridges) {
+      for (let i = 0; i < stroke.length - 1; i++) {
+        const [x0, y0] = stroke[i]
+        const [x1, y1] = stroke[i + 1]
+        const dist = Math.hypot(x1 - x0, y1 - y0)
+        const steps = Math.max(1, Math.ceil(dist * 2))
+        for (let s = 0; s <= steps; s++) {
+          const t = s / steps
+          const wx = x0 + (x1 - x0) * t
+          const wy = y0 + (y1 - y0) * t
+          const gx = Math.floor((wx - minX) * resolution)
+          const gy = Math.floor((wy - minY) * resolution)
+          if (gx >= 0 && gx < gridW && gy >= 0 && gy < gridH) {
+            if (grid[gy * gridW + gx] !== -999) {
+              grid[gy * gridW + gx] = -1
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 1.2 Prevent diagonal leaks (where two -1 cells touch only diagonally across 0 cells)
+  for (let gy = 0; gy < gridH - 1; gy++) {
+    for (let gx = 0; gx < gridW - 1; gx++) {
+      const idx = gy * gridW + gx
+      // Diagonal pair \
+      if (grid[idx] === -1 && grid[(gy + 1) * gridW + (gx + 1)] === -1) {
+        if (grid[gy * gridW + (gx + 1)] === 0 && grid[(gy + 1) * gridW + gx] === 0) {
+          grid[gy * gridW + (gx + 1)] = -1
+        }
+      }
+      // Diagonal pair /
+      if (grid[(gy + 1) * gridW + gx] === -1 && grid[gy * gridW + (gx + 1)] === -1) {
+        if (grid[idx] === 0 && grid[(gy + 1) * gridW + (gx + 1)] === 0) {
+          grid[idx] = -1
+        }
+      }
+    }
+  }
+
+  // 1.3 Seal 1-cell micro-gaps across lines
+  for (let gy = 1; gy < gridH - 1; gy++) {
+    for (let gx = 1; gx < gridW - 1; gx++) {
+      const idx = gy * gridW + gx
+      if (grid[idx] === 0) {
+        const horizGap = grid[idx - 1] === -1 && grid[idx + 1] === -1
+        const vertGap = grid[(gy - 1) * gridW + gx] === -1 && grid[(gy + 1) * gridW + gx] === -1
+        if (horizGap || vertGap) {
+          grid[idx] = -1
         }
       }
     }
@@ -404,4 +482,160 @@ export function extractRegionsFromImage(options: ExtractionOptions): {
     regions: extractedRegions,
     previewCanvasUrl: previewUrl,
   }
+}
+
+/**
+ * Fast detection of border pixels for real-time live preview overlay.
+ * Returns array of [worldX, worldY] points corresponding to detected barrier cells.
+ */
+export function detectBorderGridPoints(options: {
+  countryFeature: Feature<Polygon | MultiPolygon>
+  imageElement: HTMLImageElement
+  scaleX: number
+  scaleY: number
+  offsetX: number
+  offsetY: number
+  threshold: number
+  excludeRivers: boolean
+  cachedImageData?: ImageData | null
+  manualBridges?: [number, number][][]
+}): { points: [number, number][]; imageData: ImageData | null } {
+  const {
+    countryFeature,
+    imageElement,
+    scaleX,
+    scaleY,
+    offsetX,
+    offsetY,
+    threshold,
+    excludeRivers,
+    cachedImageData,
+    manualBridges,
+  } = options
+
+  const [minX, minY, maxX, maxY] = turf.bbox(countryFeature)
+  const cWidth = Math.max(1, maxX - minX)
+  const cHeight = Math.max(1, maxY - minY)
+
+  const gridW = Math.max(10, Math.ceil(cWidth))
+  const gridH = Math.max(10, Math.ceil(cHeight))
+
+  let imgData = cachedImageData
+  if (!imgData) {
+    const imgCanvas = document.createElement('canvas')
+    imgCanvas.width = imageElement.naturalWidth || imageElement.width || 800
+    imgCanvas.height = imageElement.naturalHeight || imageElement.height || 600
+    const imgCtx = imgCanvas.getContext('2d')
+    if (!imgCtx) return { points: [], imageData: null }
+    imgCtx.drawImage(imageElement, 0, 0)
+    imgData = imgCtx.getImageData(0, 0, imgCanvas.width, imgCanvas.height)
+  }
+
+  const pixels = imgData.data
+  const imgW = imgData.width
+  const imgH = imgData.height
+
+  const stepX = imgW / (cWidth * scaleX)
+  const stepY = imgH / (cHeight * scaleY)
+  const rx = Math.max(1, Math.floor(stepX * 0.55))
+  const ry = Math.max(1, Math.floor(stepY * 0.55))
+
+  const grid = new Int8Array(gridW * gridH)
+
+  for (let gy = 0; gy < gridH; gy++) {
+    for (let gx = 0; gx < gridW; gx++) {
+      const worldX = minX + gx + 0.5
+      const worldY = minY + gy + 0.5
+
+      if (turf.booleanPointInPolygon([worldX, worldY], countryFeature)) {
+        const normX = (worldX - (minX + offsetX)) / (cWidth * scaleX)
+        const normY = (worldY - (minY + offsetY)) / (cHeight * scaleY)
+
+        if (normX >= 0 && normX < 1 && normY >= 0 && normY < 1) {
+          const cx = Math.floor(normX * imgW)
+          const cy = Math.floor(normY * imgH)
+
+          let isBorder = false
+          for (let dy = -ry; dy <= ry; dy++) {
+            const py = cy + dy
+            if (py < 0 || py >= imgH) continue
+            const rowOffset = py * imgW
+            for (let dx = -rx; dx <= rx; dx++) {
+              const px = cx + dx
+              if (px < 0 || px >= imgW) continue
+
+              const pIdx = (rowOffset + px) * 4
+              const r = pixels[pIdx]
+              const g = pixels[pIdx + 1]
+              const b = pixels[pIdx + 2]
+
+              const isRiver = excludeRivers && b > r + 16 && g > r + 10
+              if (isRiver) continue
+
+              const gray = 0.299 * r + 0.587 * g + 0.114 * b
+              if (gray < threshold) {
+                isBorder = true
+                break
+              }
+            }
+            if (isBorder) break
+          }
+
+          if (isBorder) {
+            grid[gy * gridW + gx] = 1
+          }
+        }
+      }
+    }
+  }
+
+  // Apply manual bridges
+  if (manualBridges && manualBridges.length > 0) {
+    for (const stroke of manualBridges) {
+      for (let i = 0; i < stroke.length - 1; i++) {
+        const [x0, y0] = stroke[i]
+        const [x1, y1] = stroke[i + 1]
+        const dist = Math.hypot(x1 - x0, y1 - y0)
+        const steps = Math.max(1, Math.ceil(dist * 2))
+        for (let s = 0; s <= steps; s++) {
+          const t = s / steps
+          const wx = x0 + (x1 - x0) * t
+          const wy = y0 + (y1 - y0) * t
+          const gx = Math.floor(wx - minX)
+          const gy = Math.floor(wy - minY)
+          if (gx >= 0 && gx < gridW && gy >= 0 && gy < gridH) {
+            grid[gy * gridW + gx] = 1
+          }
+        }
+      }
+    }
+  }
+
+  // Prevent diagonal leaks
+  for (let gy = 0; gy < gridH - 1; gy++) {
+    for (let gx = 0; gx < gridW - 1; gx++) {
+      const idx = gy * gridW + gx
+      if (grid[idx] === 1 && grid[(gy + 1) * gridW + (gx + 1)] === 1) {
+        if (grid[gy * gridW + (gx + 1)] === 0 && grid[(gy + 1) * gridW + gx] === 0) {
+          grid[gy * gridW + (gx + 1)] = 1
+        }
+      }
+      if (grid[(gy + 1) * gridW + gx] === 1 && grid[gy * gridW + (gx + 1)] === 1) {
+        if (grid[idx] === 0 && grid[(gy + 1) * gridW + (gx + 1)] === 0) {
+          grid[idx] = 1
+        }
+      }
+    }
+  }
+
+  const points: [number, number][] = []
+  for (let gy = 0; gy < gridH; gy++) {
+    for (let gx = 0; gx < gridW; gx++) {
+      if (grid[gy * gridW + gx] === 1) {
+        points.push([minX + gx + 0.5, minY + gy + 0.5])
+      }
+    }
+  }
+
+  return { points, imageData: imgData }
 }
