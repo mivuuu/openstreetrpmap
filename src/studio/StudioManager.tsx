@@ -7,6 +7,7 @@ import { worldFeatureCollectionToMap } from '../map/geojsonCoordinates'
 import { mapToWorld, worldToMap } from '../map/worldCoordinates'
 import {
   claimIslandGeometry,
+  pixelateLine,
   recalculateBordersAndLabels,
   splitPolygonGeometry,
 } from './geometryOperations'
@@ -357,6 +358,10 @@ export function StudioManager({ map, onExit }: Props) {
     (linePoints: [number, number][]) => {
       if (!data) return
 
+      // Convert hand-drawn continuous points into stepped 8-connected raster coordinates matching native masks
+      const pixelatedLine = pixelateLine(linePoints, 1.0)
+      if (pixelatedLine.length < 2) return
+
       let splitResult: { part1: Polygon | MultiPolygon; part2: Polygon | MultiPolygon } | null = null
       let targetRegion: Feature<Polygon | MultiPolygon> | null = null
       let targetCountryId = selectedCountryId || fillCountryId
@@ -368,18 +373,18 @@ export function StudioManager({ map, onExit }: Props) {
       // Determine which region the user ACTUALLY drew inside by scoring interior stroke points!
       if (countryRegions.length > 0) {
         const interiorStrokePoints: [number, number][] = []
-        if (linePoints.length <= 2) {
+        if (pixelatedLine.length <= 2) {
           interiorStrokePoints.push([
-            (linePoints[0][0] + linePoints[1][0]) / 2,
-            (linePoints[0][1] + linePoints[1][1]) / 2,
+            (pixelatedLine[0][0] + pixelatedLine[1][0]) / 2,
+            (pixelatedLine[0][1] + pixelatedLine[1][1]) / 2,
           ])
         } else {
-          const step = Math.max(1, Math.floor(linePoints.length / 25))
-          for (let i = 1; i < linePoints.length - 1; i += step) {
-            interiorStrokePoints.push(linePoints[i])
+          const step = Math.max(1, Math.floor(pixelatedLine.length / 25))
+          for (let i = 1; i < pixelatedLine.length - 1; i += step) {
+            interiorStrokePoints.push(pixelatedLine[i])
           }
-          const midIdx = Math.floor(linePoints.length / 2)
-          interiorStrokePoints.push(linePoints[midIdx])
+          const midIdx = Math.floor(pixelatedLine.length / 2)
+          interiorStrokePoints.push(pixelatedLine[midIdx])
         }
 
         // Score all regions: count how many interior points of the drawn stroke fall inside each region
@@ -402,7 +407,7 @@ export function StudioManager({ map, onExit }: Props) {
 
         // Attempt split strictly in order of stroke containment (highest score first)
         for (const { reg } of scoredRegions) {
-          const res = splitPolygonGeometry(reg.geometry, linePoints)
+          const res = splitPolygonGeometry(reg.geometry, pixelatedLine)
           if (res) {
             splitResult = res
             targetRegion = reg
@@ -416,7 +421,7 @@ export function StudioManager({ map, onExit }: Props) {
       if (!splitResult && targetCountryId) {
         const country = data.countries.features.find((c) => c.properties?.id === targetCountryId)
         if (country) {
-          splitResult = splitPolygonGeometry(country.geometry, linePoints)
+          splitResult = splitPolygonGeometry(country.geometry, pixelatedLine)
         }
       }
 
@@ -540,10 +545,25 @@ export function StudioManager({ map, onExit }: Props) {
         return
       }
 
-      const closedPoints = [...linePoints, linePoints[0]]
-      let drawnPoly: Feature<Polygon>
+      // Convert hand-drawn continuous points into stepped 8-connected raster coordinates matching native masks
+      const pixelatedLine = pixelateLine(linePoints, 1.0)
+      if (pixelatedLine.length < 3) return
+
+      const closedPoints = [...pixelatedLine, pixelatedLine[0]]
+      let drawnPoly: Feature<Polygon | MultiPolygon>
       try {
-        drawnPoly = turf.polygon([closedPoints])
+        const poly = turf.polygon([closedPoints])
+        const unkinked = turf.unkinkPolygon(poly)
+        if (unkinked.features.length > 1) {
+          let merged: Feature<Polygon | MultiPolygon> = unkinked.features[0]
+          for (let i = 1; i < unkinked.features.length; i++) {
+            const u = turf.union(turf.featureCollection([merged, unkinked.features[i]]))
+            if (u) merged = u as Feature<Polygon | MultiPolygon>
+          }
+          drawnPoly = merged
+        } else {
+          drawnPoly = poly
+        }
       } catch {
         addToast('Не удалось сформировать замкнутый контур. Попробуйте обвести территорию еще раз!', 'warning')
         return

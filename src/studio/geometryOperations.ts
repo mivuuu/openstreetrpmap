@@ -87,6 +87,89 @@ function rayIntersectBox(
 }
 
 /**
+ * Pixelates a continuous hand-drawn line into an 8-connected raster staircase (orthogonal + 45° diagonal steps),
+ * matching the authentic raster-contour style of the native country and region boundaries.
+ * Collinear consecutive steps are simplified to retain only corner vertices.
+ */
+export function pixelateLine(points: [number, number][], gridStep: number = 1.0): [number, number][] {
+  if (points.length < 2) return points
+
+  // Snap all points to grid
+  const snapped = points.map(
+    ([x, y]) => [Math.round(x / gridStep) * gridStep, Math.round(y / gridStep) * gridStep] as [number, number],
+  )
+
+  const rasterPoints: [number, number][] = []
+
+  for (let i = 0; i < snapped.length - 1; i++) {
+    const [x0, y0] = snapped[i]
+    const [x1, y1] = snapped[i + 1]
+
+    let ix0 = Math.round(x0 / gridStep)
+    let iy0 = Math.round(y0 / gridStep)
+    const ix1 = Math.round(x1 / gridStep)
+    const iy1 = Math.round(y1 / gridStep)
+
+    const dx = Math.abs(ix1 - ix0)
+    const dy = Math.abs(iy1 - iy0)
+    const sx = ix0 < ix1 ? 1 : -1
+    const sy = iy0 < iy1 ? 1 : -1
+    let err = dx - dy
+
+    if (rasterPoints.length === 0) {
+      rasterPoints.push([ix0 * gridStep, iy0 * gridStep])
+    }
+
+    while (ix0 !== ix1 || iy0 !== iy1) {
+      const e2 = 2 * err
+      if (e2 > -dy) {
+        err -= dy
+        ix0 += sx
+      }
+      if (e2 < dx) {
+        err += dx
+        iy0 += sy
+      }
+      rasterPoints.push([ix0 * gridStep, iy0 * gridStep])
+    }
+  }
+
+  // Deduplicate consecutive identical points
+  const deduped: [number, number][] = []
+  for (let i = 0; i < rasterPoints.length; i++) {
+    const pt = rasterPoints[i]
+    if (i === 0 || pt[0] !== deduped[deduped.length - 1][0] || pt[1] !== deduped[deduped.length - 1][1]) {
+      deduped.push(pt)
+    }
+  }
+
+  if (deduped.length <= 2) return deduped
+
+  // Collinear simplification: merge consecutive segments with the same direction vector
+  const simplified: [number, number][] = [deduped[0]]
+  for (let i = 1; i < deduped.length - 1; i++) {
+    const prev = simplified[simplified.length - 1]
+    const curr = deduped[i]
+    const next = deduped[i + 1]
+
+    const dx1 = curr[0] - prev[0]
+    const dy1 = curr[1] - prev[1]
+    const dx2 = next[0] - curr[0]
+    const dy2 = next[1] - curr[1]
+
+    const cross = dx1 * dy2 - dy1 * dx2
+    const dot = dx1 * dx2 + dy1 * dy2
+    if (cross === 0 && dot > 0) {
+      continue
+    }
+    simplified.push(curr)
+  }
+  simplified.push(deduped[deduped.length - 1])
+
+  return simplified
+}
+
+/**
  * Splits a Polygon or MultiPolygon using a user-drawn cutting line or closed lasso.
  * Employs a non-self-intersecting perimeter-walking bounding box projection.
  */
