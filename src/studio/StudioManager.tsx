@@ -365,32 +365,54 @@ export function StudioManager({ map, onExit }: Props) {
         ? data.regions.features.filter((r) => r.properties?.countryId === targetCountryId)
         : data.regions.features
 
-      // 1. If user has a selected region, try splitting that region first
-      if (selectedRegionId) {
-        const found = countryRegions.find((r) => r.properties?.id === selectedRegionId)
-        if (found) {
-          splitResult = splitPolygonGeometry(found.geometry, linePoints)
-          if (splitResult) {
-            targetRegion = found
-            targetCountryId = found.properties?.countryId || targetCountryId
+      // Determine which region the user ACTUALLY drew inside by scoring interior stroke points!
+      if (countryRegions.length > 0) {
+        const interiorStrokePoints: [number, number][] = []
+        if (linePoints.length <= 2) {
+          interiorStrokePoints.push([
+            (linePoints[0][0] + linePoints[1][0]) / 2,
+            (linePoints[0][1] + linePoints[1][1]) / 2,
+          ])
+        } else {
+          const step = Math.max(1, Math.floor(linePoints.length / 25))
+          for (let i = 1; i < linePoints.length - 1; i += step) {
+            interiorStrokePoints.push(linePoints[i])
           }
+          const midIdx = Math.floor(linePoints.length / 2)
+          interiorStrokePoints.push(linePoints[midIdx])
         }
-      }
 
-      // 2. If not split yet, test all candidate regions belonging to this country
-      if (!splitResult && countryRegions.length > 0) {
-        for (const r of countryRegions) {
-          if (r.properties?.id === selectedRegionId) continue
-          splitResult = splitPolygonGeometry(r.geometry, linePoints)
-          if (splitResult) {
-            targetRegion = r
-            targetCountryId = r.properties?.countryId || targetCountryId
+        // Score all regions: count how many interior points of the drawn stroke fall inside each region
+        const scoredRegions = countryRegions
+          .map((reg) => {
+            let score = 0
+            for (const pt of interiorStrokePoints) {
+              if (turf.booleanPointInPolygon(turf.point(pt), reg)) {
+                score++
+              }
+            }
+            // If user explicitly selected this region, give a slight boost if it also contains points
+            if (reg.properties?.id === selectedRegionId && score > 0) {
+              score += 2
+            }
+            return { reg, score }
+          })
+          .filter((item) => item.score > 0)
+          .sort((a, b) => b.score - a.score)
+
+        // Attempt split strictly in order of stroke containment (highest score first)
+        for (const { reg } of scoredRegions) {
+          const res = splitPolygonGeometry(reg.geometry, linePoints)
+          if (res) {
+            splitResult = res
+            targetRegion = reg
+            targetCountryId = reg.properties?.countryId || targetCountryId
             break
           }
         }
       }
 
-      // 3. If still not split and country has no regions (or line cuts unpartitioned country):
+      // If country has no regions yet (or stroke is on unpartitioned country land):
       if (!splitResult && targetCountryId) {
         const country = data.countries.features.find((c) => c.properties?.id === targetCountryId)
         if (country) {
