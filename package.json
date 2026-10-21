@@ -7,7 +7,7 @@
     "dev": "vite",
     "studio": "vite --open '?studio=1'",
     "build": "tsc -b && vite build",
-    "deploy": "pnpm build && gh-pages -d dist",
+    "deploy": "pnpm build && gh-pages -d dist -m \"Deploy $(git rev-parse --short HEAD)\"",
     "preview": "vite preview",
     "extract:land": "python tools/extraction/extract_land.py",
     "fill:countries": "python tools/extraction/fill_countries_mask.py --mode safe",
