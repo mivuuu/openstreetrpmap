@@ -16,8 +16,79 @@ export type SplitResult = {
   part2: Polygon | MultiPolygon
 }
 
+function getBoxParam(x: number, y: number, bx0: number, by0: number, bx1: number, by1: number): number {
+  const eps = 1e-4
+  if (Math.abs(y - by1) < eps) return (x - bx0) / (bx1 - bx0) // Top edge: 0..1
+  if (Math.abs(x - bx1) < eps) return 1 + (by1 - y) / (by1 - by0) // Right edge: 1..2
+  if (Math.abs(y - by0) < eps) return 2 + (bx1 - x) / (bx1 - bx0) // Bottom edge: 2..3
+  if (Math.abs(x - bx0) < eps) return 3 + (y - by0) / (by1 - by0) // Left edge: 3..4
+  return 0
+}
+
+function getPointFromParam(t: number, bx0: number, by0: number, bx1: number, by1: number): [number, number] {
+  const norm = ((t % 4) + 4) % 4
+  if (norm < 1) return [bx0 + norm * (bx1 - bx0), by1]
+  if (norm < 2) return [bx1, by1 - (norm - 1) * (by1 - by0)]
+  if (norm < 3) return [bx1 - (norm - 2) * (bx1 - bx0), by0]
+  return [bx0, by0 + (norm - 3) * (by1 - by0)]
+}
+
+function rayIntersectBox(
+  origX: number,
+  origY: number,
+  dirX: number,
+  dirY: number,
+  bx0: number,
+  by0: number,
+  bx1: number,
+  by1: number,
+): [number, number] | null {
+  let bestDist = Infinity
+  let bestPt: [number, number] | null = null
+
+  // Intersect with Top edge (y = by1)
+  if (dirY > 0) {
+    const t = (by1 - origY) / dirY
+    const x = origX + dirX * t
+    if (x >= bx0 - 1e-4 && x <= bx1 + 1e-4 && t < bestDist && t > 0) {
+      bestDist = t
+      bestPt = [Math.max(bx0, Math.min(bx1, x)), by1]
+    }
+  }
+  // Intersect with Bottom edge (y = by0)
+  if (dirY < 0) {
+    const t = (by0 - origY) / dirY
+    const x = origX + dirX * t
+    if (x >= bx0 - 1e-4 && x <= bx1 + 1e-4 && t < bestDist && t > 0) {
+      bestDist = t
+      bestPt = [Math.max(bx0, Math.min(bx1, x)), by0]
+    }
+  }
+  // Intersect with Right edge (x = bx1)
+  if (dirX > 0) {
+    const t = (bx1 - origX) / dirX
+    const y = origY + dirY * t
+    if (y >= by0 - 1e-4 && y <= by1 + 1e-4 && t < bestDist && t > 0) {
+      bestDist = t
+      bestPt = [bx1, Math.max(by0, Math.min(by1, y))]
+    }
+  }
+  // Intersect with Left edge (x = bx0)
+  if (dirX < 0) {
+    const t = (bx0 - origX) / dirX
+    const y = origY + dirY * t
+    if (y >= by0 - 1e-4 && y <= by1 + 1e-4 && t < bestDist && t > 0) {
+      bestDist = t
+      bestPt = [bx0, Math.max(by0, Math.min(by1, y))]
+    }
+  }
+
+  return bestPt
+}
+
 /**
  * Splits a Polygon or MultiPolygon using a user-drawn cutting line or closed lasso.
+ * Employs a non-self-intersecting perimeter-walking bounding box projection.
  */
 export function splitPolygonGeometry(
   geometry: Polygon | MultiPolygon,
@@ -27,17 +98,89 @@ export function splitPolygonGeometry(
 
   const targetFeature = turf.feature(geometry)
   const [minX, minY, maxX, maxY] = turf.bbox(targetFeature)
-  const pad = Math.max(maxX - minX, maxY - minY, 50) * 3
+  const pad = Math.max(maxX - minX, maxY - minY, 50) * 1.5
+  const bx0 = minX - pad
+  const by0 = minY - pad
+  const bx1 = maxX + pad
+  const by1 = maxY + pad
 
   const first = linePoints[0]
   const last = linePoints[linePoints.length - 1]
-  const dist = Math.hypot(first[0] - last[0], first[1] - last[1])
+  const loopDist = Math.hypot(first[0] - last[0], first[1] - last[1])
 
   // Check if closed lasso loop
-  if (dist < 15 && linePoints.length >= 3) {
-    const loop = turf.polygon([[...linePoints, first]])
-    const p1 = turf.intersect(turf.featureCollection([targetFeature, loop]))
-    const p2 = turf.difference(turf.featureCollection([targetFeature, loop]))
+  if (loopDist < 35 && linePoints.length >= 3) {
+    try {
+      const loop = turf.polygon([[...linePoints, first]])
+      const p1 = turf.difference(turf.featureCollection([targetFeature, loop]))
+      const p2 = turf.intersect(turf.featureCollection([targetFeature, loop]))
+
+      if (p1 && p2 && turf.area(p1) > 0.01 && turf.area(p2) > 0.01) {
+        return {
+          part1: p1.geometry as Polygon | MultiPolygon,
+          part2: p2.geometry as Polygon | MultiPolygon,
+        }
+      }
+    } catch {
+      // Fall through to open line
+    }
+  }
+
+  // Open cutting line: project rays outward to outer bounding box
+  const kStart = Math.min(4, linePoints.length - 1)
+  const dirStartX = linePoints[0][0] - linePoints[kStart][0]
+  const dirStartY = linePoints[0][1] - linePoints[kStart][1]
+  const lenStart = Math.hypot(dirStartX, dirStartY) || 1
+  const startPtOnBox =
+    rayIntersectBox(
+      linePoints[0][0],
+      linePoints[0][1],
+      dirStartX / lenStart,
+      dirStartY / lenStart,
+      bx0,
+      by0,
+      bx1,
+      by1,
+    ) || [bx0, by1]
+
+  const n = linePoints.length - 1
+  const kEnd = Math.max(0, n - 4)
+  const dirEndX = linePoints[n][0] - linePoints[kEnd][0]
+  const dirEndY = linePoints[n][1] - linePoints[kEnd][1]
+  const lenEnd = Math.hypot(dirEndX, dirEndY) || 1
+  const endPtOnBox =
+    rayIntersectBox(
+      linePoints[n][0],
+      linePoints[n][1],
+      dirEndX / lenEnd,
+      dirEndY / lenEnd,
+      bx0,
+      by0,
+      bx1,
+      by1,
+    ) || [bx1, by0]
+
+  const tStart = getBoxParam(startPtOnBox[0], startPtOnBox[1], bx0, by0, bx1, by1)
+  const tEnd = getBoxParam(endPtOnBox[0], endPtOnBox[1], bx0, by0, bx1, by1)
+
+  // Walk perimeter clockwise from tEnd to tStart
+  const corners: [number, number][] = []
+  let curr = Math.floor(tEnd) + 1
+  let target = tStart
+  if (target <= tEnd) {
+    target += 4
+  }
+  while (curr < target) {
+    corners.push(getPointFromParam(curr, bx0, by0, bx1, by1))
+    curr++
+  }
+
+  const ring: [number, number][] = [startPtOnBox, ...linePoints, endPtOnBox, ...corners, startPtOnBox]
+
+  try {
+    const halfPlane = turf.polygon([ring])
+    const p1 = turf.intersect(turf.featureCollection([targetFeature, halfPlane]))
+    const p2 = turf.difference(turf.featureCollection([targetFeature, halfPlane]))
 
     if (p1 && p2 && turf.area(p1) > 0.01 && turf.area(p2) > 0.01) {
       return {
@@ -45,46 +188,8 @@ export function splitPolygonGeometry(
         part2: p2.geometry as Polygon | MultiPolygon,
       }
     }
-  }
-
-  // Open line: extend endpoints far beyond bounding box
-  const dx0 = linePoints[0][0] - linePoints[1][0]
-  const dy0 = linePoints[0][1] - linePoints[1][1]
-  const len0 = Math.hypot(dx0, dy0) || 1
-  const extStart: [number, number] = [
-    linePoints[0][0] + (dx0 / len0) * pad,
-    linePoints[0][1] + (dy0 / len0) * pad,
-  ]
-
-  const n = linePoints.length - 1
-  const dxN = linePoints[n][0] - linePoints[n - 1][0]
-  const dyN = linePoints[n][1] - linePoints[n - 1][1]
-  const lenN = Math.hypot(dxN, dyN) || 1
-  const extEnd: [number, number] = [
-    linePoints[n][0] + (dxN / lenN) * pad,
-    linePoints[n][1] + (dyN / lenN) * pad,
-  ]
-
-  const fullLine = [extStart, ...linePoints, extEnd]
-
-  // Construct a wide half-plane polygon on one side of the cutting line
-  const halfPlane = turf.polygon([[
-    ...fullLine,
-    [maxX + pad * 2, extEnd[1]],
-    [maxX + pad * 2, maxY + pad * 2],
-    [minX - pad * 2, maxY + pad * 2],
-    [minX - pad * 2, extStart[1]],
-    extStart,
-  ]])
-
-  const part1 = turf.intersect(turf.featureCollection([targetFeature, halfPlane]))
-  const part2 = turf.difference(turf.featureCollection([targetFeature, halfPlane]))
-
-  if (part1 && part2 && turf.area(part1) > 0.01 && turf.area(part2) > 0.01) {
-    return {
-      part1: part1.geometry as Polygon | MultiPolygon,
-      part2: part2.geometry as Polygon | MultiPolygon,
-    }
+  } catch (err) {
+    console.warn('splitPolygonGeometry error:', err)
   }
 
   return null

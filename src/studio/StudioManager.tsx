@@ -312,46 +312,88 @@ export function StudioManager({ map, onExit }: Props) {
     (linePoints: [number, number][]) => {
       if (!data) return
 
-      let targetGeom: Feature<Polygon | MultiPolygon> | null = null
+      let splitResult: { part1: Polygon | MultiPolygon; part2: Polygon | MultiPolygon } | null = null
+      let targetRegion: Feature<Polygon | MultiPolygon> | null = null
       let targetCountryId = selectedCountryId || fillCountryId
-      let targetRegionNumber = 1
 
+      const countryRegions = targetCountryId
+        ? data.regions.features.filter((r) => r.properties?.countryId === targetCountryId)
+        : data.regions.features
+
+      // 1. If user has a selected region, try splitting that region first
       if (selectedRegionId) {
-        const found = data.regions.features.find((r) => r.properties?.id === selectedRegionId)
+        const found = countryRegions.find((r) => r.properties?.id === selectedRegionId)
         if (found) {
-          targetGeom = found
-          targetCountryId = found.properties?.countryId
+          splitResult = splitPolygonGeometry(found.geometry, linePoints)
+          if (splitResult) {
+            targetRegion = found
+            targetCountryId = found.properties?.countryId || targetCountryId
+          }
         }
       }
 
-      if (!targetGeom && targetCountryId) {
-        const found = data.countries.features.find((c) => c.properties?.id === targetCountryId)
-        if (found) {
-          targetGeom = found
+      // 2. If not split yet, test all candidate regions belonging to this country
+      if (!splitResult && countryRegions.length > 0) {
+        for (const r of countryRegions) {
+          if (r.properties?.id === selectedRegionId) continue
+          splitResult = splitPolygonGeometry(r.geometry, linePoints)
+          if (splitResult) {
+            targetRegion = r
+            targetCountryId = r.properties?.countryId || targetCountryId
+            break
+          }
         }
       }
 
-      if (!targetGeom || !targetCountryId) {
-        addToast('Сначала выберите страну или регион для нарезки!', 'warning')
+      // 3. If still not split and country has no regions (or line cuts unpartitioned country):
+      if (!splitResult && targetCountryId) {
+        const country = data.countries.features.find((c) => c.properties?.id === targetCountryId)
+        if (country) {
+          splitResult = splitPolygonGeometry(country.geometry, linePoints)
+        }
+      }
+
+      if (!splitResult || !targetCountryId) {
+        addToast('Проведите линию через территорию региона или замкните петлю (лассо)', 'warning')
         return
       }
 
       const existingInCountry = data.regions.features.filter((r) => r.properties?.countryId === targetCountryId)
-      targetRegionNumber = existingInCountry.length + 1
-
-      const result = splitPolygonGeometry(targetGeom.geometry, linePoints)
-      if (!result) {
-        addToast('Линия не пересекла полигон. Проведите линию через всю территорию!', 'warning')
-        return
-      }
+      const targetRegionNumber = existingInCountry.length + 1
 
       const newRegionId = `${targetCountryId}-region-${String(targetRegionNumber).padStart(2, '0')}`
       const newRegionName = `Регион ${targetRegionNumber}`
 
+      // Determine which part keeps existing region identity (preserving capital and label position)
+      let partToKeep = splitResult.part1
+      let partNewRegion = splitResult.part2
+
+      if (targetRegion) {
+        const existingLabel = data.regionLabels.features.find(
+          (l) => l.properties?.id === targetRegion?.properties?.id,
+        )
+        if (existingLabel) {
+          const pt = existingLabel.geometry.coordinates as [number, number]
+          const inPart1 = turf.booleanPointInPolygon(pt, turf.feature(splitResult.part1))
+          const inPart2 = turf.booleanPointInPolygon(pt, turf.feature(splitResult.part2))
+
+          if (inPart2 && !inPart1) {
+            partToKeep = splitResult.part2
+            partNewRegion = splitResult.part1
+          }
+        } else {
+          // Larger part stays with existing region
+          if (turf.area(turf.feature(splitResult.part2)) > turf.area(turf.feature(splitResult.part1))) {
+            partToKeep = splitResult.part2
+            partNewRegion = splitResult.part1
+          }
+        }
+      }
+
       const newFeature: Feature<Polygon | MultiPolygon> = {
         type: 'Feature',
         id: newRegionId,
-        geometry: result.part2,
+        geometry: partNewRegion,
         properties: {
           id: newRegionId,
           number: targetRegionNumber,
@@ -367,10 +409,10 @@ export function StudioManager({ map, onExit }: Props) {
       applyDataUpdate((prev) => {
         let updatedRegions: Feature<Polygon | MultiPolygon>[]
 
-        if (selectedRegionId) {
+        if (targetRegion) {
           updatedRegions = prev.regions.features.map((r) => {
-            if (r.properties?.id === selectedRegionId) {
-              return { ...r, geometry: result.part1 }
+            if (r.properties?.id === targetRegion?.properties?.id) {
+              return { ...r, geometry: partToKeep }
             }
             return r
           })
@@ -381,7 +423,7 @@ export function StudioManager({ map, onExit }: Props) {
           const r1Feature: Feature<Polygon | MultiPolygon> = {
             type: 'Feature',
             id: r1Id,
-            geometry: result.part1,
+            geometry: splitResult.part1,
             properties: {
               id: r1Id,
               number: 1,
@@ -393,7 +435,18 @@ export function StudioManager({ map, onExit }: Props) {
               styleIndex: 0,
             },
           }
-          updatedRegions = [...prev.regions.features, r1Feature, newFeature]
+          const r2Feature: Feature<Polygon | MultiPolygon> = {
+            ...newFeature,
+            id: `${targetCountryId}-region-02`,
+            geometry: splitResult.part2,
+            properties: {
+              ...newFeature.properties,
+              id: `${targetCountryId}-region-02`,
+              number: 2,
+              name: 'Регион 2',
+            },
+          }
+          updatedRegions = [...prev.regions.features, r1Feature, r2Feature]
         }
 
         return {
@@ -405,7 +458,8 @@ export function StudioManager({ map, onExit }: Props) {
       })
 
       addToast(`Создан новый регион: «${newRegionName}»!`, 'success')
-      setSelectedRegionId(newRegionId)
+      // Do not lock to new region, allowing continuous uninterrupted slicing!
+      setSelectedRegionId(null)
     },
     [data, selectedCountryId, fillCountryId, selectedRegionId, applyDataUpdate],
   )
