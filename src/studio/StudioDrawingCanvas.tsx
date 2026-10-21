@@ -357,12 +357,44 @@ export function StudioDrawingCanvas({
         </filter>
       </defs>
 
+      {/* Lasso closed loop preview and closing dashed chord */}
+      {screenStroke.length >= 2 && activeTool === 'redraw-border' && (
+        <>
+          <polygon
+            points={screenStroke.map(([x, y]) => `${x},${y}`).join(' ')}
+            fill="rgba(56, 189, 248, 0.22)"
+            stroke="none"
+          />
+          <line
+            x1={screenStroke[screenStroke.length - 1][0]}
+            y1={screenStroke[screenStroke.length - 1][1]}
+            x2={screenStroke[0][0]}
+            y2={screenStroke[0][1]}
+            stroke="#38bdf8"
+            strokeWidth="1.6"
+            strokeDasharray="4 4"
+            opacity="0.85"
+          />
+          {/* Origin anchor dot */}
+          <circle cx={screenStroke[0][0]} cy={screenStroke[0][1]} r="4.5" fill="#38bdf8" />
+          <circle
+            cx={screenStroke[0][0]}
+            cy={screenStroke[0][1]}
+            r="8"
+            fill="none"
+            stroke="#38bdf8"
+            strokeWidth="1.5"
+            opacity="0.6"
+          />
+        </>
+      )}
+
       {/* Render thin crisp drawn line */}
       {pathD && (
         <path
           d={pathD}
           fill="none"
-          stroke="#22d3ee"
+          stroke={activeTool === 'redraw-border' ? '#38bdf8' : '#22d3ee'}
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"

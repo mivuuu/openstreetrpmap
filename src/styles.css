@@ -1317,6 +1317,11 @@ button {
   border-bottom: 1px solid rgba(56, 189, 248, 0.25);
 }
 
+.studio-sidebar__banner--lasso {
+  background: rgba(168, 85, 247, 0.12);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+}
+
 .studio-card__header {
   display: flex;
   align-items: center;

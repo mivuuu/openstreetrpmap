@@ -108,10 +108,10 @@ export function StudioToolbar({
           type="button"
           className={`studio-tool-btn ${activeTool === 'redraw-border' ? 'studio-tool-btn--active' : ''}`}
           onClick={() => onToolChange('redraw-border')}
-          title="Нарисовать границу от руки"
+          title="Обвести петлей лассо любую территорию, чтобы передать ее выбранной стране или региону"
         >
-          <span className="studio-tool-icon">✏️</span>
-          <span>Перерисовать границу</span>
+          <span className="studio-tool-icon">🪢</span>
+          <span>Лассо территорий</span>
         </button>
 
         <button

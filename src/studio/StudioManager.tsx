@@ -536,12 +536,12 @@ export function StudioManager({ map, onExit }: Props) {
     [data, selectedCountryId, fillCountryId, selectedRegionId, applyDataUpdate],
   )
 
-  // 2. Redrawing thin border lines
+  // 2. Lasso territory transfer (former redraw border)
   const handleRedrawBorderLine = useCallback(
     (linePoints: [number, number][]) => {
       if (!data) return
       if (linePoints.length < 3) {
-        addToast('Нарисуйте контур территории для присоединения', 'warning')
+        addToast('Обведите петлей лассо территорию для передачи', 'warning')
         return
       }
 
@@ -572,7 +572,7 @@ export function StudioManager({ map, onExit }: Props) {
       if (mode === 'countries') {
         const countryId = selectedCountryId || fillCountryId
         if (!countryId) {
-          addToast('Выберите страну для изменения границы!', 'warning')
+          addToast('Выберите страну в панели для передачи территории!', 'warning')
           return
         }
 
@@ -580,9 +580,12 @@ export function StudioManager({ map, onExit }: Props) {
         if (!landFeature) return
         const landPart = turf.intersect(turf.featureCollection([landFeature, drawnPoly]))
         if (!landPart || turf.area(landPart) <= 0.01) {
-          addToast('Нарисованная граница не попадает на сушу', 'warning')
+          addToast('Обведённая область лассо не попадает на сушу', 'warning')
           return
         }
+
+        const targetCountryName =
+          data.countries.features.find((c) => c.properties?.id === countryId)?.properties?.name || 'стране'
 
         applyDataUpdate((prev) => {
           const targetCountry = prev.countries.features.find((c) => c.properties?.id === countryId)
@@ -591,6 +594,7 @@ export function StudioManager({ map, onExit }: Props) {
           const newTarget = turf.union(turf.featureCollection([targetCountry, landPart]))
           if (!newTarget) return {}
 
+          // Trim other countries
           const updatedCountries = prev.countries.features.map((feature) => {
             if (feature.properties?.id === countryId) {
               return { ...feature, geometry: newTarget.geometry as Polygon | MultiPolygon }
@@ -605,26 +609,50 @@ export function StudioManager({ map, onExit }: Props) {
             return feature
           })
 
-          return { countries: { ...prev.countries, features: updatedCountries } }
+          // Also trim regions belonging to other countries that lost territory
+          const updatedRegions = prev.regions.features
+            .map((reg) => {
+              if (reg.properties?.countryId === countryId) {
+                return reg
+              }
+              const inter = turf.intersect(turf.featureCollection([reg, landPart]))
+              if (inter && turf.area(inter) > 0.01) {
+                const diff = turf.difference(turf.featureCollection([reg, landPart]))
+                if (diff && turf.area(diff) > 0.01) {
+                  return { ...reg, geometry: diff.geometry as Polygon | MultiPolygon }
+                }
+                return null
+              }
+              return reg
+            })
+            .filter((r): r is Feature<Polygon | MultiPolygon> => r !== null)
+
+          return {
+            countries: { ...prev.countries, features: updatedCountries },
+            regions: { ...prev.regions, features: updatedRegions },
+          }
         })
 
-        addToast('Границы государств успешно обновлены!', 'success')
+        addToast(`Территория успешно передана государству «${targetCountryName}»!`, 'success')
       } else if (mode === 'regions') {
-        if (!selectedRegionId) {
-          addToast('Выберите регион для изменения границы!', 'warning')
+        const targetRegionId = selectedRegionId || fillRegionId
+        if (!targetRegionId) {
+          addToast('Выберите регион в панели для передачи территории!', 'warning')
           return
         }
 
-        const targetReg = data.regions.features.find((r) => r.properties?.id === selectedRegionId)
+        const targetReg = data.regions.features.find((r) => r.properties?.id === targetRegionId)
         if (!targetReg) return
         const parentCountry = data.countries.features.find((c) => c.properties?.id === targetReg.properties?.countryId)
         if (!parentCountry) return
 
         const validPart = turf.intersect(turf.featureCollection([parentCountry, drawnPoly]))
         if (!validPart || turf.area(validPart) <= 0.01) {
-          addToast('Нарисованная граница должна находиться внутри родительской страны', 'warning')
+          addToast('Область лассо должна находиться внутри границ родительской страны', 'warning')
           return
         }
+
+        const targetRegionName = targetReg.properties?.name || 'региону'
 
         applyDataUpdate((prev) => {
           const newTarget = turf.union(turf.featureCollection([targetReg, validPart]))
@@ -632,7 +660,7 @@ export function StudioManager({ map, onExit }: Props) {
 
           const parentId = targetReg.properties?.countryId
           const updatedRegions = prev.regions.features.map((feature) => {
-            if (feature.properties?.id === selectedRegionId) {
+            if (feature.properties?.id === targetRegionId) {
               return { ...feature, geometry: newTarget.geometry as Polygon | MultiPolygon }
             }
             if (feature.properties?.countryId === parentId) {
@@ -650,10 +678,10 @@ export function StudioManager({ map, onExit }: Props) {
           return { regions: { ...prev.regions, features: updatedRegions } }
         })
 
-        addToast('Границы регионов успешно обновлены!', 'success')
+        addToast(`Территория успешно передана региону «${targetRegionName}»!`, 'success')
       }
     },
-    [data, mode, selectedCountryId, fillCountryId, selectedRegionId, applyDataUpdate],
+    [data, mode, selectedCountryId, fillCountryId, selectedRegionId, fillRegionId, applyDataUpdate],
   )
 
   // 3. Bucket fill with explicitly selected country / region

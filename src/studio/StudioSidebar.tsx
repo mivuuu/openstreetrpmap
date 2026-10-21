@@ -62,6 +62,21 @@ export function StudioSidebar({
         </div>
       )}
 
+      {/* Lasso Territory Helper Banner */}
+      {activeTool === 'redraw-border' && (
+        <div className="studio-sidebar__banner studio-sidebar__banner--lasso">
+          <span className="studio-banner-icon">🪢</span>
+          <div>
+            <strong>Лассо территорий</strong>
+            <p>
+              {mode === 'countries'
+                ? 'Обведите петлей лассо любую территорию суши, чтобы передать её выбранному государству.'
+                : 'Обведите петлей лассо территорию, чтобы передать её выбранному региону.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Bucket Fill Helper Banner */}
       {activeTool === 'bucket-fill' && (
         <div className="studio-sidebar__banner studio-sidebar__banner--fill">
