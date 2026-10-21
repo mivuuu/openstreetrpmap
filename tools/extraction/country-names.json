@@ -1,25 +1,284 @@
 {
-  "country-002": { "name": "Асмаин" },
-  "country-004": { "name": "Роха" },
-  "country-005": { "name": "Этрория" },
-  "country-006": { "name": "Ярландия" },
-  "country-007": { "name": "Хисолия" },
-  "country-008": { "name": "Негеция" },
-  "country-009": { "name": "Пагристан" },
-  "country-010": { "name": "Гайяна" },
-  "country-011": { "name": "Урия" },
-  "country-012": { "name": "Просперия" },
-  "country-013": { "name": "Эшкирия" },
-  "country-014": { "name": "Энландия" },
-  "country-015": { "name": "Гросс" },
-  "country-016": { "name": "Вергилия" },
-  "country-017": { "name": "Расшатай" },
-  "country-018": { "name": "Эллас" },
-  "country-019": { "name": "Люменария" },
-  "country-020": { "name": "Ферондия" },
-  "country-021": { "name": "Критания" },
-  "country-022": { "name": "Аустра" },
-  "country-023": { "name": "Новая Кайландия" },
-  "country-024": { "name": "Южный Сапах" },
-  "country-025": { "name": "Северный Сапах" }
+  "countryCount": 23,
+  "countries": [
+    {
+      "countryId": "country-002",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.948415622697126,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        1006.5,
+        457.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-004",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9737724711564261,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        377.25,
+        684
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-005",
+      "componentCount": 2,
+      "largestComponentAreaShare": 0.9531746031746032,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        328.5,
+        755.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-006",
+      "componentCount": 10,
+      "largestComponentAreaShare": 0.9713669025436463,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        410.25,
+        558.25
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-007",
+      "componentCount": 2,
+      "largestComponentAreaShare": 0.999906568251892,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        916.75,
+        493.25
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-008",
+      "componentCount": 232,
+      "largestComponentAreaShare": 0.2949613102623683,
+      "selectionMethod": "manual-override",
+      "labelPointWorld": [
+        546,
+        850
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-009",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9977616309101554,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        928.5,
+        359.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-010",
+      "componentCount": 4,
+      "largestComponentAreaShare": 0.9844302498003878,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        801.75,
+        433.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-011",
+      "componentCount": 1,
+      "largestComponentAreaShare": 1,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        619.5,
+        618.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-024",
+      "componentCount": 5,
+      "largestComponentAreaShare": 0.7106040268456376,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        314.25,
+        547.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": true
+    },
+    {
+      "countryId": "country-012",
+      "componentCount": 32,
+      "largestComponentAreaShare": 0.2557197765186036,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        184.5,
+        390.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": true
+    },
+    {
+      "countryId": "country-013",
+      "componentCount": 2,
+      "largestComponentAreaShare": 0.994598511297016,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        501.25,
+        664.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-014",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.997893850042123,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        720.75,
+        703.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-015",
+      "componentCount": 7,
+      "largestComponentAreaShare": 0.9404497378010843,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        835,
+        770.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-025",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9794808405438813,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        311.5,
+        497
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-016",
+      "componentCount": 22,
+      "largestComponentAreaShare": 0.9398422090729783,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        374.25,
+        902.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": true
+    },
+    {
+      "countryId": "country-017",
+      "componentCount": 5,
+      "largestComponentAreaShare": 0.9754500818330606,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        568,
+        558.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-018",
+      "componentCount": 2,
+      "largestComponentAreaShare": 0.9685325264750378,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        993.5,
+        816.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-019",
+      "componentCount": 347,
+      "largestComponentAreaShare": 0.7147517259851207,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        1194.5,
+        548.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": true
+    },
+    {
+      "countryId": "country-020",
+      "componentCount": 3,
+      "largestComponentAreaShare": 0.9848484848484849,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        671,
+        679
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-021",
+      "componentCount": 4,
+      "largestComponentAreaShare": 0.9869870978459494,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        741.25,
+        618.75
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-022",
+      "componentCount": 9,
+      "largestComponentAreaShare": 0.9752958499209249,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        1426,
+        621.5
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    },
+    {
+      "countryId": "country-023",
+      "componentCount": 6,
+      "largestComponentAreaShare": 0.9651757825480162,
+      "selectionMethod": "largest-component-polylabel",
+      "labelPointWorld": [
+        1157.75,
+        372
+      ],
+      "pointInsideSelectedComponent": true,
+      "questionableAutomaticSelection": false
+    }
+  ],
+  "country-014": {
+    "name": "Фертенберг"
+  }
 }
