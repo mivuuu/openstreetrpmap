@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=OpenStreetRP Studio
+GenericName=Редактор карты
+Comment=Редактор карты вымышленного мира и регионов
+Exec=/mnt/hard-disk/hard-disk-folder/Programming/openstreetmap/launch-studio.sh
+Path=/mnt/hard-disk/hard-disk-folder/Programming/openstreetmap
+Icon=applications-graphics
+Terminal=true
+Categories=Graphics;Development;Geography;
+StartupNotify=true

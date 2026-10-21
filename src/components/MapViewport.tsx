@@ -20,6 +20,15 @@ import { GeometryDebugControl } from './GeometryDebugControl'
 import { MapControls } from './MapControls'
 import { MapThemeControl } from './MapThemeControl'
 import { usePresence } from './usePresence'
+import { StudioManager, IS_STUDIO_BUILD } from 'virtual:studio'
+
+const isLocalhost =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '[::1]')
+
+const IS_LOCAL_STUDIO_ENABLED = IS_STUDIO_BUILD && isLocalhost
 
 const ZOOM_DURATION_MS = 300
 const CITY_PANEL_WIDTH = 390
@@ -49,6 +58,11 @@ export function MapViewport() {
   const mapColorSchemeRef = useRef(mapColorScheme)
   const [extractionDebug, setExtractionDebug] = useState(DEBUG_MAP)
   const [geometryDebug, setGeometryDebug] = useState(DEFAULT_GEOMETRY_DEBUG)
+  const [isStudioOpen, setIsStudioOpen] = useState(
+    () =>
+      IS_LOCAL_STUDIO_ENABLED &&
+      (new URLSearchParams(window.location.search).get('studio') === '1' || window.location.hash === '#studio'),
+  )
 
   if (selectedCity) selectedCityRef.current = selectedCity
 
@@ -127,42 +141,58 @@ export function MapViewport() {
       aria-label="Интерактивная карта вымышленного мира"
     >
       <div ref={containerRef} className="map-canvas" />
-      <MapControls
-        onZoomIn={() => changeZoom(1)}
-        onZoomOut={() => changeZoom(-1)}
-      />
-      <MapThemeControl
-        scheme={mapColorScheme}
-        onToggle={() => {
-          setMapColorScheme((current) => current === 'dark' ? 'light' : 'dark')
-        }}
-      />
-      <BaseMapModeControl
-        mode={baseMapMode}
-        extractionDebug={extractionDebug}
-        onModeChange={setBaseMapMode}
-        onExtractionDebugChange={setExtractionDebug}
-        countryIds={geometryDebug.countryIds}
-        onCountryIdsChange={(enabled) => {
-          setGeometryDebug((current) => ({ ...current, countryIds: enabled }))
-        }}
-        countryLabelPoints={geometryDebug.countryLabelPoints}
-        onCountryLabelPointsChange={(enabled) => {
-          setGeometryDebug((current) => ({ ...current, countryLabelPoints: enabled }))
-        }}
-        development={DEBUG_MAP}
-      />
-      <CountryRankings />
-      {DEBUG_MAP && (
-        <GeometryDebugControl visibility={geometryDebug} onChange={setGeometryDebug} />
-      )}
-      {featurePanelPresence.isMounted && selectedCityRef.current && (
-        <FeatureInfoPanel
-          city={selectedCityRef.current}
-          open={Boolean(selectedCity)}
-          presenceState={featurePanelPresence.state}
-          onClose={() => setSelectedCity(null)}
-        />
+      {IS_LOCAL_STUDIO_ENABLED && isStudioOpen ? (
+        <StudioManager map={mapRef.current} onExit={() => setIsStudioOpen(false)} />
+      ) : (
+        <>
+          <MapControls
+            onZoomIn={() => changeZoom(1)}
+            onZoomOut={() => changeZoom(-1)}
+          />
+          <MapThemeControl
+            scheme={mapColorScheme}
+            onToggle={() => {
+              setMapColorScheme((current) => current === 'dark' ? 'light' : 'dark')
+            }}
+          />
+          <BaseMapModeControl
+            mode={baseMapMode}
+            extractionDebug={extractionDebug}
+            onModeChange={setBaseMapMode}
+            onExtractionDebugChange={setExtractionDebug}
+            countryIds={geometryDebug.countryIds}
+            onCountryIdsChange={(enabled) => {
+              setGeometryDebug((current) => ({ ...current, countryIds: enabled }))
+            }}
+            countryLabelPoints={geometryDebug.countryLabelPoints}
+            onCountryLabelPointsChange={(enabled) => {
+              setGeometryDebug((current) => ({ ...current, countryLabelPoints: enabled }))
+            }}
+            development={DEBUG_MAP}
+          />
+          <CountryRankings />
+          {DEBUG_MAP && (
+            <GeometryDebugControl visibility={geometryDebug} onChange={setGeometryDebug} />
+          )}
+          {featurePanelPresence.isMounted && selectedCityRef.current && (
+            <FeatureInfoPanel
+              city={selectedCityRef.current}
+              open={Boolean(selectedCity)}
+              presenceState={featurePanelPresence.state}
+              onClose={() => setSelectedCity(null)}
+            />
+          )}
+          {IS_LOCAL_STUDIO_ENABLED && (
+            <button
+              type="button"
+              className="studio-open-badge-btn"
+              onClick={() => setIsStudioOpen(true)}
+              title="Открыть Студию Картографа (только на localhost)"
+            >
+              🎨 Студия карты
+            </button>
+          )}
+        </>
       )}
       <div className={`map-status${isReady ? ' map-status--hidden' : ''}`} role="status">
         {loadError ?? 'Загрузка карты…'}

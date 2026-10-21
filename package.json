@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "studio": "vite --open '?studio=1'",
     "build": "tsc -b && vite build",
+    "deploy": "pnpm build && gh-pages -d dist",
     "preview": "vite preview",
     "extract:land": "python tools/extraction/extract_land.py",
     "fill:countries": "python tools/extraction/fill_countries_mask.py --mode safe",
@@ -21,15 +23,18 @@
     "place:regions:country-008-mainland-southwest": "python tools/extraction/place_existing_regions.py public/data/regions/country-008/mainland-southwest/regions-config.json"
   },
   "dependencies": {
+    "@turf/turf": "^7.4.0",
     "maplibre-gl": "^6.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",
+    "@types/node": "^26.6.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.5",
+    "gh-pages": "^6.3.0",
     "typescript": "^7.0.2",
     "vite": "^8.2.1"
   },
