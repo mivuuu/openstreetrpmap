@@ -16,7 +16,9 @@ export type ExtractionOptions = {
   countryFeature: Feature<Polygon | MultiPolygon>
   countryId: string
   imageElement: HTMLImageElement
-  scale: number
+  scale?: number
+  scaleX?: number
+  scaleY?: number
   offsetX: number
   offsetY: number
   threshold: number
@@ -121,12 +123,17 @@ export function extractRegionsFromImage(options: ExtractionOptions): {
     countryId,
     imageElement,
     scale,
+    scaleX: optScaleX,
+    scaleY: optScaleY,
     offsetX,
     offsetY,
     threshold,
     excludeRivers,
     minRegionArea,
   } = options
+
+  const sX = optScaleX ?? scale ?? 1.0
+  const sY = optScaleY ?? scale ?? 1.0
 
   const [minX, minY, maxX, maxY] = turf.bbox(countryFeature)
   const cWidth = Math.max(1, maxX - minX)
@@ -162,8 +169,8 @@ export function extractRegionsFromImage(options: ExtractionOptions): {
 
       if (turf.booleanPointInPolygon([worldX, worldY], countryFeature)) {
         // Map world coordinate to image coordinate based on alignment scale and offset
-        const normX = (worldX - (minX + offsetX)) / (cWidth * scale)
-        const normY = (worldY - (minY + offsetY)) / (cHeight * scale)
+        const normX = (worldX - (minX + offsetX)) / (cWidth * sX)
+        const normY = (worldY - (minY + offsetY)) / (cHeight * sY)
 
         if (normX >= 0 && normX < 1 && normY >= 0 && normY < 1) {
           const ix = Math.floor(normX * imgW)

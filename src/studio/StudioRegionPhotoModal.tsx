@@ -48,7 +48,9 @@ export function StudioRegionPhotoModal({
   const [imageDataUrl, setImageDataUrl] = useState<string>('')
 
   // Alignment controls
-  const [scale, setScale] = useState<number>(1.0)
+  const [scaleX, setScaleX] = useState<number>(1.0)
+  const [scaleY, setScaleY] = useState<number>(1.0)
+  const [lockAspect, setLockAspect] = useState<boolean>(false)
   const [offsetX, setOffsetX] = useState<number>(0)
   const [offsetY, setOffsetY] = useState<number>(0)
   const [opacity, setOpacity] = useState<number>(0.7)
@@ -145,8 +147,8 @@ export function StudioRegionPhotoModal({
       // Image dest rect
       const imgDestX = toCanvasX(minX + offsetX)
       const imgDestY = toCanvasY(minY + offsetY)
-      const imgDestW = cW * scaleFactor * scale
-      const imgDestH = cH * scaleFactor * scale
+      const imgDestW = cW * scaleFactor * scaleX
+      const imgDestH = cH * scaleFactor * scaleY
 
       ctx.drawImage(imageElement, imgDestX, imgDestY, imgDestW, imgDestH)
       ctx.restore()
@@ -208,7 +210,8 @@ export function StudioRegionPhotoModal({
     isOpen,
     currentCountry,
     imageElement,
-    scale,
+    scaleX,
+    scaleY,
     offsetX,
     offsetY,
     opacity,
@@ -227,7 +230,8 @@ export function StudioRegionPhotoModal({
           countryFeature: currentCountry,
           countryId: selectedCountryId,
           imageElement,
-          scale,
+          scaleX,
+          scaleY,
           offsetX,
           offsetY,
           threshold,
@@ -282,8 +286,8 @@ export function StudioRegionPhotoModal({
       const cH = maxY - minY
       const bMinX = minX + offsetX
       const bMinY = minY + offsetY
-      const bMaxX = bMinX + cW * scale
-      const bMaxY = bMinY + cH * scale
+      const bMaxX = bMinX + cW * scaleX
+      const bMaxY = bMinY + cH * scaleY
       overlayData = {
         imageUrl: imageDataUrl,
         bounds: [bMinX, bMinY, bMaxX, bMaxY],
@@ -385,56 +389,188 @@ export function StudioRegionPhotoModal({
               <div className="studio-control-group">
                 <div className="studio-group-title">
                   <span>🎯 Совмещение с контуром страны</span>
-                  <button
-                    type="button"
-                    className="studio-btn-tiny"
-                    onClick={() => {
-                      setScale(1.0)
-                      setOffsetX(0)
-                      setOffsetY(0)
-                      setOpacity(0.7)
-                    }}
-                  >
-                    Сбросить
-                  </button>
+                  <div style={{ display: 'flex', gap: '5px' }}>
+                    <button
+                      type="button"
+                      className={`studio-btn-tiny ${lockAspect ? 'studio-btn-tiny--accent' : ''}`}
+                      onClick={() => setLockAspect(!lockAspect)}
+                      title={lockAspect ? 'Пропорции X и Y связаны' : 'Раздельное растяжение по X и Y'}
+                    >
+                      {lockAspect ? '🔗 Связано' : '🔓 Раздельно'}
+                    </button>
+                    <button
+                      type="button"
+                      className="studio-btn-tiny"
+                      onClick={() => {
+                        setScaleX(1.0)
+                        setScaleY(1.0)
+                        setOffsetX(0)
+                        setOffsetY(0)
+                        setOpacity(0.7)
+                      }}
+                    >
+                      Сбросить
+                    </button>
+                  </div>
                 </div>
 
+                {/* Stretch X */}
                 <div className="studio-slider-row">
-                  <label>Масштаб: {Math.round(scale * 100)}%</label>
+                  <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Растяжение X (ширина): <strong>{Math.round(scaleX * 100)}%</strong></span>
+                    <span style={{ display: 'flex', gap: '3px' }}>
+                      <button
+                        type="button"
+                        className="studio-btn-tiny"
+                        style={{ padding: '0 4px', height: '17px', lineHeight: '17px', fontSize: '10px' }}
+                        onClick={() => {
+                          const val = Math.max(0.2, Number((scaleX - 0.02).toFixed(2)))
+                          setScaleX(val)
+                          if (lockAspect) setScaleY(val)
+                        }}
+                      >
+                        -2%
+                      </button>
+                      <button
+                        type="button"
+                        className="studio-btn-tiny"
+                        style={{ padding: '0 4px', height: '17px', lineHeight: '17px', fontSize: '10px' }}
+                        onClick={() => {
+                          const val = Math.min(3.5, Number((scaleX + 0.02).toFixed(2)))
+                          setScaleX(val)
+                          if (lockAspect) setScaleY(val)
+                        }}
+                      >
+                        +2%
+                      </button>
+                    </span>
+                  </label>
                   <input
                     type="range"
-                    min="0.5"
-                    max="2.5"
-                    step="0.02"
-                    value={scale}
-                    onChange={(e) => setScale(parseFloat(e.target.value))}
+                    min="0.3"
+                    max="3.5"
+                    step="0.01"
+                    value={scaleX}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value)
+                      setScaleX(val)
+                      if (lockAspect) setScaleY(val)
+                    }}
                   />
                 </div>
 
+                {/* Stretch Y */}
                 <div className="studio-slider-row">
-                  <label>Смещение X: {offsetX}px</label>
+                  <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Растяжение Y (высота): <strong>{Math.round(scaleY * 100)}%</strong></span>
+                    <span style={{ display: 'flex', gap: '3px' }}>
+                      <button
+                        type="button"
+                        className="studio-btn-tiny"
+                        style={{ padding: '0 4px', height: '17px', lineHeight: '17px', fontSize: '10px' }}
+                        onClick={() => {
+                          const val = Math.max(0.2, Number((scaleY - 0.02).toFixed(2)))
+                          setScaleY(val)
+                          if (lockAspect) setScaleX(val)
+                        }}
+                      >
+                        -2%
+                      </button>
+                      <button
+                        type="button"
+                        className="studio-btn-tiny"
+                        style={{ padding: '0 4px', height: '17px', lineHeight: '17px', fontSize: '10px' }}
+                        onClick={() => {
+                          const val = Math.min(3.5, Number((scaleY + 0.02).toFixed(2)))
+                          setScaleY(val)
+                          if (lockAspect) setScaleX(val)
+                        }}
+                      >
+                        +2%
+                      </button>
+                    </span>
+                  </label>
                   <input
                     type="range"
-                    min="-150"
-                    max="150"
+                    min="0.3"
+                    max="3.5"
+                    step="0.01"
+                    value={scaleY}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value)
+                      setScaleY(val)
+                      if (lockAspect) setScaleX(val)
+                    }}
+                  />
+                </div>
+
+                {/* Offset X */}
+                <div className="studio-slider-row">
+                  <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Смещение X: <strong>{offsetX}px</strong></span>
+                    <span style={{ display: 'flex', gap: '3px' }}>
+                      <button
+                        type="button"
+                        className="studio-btn-tiny"
+                        style={{ padding: '0 4px', height: '17px', lineHeight: '17px', fontSize: '10px' }}
+                        onClick={() => setOffsetX((v) => v - 1)}
+                      >
+                        -1
+                      </button>
+                      <button
+                        type="button"
+                        className="studio-btn-tiny"
+                        style={{ padding: '0 4px', height: '17px', lineHeight: '17px', fontSize: '10px' }}
+                        onClick={() => setOffsetX((v) => v + 1)}
+                      >
+                        +1
+                      </button>
+                    </span>
+                  </label>
+                  <input
+                    type="range"
+                    min="-300"
+                    max="300"
                     step="1"
                     value={offsetX}
                     onChange={(e) => setOffsetX(parseInt(e.target.value, 10))}
                   />
                 </div>
 
+                {/* Offset Y */}
                 <div className="studio-slider-row">
-                  <label>Смещение Y: {offsetY}px</label>
+                  <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Смещение Y: <strong>{offsetY}px</strong></span>
+                    <span style={{ display: 'flex', gap: '3px' }}>
+                      <button
+                        type="button"
+                        className="studio-btn-tiny"
+                        style={{ padding: '0 4px', height: '17px', lineHeight: '17px', fontSize: '10px' }}
+                        onClick={() => setOffsetY((v) => v - 1)}
+                      >
+                        -1
+                      </button>
+                      <button
+                        type="button"
+                        className="studio-btn-tiny"
+                        style={{ padding: '0 4px', height: '17px', lineHeight: '17px', fontSize: '10px' }}
+                        onClick={() => setOffsetY((v) => v + 1)}
+                      >
+                        +1
+                      </button>
+                    </span>
+                  </label>
                   <input
                     type="range"
-                    min="-150"
-                    max="150"
+                    min="-300"
+                    max="300"
                     step="1"
                     value={offsetY}
                     onChange={(e) => setOffsetY(parseInt(e.target.value, 10))}
                   />
                 </div>
 
+                {/* Opacity */}
                 <div className="studio-slider-row">
                   <label>Прозрачность: {Math.round(opacity * 100)}%</label>
                   <input
