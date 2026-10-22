@@ -437,6 +437,25 @@
         "labelRank": 2,
         "areaWorld": 137123038424535
       }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-production-label",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          969.6948582466551,
+          720.0462236986192
+        ]
+      },
+      "properties": {
+        "id": "country-026-production-label",
+        "countryId": "country-026",
+        "name": "Мантия",
+        "type": "country-label",
+        "labelRank": 2,
+        "areaWorld": 60716996181287
+      }
     }
   ]
 }
