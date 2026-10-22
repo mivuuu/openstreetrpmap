@@ -7,6 +7,7 @@ export type StudioTool =
   | 'bucket-fill'
   | 'move-label'
   | 'erase-region'
+  | 'create-country'
 
 export type StudioMode = 'countries' | 'regions'
 

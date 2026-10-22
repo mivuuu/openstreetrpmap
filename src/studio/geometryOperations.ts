@@ -384,6 +384,42 @@ export function expandRegionGeometry(
   }
 }
 
+export function safeUnionPolygons(
+  featA: Feature<Polygon | MultiPolygon>,
+  featB: Feature<Polygon | MultiPolygon>,
+): Feature<Polygon | MultiPolygon> {
+  try {
+    const u = turf.union(turf.featureCollection([featA, featB]))
+    if (u) return u as Feature<Polygon | MultiPolygon>
+  } catch {
+    // Fallback for disjoint components: combine into MultiPolygon
+  }
+  const coordsA =
+    featA.geometry.type === 'Polygon' ? [featA.geometry.coordinates] : featA.geometry.coordinates
+  const coordsB =
+    featB.geometry.type === 'Polygon' ? [featB.geometry.coordinates] : featB.geometry.coordinates
+  return turf.multiPolygon([...coordsA, ...coordsB]) as Feature<Polygon | MultiPolygon>
+}
+
+export function combinePolygons(
+  parts: (Polygon | MultiPolygon)[],
+): Feature<Polygon | MultiPolygon> {
+  const allCoords: Position[][][] = []
+  for (const geom of parts) {
+    if (geom.type === 'Polygon') {
+      allCoords.push(geom.coordinates as Position[][])
+    } else if (geom.type === 'MultiPolygon') {
+      for (const polyCoords of geom.coordinates) {
+        allCoords.push(polyCoords as Position[][])
+      }
+    }
+  }
+  if (allCoords.length === 1) {
+    return turf.polygon(allCoords[0])
+  }
+  return turf.multiPolygon(allCoords)
+}
+
 /**
  * Finds the island (component polygon of land) at the clicked point
  * and claims it for the target country or region.
@@ -422,23 +458,6 @@ export function claimIslandGeometry(
   }
 
   if (!islandPolygon) return null
-
-function safeUnionPolygons(
-  featA: Feature<Polygon | MultiPolygon>,
-  featB: Feature<Polygon | MultiPolygon>,
-): Feature<Polygon | MultiPolygon> {
-  try {
-    const u = turf.union(turf.featureCollection([featA, featB]))
-    if (u) return u as Feature<Polygon | MultiPolygon>
-  } catch {
-    // Fallback for disjoint components: combine into MultiPolygon
-  }
-  const coordsA =
-    featA.geometry.type === 'Polygon' ? [featA.geometry.coordinates] : featA.geometry.coordinates
-  const coordsB =
-    featB.geometry.type === 'Polygon' ? [featB.geometry.coordinates] : featB.geometry.coordinates
-  return turf.multiPolygon([...coordsA, ...coordsB]) as Feature<Polygon | MultiPolygon>
-}
 
   if (targetType === 'country') {
     const targetCountry = countriesFC.features.find((f) => f.properties?.id === targetId)
@@ -721,3 +740,369 @@ export function recalculateBordersAndLabels(
     regionLabels: { type: 'FeatureCollection', features: regionLabels },
   }
 }
+
+export function getPlanarArea(geom: Geometry): number {
+  const ringArea = (ring: Position[]) => {
+    let area = 0
+    for (let i = 0; i < ring.length - 1; i++) {
+      area += ring[i][0] * ring[i + 1][1] - ring[i + 1][0] * ring[i][1]
+    }
+    return 0.5 * Math.abs(area)
+  }
+
+  if (geom.type === 'Polygon') {
+    let a = ringArea(geom.coordinates[0])
+    for (let i = 1; i < geom.coordinates.length; i++) {
+      a -= ringArea(geom.coordinates[i])
+    }
+    return Math.max(0, a)
+  }
+  if (geom.type === 'MultiPolygon') {
+    return geom.coordinates.reduce((sum, poly) => {
+      let a = ringArea(poly[0])
+      for (let i = 1; i < poly.length; i++) {
+        a -= ringArea(poly[i])
+      }
+      return sum + Math.max(0, a)
+    }, 0)
+  }
+  return 0
+}
+
+export type DetectedTerritory = {
+  territory: Feature<Polygon | MultiPolygon>
+  sourceCountryId: string | null
+  sourceCountryName: string | null
+  areaWorld: number
+}
+
+/**
+ * Finds the specific landmass or country polygon part containing the clicked world point.
+ */
+export function findTerritoryComponentAt(
+  clickPt: [number, number],
+  countriesFC: FeatureCollection<Polygon | MultiPolygon>,
+  landFC: FeatureCollection<Polygon | MultiPolygon>,
+): DetectedTerritory | null {
+  // 1. Check if clickPt is inside any existing country
+  let sourceCountry: Feature<Polygon | MultiPolygon> | null = null
+  let matchedCountryComponent: Feature<Polygon> | null = null
+
+  for (const country of countriesFC.features) {
+    if (!country.geometry) continue
+    if (turf.booleanPointInPolygon(clickPt, country)) {
+      sourceCountry = country
+      const parts = turf.flatten(country).features
+      matchedCountryComponent = parts.find((p) => turf.booleanPointInPolygon(clickPt, p)) || null
+      break
+    }
+  }
+
+  // 2. Also check land.geojson to find if it's an isolated island / land component
+  let matchedLandIsland: Feature<Polygon> | null = null
+  const landFeature = landFC.features[0]
+  if (landFeature) {
+    const landParts = turf.flatten(landFeature).features
+    matchedLandIsland = landParts.find((p) => turf.booleanPointInPolygon(clickPt, p)) || null
+  }
+
+  // 3. Resolve territory geometry
+  let targetTerritory: Feature<Polygon | MultiPolygon> | null = null
+
+  if (matchedCountryComponent && matchedLandIsland) {
+    const inter = turf.intersect(turf.featureCollection([matchedCountryComponent, matchedLandIsland]))
+    if (inter && turf.area(inter) > 0.01) {
+      targetTerritory = inter as Feature<Polygon | MultiPolygon>
+    } else {
+      targetTerritory = matchedCountryComponent
+    }
+  } else if (matchedCountryComponent) {
+    targetTerritory = matchedCountryComponent
+  } else if (matchedLandIsland) {
+    targetTerritory = matchedLandIsland
+  }
+
+  if (!targetTerritory) return null
+
+  return {
+    territory: targetTerritory,
+    sourceCountryId: sourceCountry?.properties?.id || null,
+    sourceCountryName: sourceCountry?.properties?.name || null,
+    areaWorld: Math.round(getPlanarArea(targetTerritory.geometry)),
+  }
+}
+
+/**
+ * Converts a drawn lasso stroke into a valid land territory and identifies overlapping countries.
+ */
+export function findTerritoryFromLasso(
+  lassoPoints: [number, number][],
+  countriesFC: FeatureCollection<Polygon | MultiPolygon>,
+  landFC: FeatureCollection<Polygon | MultiPolygon>,
+): DetectedTerritory | null {
+  const pixelated = pixelateLine(lassoPoints, 1.0)
+  if (pixelated.length < 3) return null
+
+  const closed = [...pixelated, pixelated[0]]
+  let drawnPoly: Feature<Polygon | MultiPolygon>
+  try {
+    const raw = turf.polygon([closed])
+    const unkinked = turf.unkinkPolygon(raw)
+    if (unkinked.features.length > 1) {
+      let merged: Feature<Polygon | MultiPolygon> = unkinked.features[0]
+      for (let i = 1; i < unkinked.features.length; i++) {
+        const u = turf.union(turf.featureCollection([merged, unkinked.features[i]]))
+        if (u) merged = u as Feature<Polygon | MultiPolygon>
+      }
+      drawnPoly = merged
+    } else {
+      drawnPoly = raw
+    }
+  } catch {
+    return null
+  }
+
+  const landFeature = landFC.features[0]
+  if (!landFeature) return null
+
+  const landTerritory = turf.intersect(turf.featureCollection([landFeature, drawnPoly]))
+  if (!landTerritory || turf.area(landTerritory) <= 0.01) return null
+
+  const sourceCountries = countriesFC.features.filter((c) => {
+    const inter = turf.intersect(turf.featureCollection([c, landTerritory]))
+    return inter && turf.area(inter) > 0.01
+  })
+
+  const sourceName = sourceCountries.length === 1
+    ? (sourceCountries[0].properties?.name || sourceCountries[0].properties?.id)
+    : sourceCountries.length > 1
+      ? sourceCountries.map((c) => c.properties?.name || c.properties?.id).join(', ')
+      : null
+
+  const sourceId = sourceCountries.length === 1 ? sourceCountries[0].properties?.id : null
+
+  return {
+    territory: landTerritory as Feature<Polygon | MultiPolygon>,
+    sourceCountryId: sourceId,
+    sourceCountryName: sourceName,
+    areaWorld: Math.round(getPlanarArea(landTerritory.geometry)),
+  }
+}
+
+export type CreateCountryOptions = {
+  territory: Feature<Polygon | MultiPolygon>
+  countryName: string
+  themeColorIndex?: number
+  createCapitalRegion?: boolean
+  countriesFC: FeatureCollection<Polygon | MultiPolygon>
+  regionsFC: FeatureCollection<Polygon | MultiPolygon>
+  countryNames?: Record<string, { name: string }>
+}
+
+export type CreateCountryResult = {
+  countries: FeatureCollection<Polygon | MultiPolygon>
+  regions: FeatureCollection<Polygon | MultiPolygon>
+  countryNames: Record<string, { name: string }>
+  newCountryId: string
+  newCountryFeature: Feature<Polygon | MultiPolygon>
+}
+
+/**
+ * Creates a new independent country from the given territory, cleanly separating
+ * it from any source country and reassigning or creating its internal regions.
+ */
+export function createCountryFromTerritory(options: CreateCountryOptions): CreateCountryResult {
+  const {
+    territory,
+    countryName,
+    themeColorIndex,
+    createCapitalRegion = true,
+    countriesFC,
+    regionsFC,
+    countryNames = {},
+  } = options
+
+  // 1. Generate new unique ID
+  const existingIds = countriesFC.features.map((f) => {
+    const m = f.properties?.id?.match(/country-(\d+)/)
+    return m ? parseInt(m[1], 10) : 0
+  })
+  const nextNum = Math.max(...existingIds, 0) + 1
+  const newCountryId = `country-${String(nextNum).padStart(3, '0')}`
+
+  // 2. Determine theme color index without neighbor clashes
+  let chosenColorIndex = themeColorIndex
+  if (chosenColorIndex === undefined || chosenColorIndex < 0 || chosenColorIndex > 7) {
+    const territoryCenter = turf.pointOnFeature(territory)
+    const neighborColors = new Set<number>()
+
+    for (const country of countriesFC.features) {
+      if (!country.geometry) continue
+      try {
+        const inter = turf.intersect(turf.featureCollection([country, territory]))
+        const dist = turf.distance(territoryCenter, turf.pointOnFeature(country))
+        if ((inter && turf.area(inter) > 0.01) || dist < 2500) {
+          if (typeof country.properties?.themeColorIndex === 'number') {
+            neighborColors.add(country.properties.themeColorIndex)
+          }
+        }
+      } catch {
+        // Ignore
+      }
+    }
+
+    chosenColorIndex = 0
+    for (let c = 0; c < 8; c++) {
+      if (!neighborColors.has(c)) {
+        chosenColorIndex = c
+        break
+      }
+    }
+  }
+
+  // 3. Subtract territory from existing countries
+  const updatedCountries: Feature<Polygon | MultiPolygon>[] = []
+
+  for (const country of countriesFC.features) {
+    const inter = turf.intersect(turf.featureCollection([country, territory]))
+    if (!inter || turf.area(inter) <= 0.01) {
+      updatedCountries.push(country)
+      continue
+    }
+
+    // Safely process each polygon part
+    const parts = turf.flatten(country).features
+    const remainingParts: (Polygon | MultiPolygon)[] = []
+
+    for (const part of parts) {
+      const partInter = turf.intersect(turf.featureCollection([part, territory]))
+      if (!partInter || turf.area(partInter) <= 0.01) {
+        remainingParts.push(part.geometry)
+      } else {
+        const pDiff = turf.difference(turf.featureCollection([part, territory]))
+        if (pDiff && turf.area(pDiff) > 0.01) {
+          remainingParts.push(pDiff.geometry as Polygon | MultiPolygon)
+        }
+      }
+    }
+
+    if (remainingParts.length > 0) {
+      const combinedGeom = combinePolygons(remainingParts)
+      updatedCountries.push({
+        ...country,
+        geometry: combinedGeom.geometry as Polygon | MultiPolygon,
+      })
+    }
+  }
+
+  // 4. Update regions
+  let updatedRegions: Feature<Polygon | MultiPolygon>[] = []
+  const regionsTransferredToNewCountry: Feature<Polygon | MultiPolygon>[] = []
+
+  for (const reg of regionsFC.features) {
+    const inter = turf.intersect(turf.featureCollection([reg, territory]))
+    if (!inter || turf.area(inter) <= 0.01) {
+      updatedRegions.push(reg)
+      continue
+    }
+
+    const regArea = turf.area(reg)
+    const interArea = turf.area(inter)
+
+    if (interArea / regArea > 0.85) {
+      // Transfer whole region to new country
+      const newRegNum = regionsTransferredToNewCountry.length + 1
+      const newReg: Feature<Polygon | MultiPolygon> = {
+        ...reg,
+        properties: {
+          ...reg.properties,
+          id: `${newCountryId}-region-${String(newRegNum).padStart(2, '0')}`,
+          countryId: newCountryId,
+          number: newRegNum,
+        },
+      }
+      regionsTransferredToNewCountry.push(newReg)
+    } else {
+      // Split region
+      const pDiff = turf.difference(turf.featureCollection([reg, territory]))
+      if (pDiff && turf.area(pDiff) > 0.01) {
+        updatedRegions.push({
+          ...reg,
+          geometry: pDiff.geometry as Polygon | MultiPolygon,
+        })
+      }
+      const newRegNum = regionsTransferredToNewCountry.length + 1
+      const newReg: Feature<Polygon | MultiPolygon> = {
+        type: 'Feature',
+        id: `${newCountryId}-region-${String(newRegNum).padStart(2, '0')}`,
+        geometry: inter.geometry as Polygon | MultiPolygon,
+        properties: {
+          id: `${newCountryId}-region-${String(newRegNum).padStart(2, '0')}`,
+          name: reg.properties?.name || `Регион ${newRegNum}`,
+          countryId: newCountryId,
+          number: newRegNum,
+          isCapital: Boolean(reg.properties?.isCapital),
+          labelRank: 1,
+          styleIndex: 0,
+        },
+      }
+      regionsTransferredToNewCountry.push(newReg)
+    }
+  }
+
+  // If no regions were transferred, create a capital region covering the territory
+  if (regionsTransferredToNewCountry.length === 0 && createCapitalRegion) {
+    const capitalReg: Feature<Polygon | MultiPolygon> = {
+      type: 'Feature',
+      id: `${newCountryId}-region-01`,
+      geometry: territory.geometry,
+      properties: {
+        id: `${newCountryId}-region-01`,
+        name: countryName,
+        countryId: newCountryId,
+        number: 1,
+        isCapital: true,
+        labelRank: 1,
+        styleIndex: 0,
+      },
+    }
+    regionsTransferredToNewCountry.push(capitalReg)
+  }
+
+  updatedRegions = [...updatedRegions, ...regionsTransferredToNewCountry]
+
+  // 5. Create new sovereign country feature
+  const newCountryFeature: Feature<Polygon | MultiPolygon> = {
+    type: 'Feature',
+    id: newCountryId,
+    geometry: territory.geometry,
+    properties: {
+      id: newCountryId,
+      name: countryName,
+      type: 'country',
+      themeColorIndex: chosenColorIndex,
+      status: 'studio-created',
+    },
+  }
+
+  // 6. Update country names registry
+  const updatedCountryNames: Record<string, { name: string }> = {
+    ...countryNames,
+    [newCountryId]: { name: countryName },
+  }
+
+  return {
+    countries: {
+      ...countriesFC,
+      features: [...updatedCountries, newCountryFeature],
+    },
+    regions: {
+      ...regionsFC,
+      features: updatedRegions,
+    },
+    countryNames: updatedCountryNames,
+    newCountryId,
+    newCountryFeature,
+  }
+}
+

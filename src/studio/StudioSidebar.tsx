@@ -20,6 +20,7 @@ type Props = {
   onStartSlice: () => void
   onStartRedrawBorder: () => void
   onStartMoveLabel: () => void
+  onStartCreateCountry?: () => void
 }
 
 export function StudioSidebar({
@@ -40,6 +41,7 @@ export function StudioSidebar({
   onStartSlice,
   onStartRedrawBorder,
   onStartMoveLabel,
+  onStartCreateCountry,
 }: Props) {
   const [search, setSearch] = useState('')
 
@@ -49,6 +51,25 @@ export function StudioSidebar({
 
   return (
     <aside className="studio-sidebar" aria-label="Свойства объектов карты">
+      {/* Create Country Helper Banner */}
+      {activeTool === 'create-country' && (
+        <div
+          className="studio-sidebar__banner"
+          style={{
+            borderColor: 'rgba(52, 211, 153, 0.4)',
+            background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.3) 0%, rgba(6, 95, 70, 0.15) 100%)',
+          }}
+        >
+          <span className="studio-banner-icon">✨</span>
+          <div>
+            <strong style={{ color: '#6ee7b7' }}>Создание нового государства</strong>
+            <p>
+              Кликните по острову или участку суши, либо обведите петлёй лассо территорию на карте, чтобы отделить её в независимое государство.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Move Label Helper Banner */}
       {activeTool === 'move-label' && (
         <div className="studio-sidebar__banner studio-sidebar__banner--label">
@@ -200,7 +221,25 @@ export function StudioSidebar({
           ) : (
             <div className="studio-list-view">
               <div className="studio-list-header">
-                <h3>Все государства ({countries.length})</h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <h3 style={{ margin: 0 }}>Все государства ({countries.length})</h3>
+                  {onStartCreateCountry && (
+                    <button
+                      type="button"
+                      className="studio-btn studio-btn--primary studio-btn--sm"
+                      onClick={onStartCreateCountry}
+                      title="Отделить территорию или остров в новое государство"
+                      style={{
+                        background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                        borderColor: '#34d399',
+                        padding: '4px 10px',
+                        fontSize: '12px',
+                      }}
+                    >
+                      ➕ Создать
+                    </button>
+                  )}
+                </div>
                 <input
                   type="search"
                   className="studio-input studio-input--sm"

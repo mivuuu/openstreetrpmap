@@ -7,10 +7,14 @@ import { worldFeatureCollectionToMap } from '../map/geojsonCoordinates'
 import { mapToWorld, worldToMap } from '../map/worldCoordinates'
 import {
   claimIslandGeometry,
+  createCountryFromTerritory,
+  findTerritoryComponentAt,
+  findTerritoryFromLasso,
   pixelateLine,
   recalculateBordersAndLabels,
   splitPolygonGeometry,
 } from './geometryOperations'
+import { StudioCreateCountryModal } from './StudioCreateCountryModal'
 import { StudioDrawingCanvas } from './StudioDrawingCanvas'
 import { StudioPublishModal } from './StudioPublishModal'
 import { StudioRegionPhotoModal } from './StudioRegionPhotoModal'
@@ -43,6 +47,19 @@ export function StudioManager({ map, onExit }: Props) {
   const [toasts, setToasts] = useState<StudioToast[]>([])
   const [history, setHistory] = useState<GeoJsonDataState[]>([])
   const [future, setFuture] = useState<GeoJsonDataState[]>([])
+  const [createCountryModalState, setCreateCountryModalState] = useState<{
+    isOpen: boolean
+    territory: Feature<Polygon | MultiPolygon> | null
+    sourceCountryName: string | null
+    suggestedId: string
+    suggestedColorIndex: number
+  }>({
+    isOpen: false,
+    territory: null,
+    sourceCountryName: null,
+    suggestedId: '',
+    suggestedColorIndex: 0,
+  })
 
   const dataRef = useRef<GeoJsonDataState | null>(null)
   dataRef.current = data
@@ -725,6 +742,135 @@ export function StudioManager({ map, onExit }: Props) {
     [data, mode, fillCountryId, selectedCountryId, fillRegionId, applyDataUpdate],
   )
 
+  // Helper to calculate next country ID and non-conflicting color
+  const getNextCountryIdAndColor = useCallback(
+    (territory: Feature<Polygon | MultiPolygon>) => {
+      if (!dataRef.current) return { nextId: 'country-026', colorIndex: 0 }
+      const existingIds = dataRef.current.countries.features.map((f) => {
+        const m = f.properties?.id?.match(/country-(\d+)/)
+        return m ? parseInt(m[1], 10) : 0
+      })
+      const nextNum = Math.max(...existingIds, 0) + 1
+      const nextId = `country-${String(nextNum).padStart(3, '0')}`
+
+      const territoryCenter = turf.pointOnFeature(territory)
+      const neighborColors = new Set<number>()
+      for (const country of dataRef.current.countries.features) {
+        if (!country.geometry) continue
+        try {
+          const inter = turf.intersect(turf.featureCollection([country, territory]))
+          const dist = turf.distance(territoryCenter, turf.pointOnFeature(country))
+          if ((inter && turf.area(inter) > 0.01) || dist < 2500) {
+            if (typeof country.properties?.themeColorIndex === 'number') {
+              neighborColors.add(country.properties.themeColorIndex)
+            }
+          }
+        } catch {
+          // Ignore
+        }
+      }
+
+      let colorIndex = 0
+      for (let c = 0; c < 8; c++) {
+        if (!neighborColors.has(c)) {
+          colorIndex = c
+          break
+        }
+      }
+
+      return { nextId, colorIndex }
+    },
+    [],
+  )
+
+  // 4. Create country handlers (click or lasso)
+  const handleCreateCountryClick = useCallback(
+    (clickWorldPt: [number, number]) => {
+      if (!data) return
+      const found = findTerritoryComponentAt(clickWorldPt, data.countries, data.land)
+      if (!found) {
+        addToast('Кликните по острову или участку суши для создания государства', 'warning')
+        return
+      }
+
+      const { nextId, colorIndex } = getNextCountryIdAndColor(found.territory)
+      setCreateCountryModalState({
+        isOpen: true,
+        territory: found.territory,
+        sourceCountryName: found.sourceCountryName,
+        suggestedId: nextId,
+        suggestedColorIndex: colorIndex,
+      })
+    },
+    [data, getNextCountryIdAndColor],
+  )
+
+  const handleCreateCountryLasso = useCallback(
+    (linePoints: [number, number][]) => {
+      if (!data) return
+      const found = findTerritoryFromLasso(linePoints, data.countries, data.land)
+      if (!found) {
+        addToast('Обведите замкнутой петлёй участок суши для отделения в государство', 'warning')
+        return
+      }
+
+      const { nextId, colorIndex } = getNextCountryIdAndColor(found.territory)
+      setCreateCountryModalState({
+        isOpen: true,
+        territory: found.territory,
+        sourceCountryName: found.sourceCountryName,
+        suggestedId: nextId,
+        suggestedColorIndex: colorIndex,
+      })
+    },
+    [data, getNextCountryIdAndColor],
+  )
+
+  const handleConfirmCreateCountry = useCallback(
+    ({
+      countryName,
+      themeColorIndex,
+      createCapitalRegion,
+    }: {
+      countryName: string
+      themeColorIndex: number
+      createCapitalRegion: boolean
+    }) => {
+      if (!data || !createCountryModalState.territory) return
+
+      const result = createCountryFromTerritory({
+        territory: createCountryModalState.territory,
+        countryName,
+        themeColorIndex,
+        createCapitalRegion,
+        countriesFC: data.countries,
+        regionsFC: data.regions,
+        countryNames: data.countryNames,
+      })
+
+      applyDataUpdate(() => ({
+        countries: result.countries,
+        regions: result.regions,
+        countryNames: result.countryNames,
+      }))
+
+      setCreateCountryModalState({
+        isOpen: false,
+        territory: null,
+        sourceCountryName: null,
+        suggestedId: '',
+        suggestedColorIndex: 0,
+      })
+
+      setSelectedCountryId(result.newCountryId)
+      setFillCountryId(result.newCountryId)
+      setActiveTool('select')
+
+      addToast(`🎉 Государство «${countryName}» (${result.newCountryId}) успешно создано!`, 'success')
+    },
+    [data, createCountryModalState.territory, applyDataUpdate],
+  )
+
   // 4. Renaming countries
   const handleCountryNameChange = useCallback(
     (countryId: string, newName: string) => {
@@ -993,6 +1139,11 @@ export function StudioManager({ map, onExit }: Props) {
             setActiveTool('move-label')
             addToast('Зажмите метку любого названия на карте и перемещайте её в нужное место!', 'info')
           }}
+          onStartCreateCountry={() => {
+            setMode('countries')
+            setActiveTool('create-country')
+            addToast('Кликните по острову или обведите территорию лассо для отделения в новую страну!', 'info')
+          }}
         />
       )}
 
@@ -1010,9 +1161,25 @@ export function StudioManager({ map, onExit }: Props) {
           onRedrawBorderLine={handleRedrawBorderLine}
           onBucketClick={handleBucketClick}
           onMoveLabel={handleMoveLabel}
+          onCreateCountryClick={handleCreateCountryClick}
+          onCreateCountryLasso={handleCreateCountryLasso}
+          pendingTerritory={createCountryModalState.territory}
           mapOverlay={mapOverlay}
         />
       )}
+
+      {/* Create Country Modal */}
+      <StudioCreateCountryModal
+        isOpen={createCountryModalState.isOpen}
+        onClose={() =>
+          setCreateCountryModalState((prev) => ({ ...prev, isOpen: false, territory: null }))
+        }
+        territory={createCountryModalState.territory}
+        sourceCountryName={createCountryModalState.sourceCountryName}
+        suggestedId={createCountryModalState.suggestedId}
+        suggestedColorIndex={createCountryModalState.suggestedColorIndex}
+        onConfirm={handleConfirmCreateCountry}
+      />
 
       {/* Photo import modal for automatic region tracing */}
       {data && (

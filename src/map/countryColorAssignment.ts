@@ -46,7 +46,10 @@ export function assignCountryThemeColors(
         ...feature,
         properties: {
           ...feature.properties,
-          themeColorIndex: COUNTRY_COLOR_INDEX[id] ?? fallbackColorIndex(id),
+          themeColorIndex:
+            typeof feature.properties?.themeColorIndex === 'number'
+              ? feature.properties.themeColorIndex
+              : (COUNTRY_COLOR_INDEX[id] ?? fallbackColorIndex(id)),
         },
       }
     }),

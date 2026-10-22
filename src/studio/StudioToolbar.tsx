@@ -98,6 +98,18 @@ export function StudioToolbar({
           <span>Выбор</span>
         </button>
 
+        {mode === 'countries' && (
+          <button
+            type="button"
+            className={`studio-tool-btn studio-tool-btn--accent ${activeTool === 'create-country' ? 'studio-tool-btn--active' : ''}`}
+            onClick={() => onToolChange('create-country')}
+            title="Отделить территорию или остров в отдельное новое государство"
+          >
+            <span className="studio-tool-icon">➕</span>
+            <span>Создать страну</span>
+          </button>
+        )}
+
         {mode === 'regions' && (
           <button
             type="button"

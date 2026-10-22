@@ -17,6 +17,9 @@ type Props = {
   onRedrawBorderLine: (points: [number, number][]) => void
   onBucketClick: (worldPt: [number, number]) => void
   onMoveLabel: (labelId: string, newWorldPt: [number, number], type: 'country' | 'region') => void
+  onCreateCountryClick?: (worldPt: [number, number]) => void
+  onCreateCountryLasso?: (points: [number, number][]) => void
+  pendingTerritory?: Feature<Polygon | MultiPolygon> | null
   mapOverlay?: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null
 }
 
@@ -32,6 +35,9 @@ export function StudioDrawingCanvas({
   onRedrawBorderLine,
   onBucketClick,
   onMoveLabel,
+  onCreateCountryClick,
+  onCreateCountryLasso,
+  pendingTerritory,
   mapOverlay,
 }: Props) {
   const [isDrawing, setIsDrawing] = useState(false)
@@ -90,7 +96,11 @@ export function StudioDrawingCanvas({
   useEffect(() => {
     if (!map) return
     map.scrollZoom.enable()
-    if (activeTool === 'slice-region' || activeTool === 'redraw-border') {
+    if (
+      activeTool === 'slice-region' ||
+      activeTool === 'redraw-border' ||
+      activeTool === 'create-country'
+    ) {
       map.dragPan.disable()
       map.boxZoom.disable()
     } else {
@@ -303,6 +313,17 @@ export function StudioDrawingCanvas({
     setScreenStroke([])
     worldPointsRef.current = []
 
+    if (activeTool === 'create-country') {
+      if (worldPts.length < 3) {
+        if (worldPts.length > 0 && onCreateCountryClick) {
+          onCreateCountryClick(worldPts[0])
+        }
+      } else if (onCreateCountryLasso) {
+        onCreateCountryLasso(worldPts)
+      }
+      return
+    }
+
     if (worldPts.length < 2) return
 
     if (activeTool === 'slice-region') {
@@ -403,7 +424,39 @@ export function StudioDrawingCanvas({
         />
       )}
 
-      {/* Lasso closed loop preview and closing dashed chord */}
+      {/* Pending territory glowing highlight */}
+      {pendingTerritory && map && (
+        <g className="studio-pending-territory-highlight">
+          {turf.flatten(pendingTerritory).features.map((part, pIdx) => {
+            const geom = part.geometry
+            const coordsList = geom.type === 'Polygon' ? [geom.coordinates] : []
+            return coordsList.map((rings, rIdx) => {
+              const outerRing = rings[0]
+              if (!outerRing || outerRing.length < 3) return null
+              const pts = outerRing
+                .map(([wx, wy]) => {
+                  const [lng, lat] = worldToMap({ x: wx, y: wy })
+                  const p = map.project([lng, lat])
+                  return `${p.x},${p.y}`
+                })
+                .join(' ')
+              return (
+                <polygon
+                  key={`pending-poly-${pIdx}-${rIdx}`}
+                  points={pts}
+                  fill="rgba(52, 211, 153, 0.28)"
+                  stroke="#34d399"
+                  strokeWidth="2.5"
+                  strokeDasharray="6 4"
+                  style={{ filter: 'drop-shadow(0 0 8px rgba(52, 211, 153, 0.8))' }}
+                />
+              )
+            })
+          })}
+        </g>
+      )}
+
+      {/* Lasso closed loop preview and closing dashed chord for redraw-border */}
       {screenStroke.length >= 2 && activeTool === 'redraw-border' && (
         <>
           <polygon
@@ -435,12 +488,43 @@ export function StudioDrawingCanvas({
         </>
       )}
 
+      {/* Lasso closed loop preview and closing dashed chord for create-country */}
+      {screenStroke.length >= 2 && activeTool === 'create-country' && (
+        <>
+          <polygon
+            points={screenStroke.map(([x, y]) => `${x},${y}`).join(' ')}
+            fill="rgba(52, 211, 153, 0.25)"
+            stroke="none"
+          />
+          <line
+            x1={screenStroke[screenStroke.length - 1][0]}
+            y1={screenStroke[screenStroke.length - 1][1]}
+            x2={screenStroke[0][0]}
+            y2={screenStroke[0][1]}
+            stroke="#34d399"
+            strokeWidth="1.8"
+            strokeDasharray="5 4"
+            opacity="0.9"
+          />
+          <circle cx={screenStroke[0][0]} cy={screenStroke[0][1]} r="5" fill="#34d399" />
+          <circle
+            cx={screenStroke[0][0]}
+            cy={screenStroke[0][1]}
+            r="9"
+            fill="none"
+            stroke="#34d399"
+            strokeWidth="1.5"
+            opacity="0.7"
+          />
+        </>
+      )}
+
       {/* Render thin crisp drawn line */}
       {pathD && (
         <path
           d={pathD}
           fill="none"
-          stroke={activeTool === 'redraw-border' ? '#38bdf8' : '#22d3ee'}
+          stroke={activeTool === 'create-country' ? '#34d399' : activeTool === 'redraw-border' ? '#38bdf8' : '#22d3ee'}
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
