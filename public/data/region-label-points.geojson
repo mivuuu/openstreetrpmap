@@ -1672,6 +1672,292 @@
         "styleIndex": 1,
         "areaWorld": 947024894487
       }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-01",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          933.5,
+          702.5
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-01",
+        "number": 1,
+        "name": "Нордвейн",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 1,
+        "areaWorld": 10040500411401
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-02",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          967,
+          690
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-02",
+        "number": 2,
+        "name": "Кастерваль",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 8216228333156
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-03",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          980,
+          717.5
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-03",
+        "number": 3,
+        "name": "Мерован",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 6834489892813
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-04",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          960,
+          732
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-04",
+        "number": 4,
+        "name": "Эльзенбург",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 6006185480110
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-05",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          996,
+          768.5
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-05",
+        "number": 5,
+        "name": "Эстерваль",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 3730424407477
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-06",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          943,
+          726
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-06",
+        "number": 6,
+        "name": "Регион 6",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 6483276728126
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-07",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          970.5,
+          709
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-07",
+        "number": 7,
+        "name": "Дорнвальд",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 4272090991890
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-08",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1002.5,
+          749
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-08",
+        "number": 8,
+        "name": "Арденвик",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 4806354918540
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-09",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          982,
+          756.5
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-09",
+        "number": 9,
+        "name": "Вальден",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 3107098113437
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-10",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1003.5,
+          720
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-10",
+        "number": 10,
+        "name": "Кальдерия",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 3077335166416
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-11",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          991.5,
+          733.5
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-11",
+        "number": 11,
+        "name": "Ровенмарк",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 2016470820004
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-region-13",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1008,
+          729.5
+        ]
+      },
+      "properties": {
+        "id": "country-026-region-13",
+        "number": 13,
+        "name": "Лоренваль",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 1616715679778
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-026-manteval",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          992,
+          722.5
+        ]
+      },
+      "properties": {
+        "id": "country-026-manteval",
+        "number": 16,
+        "name": "Мантеваль",
+        "type": "region",
+        "countryId": "country-026",
+        "isCapital": true,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 481563881946
+      }
     }
   ]
 }
