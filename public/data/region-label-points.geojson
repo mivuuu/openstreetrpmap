@@ -1958,6 +1958,534 @@
         "styleIndex": 3,
         "areaWorld": 95345028695
       }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-01",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          949.5,
+          278.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-01",
+        "number": 1,
+        "name": "Зимбария",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 1,
+        "areaWorld": 3316956815962
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-02",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          911.2929279729734,
+          371.8794221024817
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-02",
+        "number": 2,
+        "name": "Миянаб",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 26400834967963
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-03",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          995.761243349327,
+          319.65498796937936
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-03",
+        "number": 3,
+        "name": "Панджруд",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 16536355840409
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-04",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1019,
+          356
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-04",
+        "number": 4,
+        "name": "Сурхаб",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 20383453479812
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-05",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          912,
+          330.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-05",
+        "number": 5,
+        "name": "Пагришахр",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 16764825329690
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-06",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          959,
+          330.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-06",
+        "number": 6,
+        "name": "Шахристан",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 16161917091403
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-07",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          864.5,
+          323.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-07",
+        "number": 7,
+        "name": "Зардара",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 17590511650343
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-08",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          952.5,
+          428.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-08",
+        "number": 8,
+        "name": "Гармсир",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 5780778319820
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-09",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          943.5,
+          404.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-09",
+        "number": 9,
+        "name": "Кандагарх",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 10443770270631
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-10",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          982.5,
+          358.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-10",
+        "number": 10,
+        "name": "Пешаванд",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 14157749393034
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-11",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          864.5,
+          391.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-11",
+        "number": 11,
+        "name": "Баграмкот",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 12556078259258
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-13",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          949.859622697406,
+          372.549987879884
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-13",
+        "number": 13,
+        "name": "Пешаванд",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 11725856732300
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-14",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          841.6015013742156,
+          375.84439674510253
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-14",
+        "number": 14,
+        "name": "Калати-Зар",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 12220817954756
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-15",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          902.664356805077,
+          417.7127102281107
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-15",
+        "number": 15,
+        "name": "Регистан",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 12380385159663
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-16",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          977.5,
+          391.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-16",
+        "number": 16,
+        "name": "Рошанабад",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 8508116093048
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-17",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1003.7367384150122,
+          392.6326106873509
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-17",
+        "number": 17,
+        "name": "Нилаб",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 8197104219678
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-18",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          930.5,
+          317.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-18",
+        "number": 18,
+        "name": "Тахти-Пагри",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 5906361821467
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-19",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          860,
+          347
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-19",
+        "number": 19,
+        "name": "Ширваншахр",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 8690787944215
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-20",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          900,
+          296.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-20",
+        "number": 20,
+        "name": "Дарваза",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 4835453270588
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-21",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          876.5,
+          358
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-21",
+        "number": 21,
+        "name": "Сарбанд",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 6091712631244
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-22",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          985,
+          408.5
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-22",
+        "number": 22,
+        "name": "Белуджкот",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 2074365482919
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-gulistan",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1030,
+          382
+        ]
+      },
+      "properties": {
+        "id": "country-009-gulistan",
+        "number": 23,
+        "name": "Гулистан",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 3894558967249
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-badakhshar",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          989.25,
+          289
+        ]
+      },
+      "properties": {
+        "id": "country-009-badakhshar",
+        "number": 24,
+        "name": "Бадахшар",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 2328695344517
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-009-region-25",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          909.5,
+          335
+        ]
+      },
+      "properties": {
+        "id": "country-009-region-25",
+        "number": 25,
+        "name": "Шахбазгарх",
+        "type": "region",
+        "countryId": "country-009",
+        "isCapital": true,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 162207796651
+      }
     }
   ]
 }
