@@ -1657,8 +1657,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          744.8563428004164,
-          737.3204527796902
+          743.4144125144131,
+          737.4449343637416
         ]
       },
       "properties": {
@@ -1670,7 +1670,7 @@
         "isCapital": true,
         "labelRank": 1,
         "styleIndex": 1,
-        "areaWorld": 712869365021
+        "areaWorld": 947024894487
       }
     }
   ]
