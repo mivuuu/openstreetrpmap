@@ -1606,6 +1606,50 @@
         "styleIndex": 3,
         "areaWorld": 28202146176
       }
+    },
+    {
+      "type": "Feature",
+      "id": "country-019-iudeyskaya-avtonomiya",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          988.6867619526355,
+          580.7435570795869
+        ]
+      },
+      "properties": {
+        "id": "country-019-iudeyskaya-avtonomiya",
+        "number": 35,
+        "name": "Иудейская Автономия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 65135890987454
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-019-salabimiya",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          932.4720647193844,
+          655.6077440912205
+        ]
+      },
+      "properties": {
+        "id": "country-019-salabimiya",
+        "number": 36,
+        "name": "Салабимия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 16116687176324
+      }
     }
   ]
 }
