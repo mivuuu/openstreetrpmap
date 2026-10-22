@@ -1675,288 +1675,288 @@
     },
     {
       "type": "Feature",
-      "id": "country-026-region-01",
+      "id": "country-011-region-01",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          933.5,
-          702.5
+          623.0257946232381,
+          621.5856655118271
         ]
       },
       "properties": {
-        "id": "country-026-region-01",
+        "id": "country-011-region-01",
         "number": 1,
-        "name": "Нордвейн",
+        "name": "Туоремаа",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 2,
         "styleIndex": 1,
-        "areaWorld": 10040500411401
+        "areaWorld": 455682328970
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-02",
+      "id": "country-011-region-02",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          967,
-          690
+          642.5,
+          612.5
         ]
       },
       "properties": {
-        "id": "country-026-region-02",
+        "id": "country-011-region-02",
         "number": 2,
-        "name": "Кастерваль",
+        "name": "Харьюмяки",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 2,
-        "areaWorld": 8216228333156
+        "areaWorld": 796859815347
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-03",
+      "id": "country-011-valkeamaa",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          980,
-          717.5
+          599.5,
+          622.5
         ]
       },
       "properties": {
-        "id": "country-026-region-03",
+        "id": "country-011-valkeamaa",
         "number": 3,
-        "name": "Мерован",
+        "name": "Валкеамаа",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 3,
-        "areaWorld": 6834489892813
+        "areaWorld": 234264334209
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-04",
+      "id": "country-011-region-04",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          960,
-          732
+          609.0946892786144,
+          617.664469586302
         ]
       },
       "properties": {
-        "id": "country-026-region-04",
+        "id": "country-011-region-04",
         "number": 4,
-        "name": "Эльзенбург",
+        "name": "Виртанен",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 4,
-        "areaWorld": 6006185480110
+        "areaWorld": 384403502482
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-05",
+      "id": "country-011-region-05",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          996,
-          768.5
+          638,
+          627
         ]
       },
       "properties": {
-        "id": "country-026-region-05",
+        "id": "country-011-region-05",
         "number": 5,
-        "name": "Эстерваль",
+        "name": "Ауранлахти",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 0,
-        "areaWorld": 3730424407477
+        "areaWorld": 70638644491
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-06",
+      "id": "country-011-region-06",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          943,
-          726
+          614.5,
+          612.5
         ]
       },
       "properties": {
-        "id": "country-026-region-06",
+        "id": "country-011-region-06",
         "number": 6,
-        "name": "Вестернвальд",
+        "name": "Илмавеси",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 1,
-        "areaWorld": 6483276728126
+        "areaWorld": 446624745574
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-07",
+      "id": "country-011-region-07",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          970.5,
-          709
+          599,
+          614.5
         ]
       },
       "properties": {
-        "id": "country-026-region-07",
+        "id": "country-011-region-07",
         "number": 7,
-        "name": "Дорнвальд",
+        "name": "Лумилахти",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 2,
-        "areaWorld": 4272090991890
+        "areaWorld": 272522097017
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-08",
+      "id": "country-011-region-08",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          1002.5,
-          749
+          626,
+          610
         ]
       },
       "properties": {
-        "id": "country-026-region-08",
+        "id": "country-011-region-08",
         "number": 8,
-        "name": "Арденвик",
+        "name": "Кивиярви",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 3,
-        "areaWorld": 4806354918540
+        "areaWorld": 346798868067
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-09",
+      "id": "country-011-region-09",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          982,
-          756.5
+          604,
+          628
         ]
       },
       "properties": {
-        "id": "country-026-region-09",
+        "id": "country-011-region-09",
         "number": 9,
-        "name": "Вальден",
+        "name": "Суоманиеми",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 4,
-        "areaWorld": 3107098113437
+        "areaWorld": 38366584920
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-10",
+      "id": "country-011-region-10",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          1003.5,
-          720
+          620.5,
+          632.5
         ]
       },
       "properties": {
-        "id": "country-026-region-10",
+        "id": "country-011-region-10",
         "number": 10,
-        "name": "Кальдерия",
+        "name": "Нурмела",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 0,
-        "areaWorld": 3077335166416
+        "areaWorld": 41528863440
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-11",
+      "id": "country-011-region-11",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          991.5,
-          733.5
+          643.5,
+          621
         ]
       },
       "properties": {
-        "id": "country-026-region-11",
+        "id": "country-011-region-11",
         "number": 11,
-        "name": "Ровенмарк",
+        "name": "Сарвикоски",
         "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 1,
-        "areaWorld": 2016470820004
+        "areaWorld": 123564107903
       }
     },
     {
       "type": "Feature",
-      "id": "country-026-region-13",
+      "id": "country-011-kuuranniemi",
       "geometry": {
         "type": "Point",
         "coordinates": [
-          1008,
-          729.5
+          635,
+          614.5
         ]
       },
       "properties": {
-        "id": "country-026-region-13",
-        "number": 13,
-        "name": "Лоренваль",
+        "id": "country-011-kuuranniemi",
+        "number": 12,
+        "name": "Кууранниеми",
         "type": "region",
-        "countryId": "country-026",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 3,
-        "areaWorld": 1616715679778
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-026-manteval",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          992,
-          722.5
-        ]
-      },
-      "properties": {
-        "id": "country-026-manteval",
-        "number": 16,
-        "name": "Мантеваль",
-        "type": "region",
-        "countryId": "country-026",
+        "countryId": "country-011",
         "isCapital": true,
         "labelRank": 1,
-        "styleIndex": 1,
-        "areaWorld": 481563881946
+        "styleIndex": 2,
+        "areaWorld": 54507522855
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-011-kaynumaa",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633.5,
+          618
+        ]
+      },
+      "properties": {
+        "id": "country-011-kaynumaa",
+        "number": 13,
+        "name": "Кайнумаа",
+        "type": "region",
+        "countryId": "country-011",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 95345028695
       }
     }
   ]
