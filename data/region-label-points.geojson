@@ -1650,6 +1650,28 @@
         "styleIndex": 1,
         "areaWorld": 16116687176324
       }
+    },
+    {
+      "type": "Feature",
+      "id": "country-014-region-02",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          744.8563428004164,
+          737.3204527796902
+        ]
+      },
+      "properties": {
+        "id": "country-014-region-02",
+        "number": 2,
+        "name": "Грюндберг",
+        "type": "region",
+        "countryId": "country-014",
+        "isCapital": true,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 712869365021
+      }
     }
   ]
 }
