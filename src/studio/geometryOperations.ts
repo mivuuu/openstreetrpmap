@@ -423,12 +423,28 @@ export function claimIslandGeometry(
 
   if (!islandPolygon) return null
 
+function safeUnionPolygons(
+  featA: Feature<Polygon | MultiPolygon>,
+  featB: Feature<Polygon | MultiPolygon>,
+): Feature<Polygon | MultiPolygon> {
+  try {
+    const u = turf.union(turf.featureCollection([featA, featB]))
+    if (u) return u as Feature<Polygon | MultiPolygon>
+  } catch {
+    // Fallback for disjoint components: combine into MultiPolygon
+  }
+  const coordsA =
+    featA.geometry.type === 'Polygon' ? [featA.geometry.coordinates] : featA.geometry.coordinates
+  const coordsB =
+    featB.geometry.type === 'Polygon' ? [featB.geometry.coordinates] : featB.geometry.coordinates
+  return turf.multiPolygon([...coordsA, ...coordsB]) as Feature<Polygon | MultiPolygon>
+}
+
   if (targetType === 'country') {
     const targetCountry = countriesFC.features.find((f) => f.properties?.id === targetId)
     if (!targetCountry) return null
 
-    const newTarget = turf.union(turf.featureCollection([targetCountry, islandPolygon]))
-    if (!newTarget) return null
+    const newTarget = safeUnionPolygons(targetCountry, islandPolygon)
 
     const updatedCountries = countriesFC.features.map((feature) => {
       if (feature.properties?.id === targetId) {
@@ -437,16 +453,54 @@ export function claimIslandGeometry(
       const inter = turf.intersect(turf.featureCollection([feature, islandPolygon!]))
       if (inter && turf.area(inter) > 0.001) {
         const diff = turf.difference(turf.featureCollection([feature, islandPolygon!]))
-        if (diff) {
+        if (diff && turf.area(diff) > 0.001) {
           return { ...feature, geometry: diff.geometry as Polygon | MultiPolygon }
         }
       }
       return feature
     })
 
+    // Also update regions:
+    // 1. Remove/trim any foreign region that covered this island
+    let updatedRegions = regionsFC.features
+      .map((reg) => {
+        const inter = turf.intersect(turf.featureCollection([reg, islandPolygon!]))
+        if (inter && turf.area(inter) > 0.001) {
+          const diff = turf.difference(turf.featureCollection([reg, islandPolygon!]))
+          if (diff && turf.area(diff) > 0.001) {
+            return { ...reg, geometry: diff.geometry as Polygon | MultiPolygon }
+          }
+          return null
+        }
+        return reg
+      })
+      .filter((r): r is Feature<Polygon | MultiPolygon> => r !== null)
+
+    // 2. If target country has regions, attach the island to its nearest region
+    const targetCountryRegions = updatedRegions.filter((r) => r.properties?.countryId === targetId)
+    if (targetCountryRegions.length > 0) {
+      let bestRegion = targetCountryRegions[0]
+      let minDistance = Infinity
+      const clickPtFeature = turf.point(clickPt)
+      for (const reg of targetCountryRegions) {
+        const d = turf.distance(clickPtFeature, turf.pointOnFeature(reg))
+        if (d < minDistance) {
+          minDistance = d
+          bestRegion = reg
+        }
+      }
+      const newRegionGeom = safeUnionPolygons(bestRegion, islandPolygon)
+      updatedRegions = updatedRegions.map((reg) => {
+        if (reg.properties?.id === bestRegion.properties?.id) {
+          return { ...reg, geometry: newRegionGeom.geometry as Polygon | MultiPolygon }
+        }
+        return reg
+      })
+    }
+
     return {
       countries: { ...countriesFC, features: updatedCountries },
-      regions: regionsFC,
+      regions: { ...regionsFC, features: updatedRegions },
     }
   }
 
@@ -459,41 +513,39 @@ export function claimIslandGeometry(
     const targetCountry = countriesFC.features.find((f) => f.properties?.id === countryId)
     let updatedCountries = countriesFC
     if (targetCountry) {
-      const newCountry = turf.union(turf.featureCollection([targetCountry, islandPolygon]))
-      if (newCountry) {
-        updatedCountries = {
-          ...countriesFC,
-          features: countriesFC.features.map((f) => {
-            if (f.properties?.id === countryId) {
-              return { ...f, geometry: newCountry.geometry as Polygon | MultiPolygon }
-            }
-            const inter = turf.intersect(turf.featureCollection([f, islandPolygon!]))
-            if (inter && turf.area(inter) > 0.001) {
-              const diff = turf.difference(turf.featureCollection([f, islandPolygon!]))
-              if (diff) return { ...f, geometry: diff.geometry as Polygon | MultiPolygon }
-            }
-            return f
-          }),
-        }
+      const newCountry = safeUnionPolygons(targetCountry, islandPolygon)
+      updatedCountries = {
+        ...countriesFC,
+        features: countriesFC.features.map((f) => {
+          if (f.properties?.id === countryId) {
+            return { ...f, geometry: newCountry.geometry as Polygon | MultiPolygon }
+          }
+          const inter = turf.intersect(turf.featureCollection([f, islandPolygon!]))
+          if (inter && turf.area(inter) > 0.001) {
+            const diff = turf.difference(turf.featureCollection([f, islandPolygon!]))
+            if (diff && turf.area(diff) > 0.001) return { ...f, geometry: diff.geometry as Polygon | MultiPolygon }
+          }
+          return f
+        }),
       }
     }
 
-    const newRegion = turf.union(turf.featureCollection([targetRegion, islandPolygon]))
-    if (!newRegion) return null
+    const newRegion = safeUnionPolygons(targetRegion, islandPolygon)
 
-    const updatedRegions = regionsFC.features.map((f) => {
-      if (f.properties?.id === targetId) {
-        return { ...f, geometry: newRegion.geometry as Polygon | MultiPolygon }
-      }
-      if (f.properties?.countryId === countryId) {
+    const updatedRegions = regionsFC.features
+      .map((f) => {
+        if (f.properties?.id === targetId) {
+          return { ...f, geometry: newRegion.geometry as Polygon | MultiPolygon }
+        }
         const inter = turf.intersect(turf.featureCollection([f, islandPolygon!]))
         if (inter && turf.area(inter) > 0.001) {
           const diff = turf.difference(turf.featureCollection([f, islandPolygon!]))
-          if (diff) return { ...f, geometry: diff.geometry as Polygon | MultiPolygon }
+          if (diff && turf.area(diff) > 0.001) return { ...f, geometry: diff.geometry as Polygon | MultiPolygon }
+          return null
         }
-      }
-      return f
-    })
+        return f
+      })
+      .filter((r): r is Feature<Polygon | MultiPolygon> => r !== null)
 
     return {
       countries: updatedCountries,
