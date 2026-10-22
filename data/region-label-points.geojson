@@ -3,974 +3,6 @@
   "features": [
     {
       "type": "Feature",
-      "id": "region-034",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1090.3224278731523,
-          550.6027491408935
-        ]
-      },
-      "properties": {
-        "id": "region-034",
-        "number": 34,
-        "name": "Гесперидия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 3,
-        "areaWorld": 40349958555004
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-028",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1142.9611051502145,
-          711.5
-        ]
-      },
-      "properties": {
-        "id": "region-028",
-        "number": 28,
-        "name": "Монтания",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 2,
-        "areaWorld": 44062827081666
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-010",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1204.4645978630188,
-          512.0285223367698
-        ]
-      },
-      "properties": {
-        "id": "region-010",
-        "number": 10,
-        "name": "Клерополь",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": true,
-        "labelRank": 3,
-        "styleIndex": 4,
-        "areaWorld": 2823132546226
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-020",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1242.2719957081545,
-          665.4199312714777
-        ]
-      },
-      "properties": {
-        "id": "region-020",
-        "number": 20,
-        "name": "Астралия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 4,
-        "areaWorld": 16788194133628
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-005",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1316.5673283261804,
-          460.5962199312715
-        ]
-      },
-      "properties": {
-        "id": "region-005",
-        "number": 5,
-        "name": "Гесперия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 4,
-        "areaWorld": 5363977989456
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-022",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1169.122921137339,
-          626.3024054982818
-        ]
-      },
-      "properties": {
-        "id": "region-022",
-        "number": 22,
-        "name": "Небулия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 1,
-        "areaWorld": 2098171231261
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-021",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1185.925355418455,
-          677.1914089347079
-        ]
-      },
-      "properties": {
-        "id": "region-021",
-        "number": 21,
-        "name": "Лимнида",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 0,
-        "areaWorld": 17659774182679
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-009",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1191.4930704577966,
-          513.8395189003436
-        ]
-      },
-      "properties": {
-        "id": "region-009",
-        "number": 9,
-        "name": "Наяда",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 3,
-        "areaWorld": 25951116557496
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-030",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1102.4739229884808,
-          753.7171821305842
-        ]
-      },
-      "properties": {
-        "id": "region-030",
-        "number": 30,
-        "name": "Меридиония",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 4,
-        "areaWorld": 28838568630203
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-011",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1178.8863555078683,
-          548.06735395189
-        ]
-      },
-      "properties": {
-        "id": "region-011",
-        "number": 11,
-        "name": "Солария",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 0,
-        "areaWorld": 39870248864814
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-018",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1270.102467811159,
-          594.247766323024
-        ]
-      },
-      "properties": {
-        "id": "region-018",
-        "number": 18,
-        "name": "Валентия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 2,
-        "areaWorld": 14168958734793
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-014",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1264.609438228081,
-          569.6182130584193
-        ]
-      },
-      "properties": {
-        "id": "region-014",
-        "number": 14,
-        "name": "Нереида",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 3,
-        "areaWorld": 18967133278034
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-015",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1395.8238789852608,
-          485.42783505154637
-        ]
-      },
-      "properties": {
-        "id": "region-015",
-        "number": 15,
-        "name": "Альтерия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 4,
-        "areaWorld": 27214301792013
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-019",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1236.3051307921928,
-          633.4351226492649
-        ]
-      },
-      "properties": {
-        "id": "region-019",
-        "number": 19,
-        "name": "Иллирия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 3,
-        "areaWorld": 164913726250
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-025",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1072.167580482283,
-          619.2536082474227
-        ]
-      },
-      "properties": {
-        "id": "region-025",
-        "number": 25,
-        "name": "Окцидентия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 4,
-        "areaWorld": 3444892073038
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-008",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1186.7383660331084,
-          453.3522336769759
-        ]
-      },
-      "properties": {
-        "id": "region-008",
-        "number": 8,
-        "name": "Сидерия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 2,
-        "areaWorld": 2745680588589
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-013",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1202.3471812410585,
-          594.6099656357387
-        ]
-      },
-      "properties": {
-        "id": "region-013",
-        "number": 13,
-        "name": "Аргезия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 2,
-        "areaWorld": 21534305752367
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-024",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1132.817903126916,
-          661.7979381443299
-        ]
-      },
-      "properties": {
-        "id": "region-024",
-        "number": 24,
-        "name": "Медиолания",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 3,
-        "areaWorld": 17229312802784
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-003",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1122.4564150161657,
-          473.9082474226804
-        ]
-      },
-      "properties": {
-        "id": "region-003",
-        "number": 3,
-        "name": "Эндоо",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 2,
-        "areaWorld": 39789374732270
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-004",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1402.136534334764,
-          391.7783505154639
-        ]
-      },
-      "properties": {
-        "id": "region-004",
-        "number": 4,
-        "name": "Калантия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 3,
-        "areaWorld": 63234466432763
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-023",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1117.6655601752504,
-          614.3498281786941
-        ]
-      },
-      "properties": {
-        "id": "region-023",
-        "number": 23,
-        "name": "Кастелия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 2,
-        "areaWorld": 5119888060784
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-012",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1128.0081813304719,
-          563.8230240549829
-        ]
-      },
-      "properties": {
-        "id": "region-012",
-        "number": 12,
-        "name": "Селения",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 1,
-        "areaWorld": 27792697072651
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-016",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1346.2006303648068,
-          515.2883161512027
-        ]
-      },
-      "properties": {
-        "id": "region-016",
-        "number": 16,
-        "name": "Сильвания",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 0,
-        "areaWorld": 50360867796523
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-029",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1073.0019079039791,
-          706.8553264604811
-        ]
-      },
-      "properties": {
-        "id": "region-029",
-        "number": 29,
-        "name": "Мариния",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 3,
-        "areaWorld": 35640173663788
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-026",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1091.541979613734,
-          658.3570446735396
-        ]
-      },
-      "properties": {
-        "id": "region-026",
-        "number": 26,
-        "name": "Виридия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 0,
-        "areaWorld": 3892353117956
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-006",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1271.5562410586554,
-          479.97388316151205
-        ]
-      },
-      "properties": {
-        "id": "region-006",
-        "number": 6,
-        "name": "Ориентия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 0,
-        "areaWorld": 19566262235244
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-027",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1090.9281920600858,
-          685.5219931271477
-        ]
-      },
-      "properties": {
-        "id": "region-027",
-        "number": 27,
-        "name": "Тенебрия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 1,
-        "areaWorld": 11909780684881
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-007",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1246.7941255364808,
-          505.8711340206185
-        ]
-      },
-      "properties": {
-        "id": "region-007",
-        "number": 7,
-        "name": "Люциния",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 1,
-        "areaWorld": 40763628214459
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-031",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1140,
-          779.6938144329897
-        ]
-      },
-      "properties": {
-        "id": "region-031",
-        "number": 31,
-        "name": "Эстерия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 0,
-        "areaWorld": 7074935249749
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "region-017",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          1315.8452253218884,
-          560.2010309278351
-        ]
-      },
-      "properties": {
-        "id": "region-017",
-        "number": 17,
-        "name": "Таврия",
-        "type": "region",
-        "countryId": "country-019",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 1,
-        "areaWorld": 24222404494251
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-001",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          465.50256470588283,
-          794.1341411764712
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-001",
-        "number": 1,
-        "name": "Инсел",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 0,
-        "areaWorld": 3985726518302
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-002",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          470.93550588235354,
-          853.1358823529429
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-002",
-        "number": 2,
-        "name": "Хэйлищланд",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 1,
-        "areaWorld": 4916404448321
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-003",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          498.91515294117755,
-          893.9916000000024
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-003",
-        "number": 3,
-        "name": "Исгеция",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 2,
-        "areaWorld": 19923330725782
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-004",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          548.0832705882374,
-          864.3277411764723
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-004",
-        "number": 4,
-        "name": "Кудос",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 3,
-        "areaWorld": 7416654937324
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-005",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          511.18001764706025,
-          853.4618588235309
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-005",
-        "number": 5,
-        "name": "Штифтерланд",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 4,
-        "areaWorld": 6180305367413
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-006",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          488.48390588235395,
-          834.8268705882366
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-006",
-        "number": 6,
-        "name": "Револьн",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 0,
-        "areaWorld": 3493723853287
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-007",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          514.1817176470603,
-          825.2105647058834
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-007",
-        "number": 7,
-        "name": "Веренланд",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 1,
-        "areaWorld": 1888914121714
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-008",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          548.9525411764726,
-          826.7317882352953
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-008",
-        "number": 8,
-        "name": "Норланд",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 2,
-        "areaWorld": 3068026486753
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-009",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          610.7250823529445,
-          844.6604941176483
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-009",
-        "number": 9,
-        "name": "Кюстен",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 2,
-        "styleIndex": 3,
-        "areaWorld": 2490041459546
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-010",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          572.7488235294143,
-          859.6554117647074
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-010",
-        "number": 10,
-        "name": "Интермариум",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 4,
-        "areaWorld": 3137343374643
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-011",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          600.0765176470618,
-          876.2258823529432
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-011",
-        "number": 11,
-        "name": "Джюдион",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 1,
-        "styleIndex": 0,
-        "areaWorld": 11279306394382
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-012",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          524.2869882352957,
-          843.4652470588251
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-012",
-        "number": 12,
-        "name": "Немланд",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 1,
-        "areaWorld": 583458334503
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-013",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          545.448294117649,
-          845.8014117647074
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-013",
-        "number": 13,
-        "name": "Мительланд",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": false,
-        "labelRank": 3,
-        "styleIndex": 2,
-        "areaWorld": 2933589995892
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "country-008-mainland-southwest-region-014",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          528.6333411764722,
-          837.2173647058835
-        ]
-      },
-      "properties": {
-        "id": "country-008-mainland-southwest-region-014",
-        "number": 14,
-        "name": "Немецк",
-        "type": "region",
-        "countryId": "country-008",
-        "isCapital": true,
-        "labelRank": 3,
-        "styleIndex": 3,
-        "areaWorld": 539232231289
-      }
-    },
-    {
-      "type": "Feature",
       "id": "country-006-mainland-region-001",
       "geometry": {
         "type": "Point",
@@ -988,7 +20,7 @@
         "isCapital": false,
         "labelRank": 3,
         "styleIndex": 0,
-        "areaWorld": 6350316660340
+        "areaWorld": 6777457340014
       }
     },
     {
@@ -1010,7 +42,7 @@
         "isCapital": false,
         "labelRank": 3,
         "styleIndex": 1,
-        "areaWorld": 5700798634643
+        "areaWorld": 5981639911099
       }
     },
     {
@@ -1032,7 +64,7 @@
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 2,
-        "areaWorld": 16877570642078
+        "areaWorld": 16990868255076
       }
     },
     {
@@ -1054,7 +86,7 @@
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 3,
-        "areaWorld": 20535854515246
+        "areaWorld": 21286503598896
       }
     },
     {
@@ -1076,7 +108,7 @@
         "isCapital": false,
         "labelRank": 2,
         "styleIndex": 4,
-        "areaWorld": 11076870435625
+        "areaWorld": 11086124164591
       }
     },
     {
@@ -1098,7 +130,7 @@
         "isCapital": false,
         "labelRank": 2,
         "styleIndex": 0,
-        "areaWorld": 10539550001353
+        "areaWorld": 10868465170706
       }
     },
     {
@@ -1120,7 +152,7 @@
         "isCapital": false,
         "labelRank": 2,
         "styleIndex": 1,
-        "areaWorld": 8840194127740
+        "areaWorld": 8842038765020
       }
     },
     {
@@ -1142,7 +174,7 @@
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 2,
-        "areaWorld": 13540901102188
+        "areaWorld": 13711254296691
       }
     },
     {
@@ -1164,7 +196,7 @@
         "isCapital": false,
         "labelRank": 1,
         "styleIndex": 3,
-        "areaWorld": 12663040458994
+        "areaWorld": 12911902228465
       }
     },
     {
@@ -1274,7 +306,7 @@
         "isCapital": false,
         "labelRank": 2,
         "styleIndex": 3,
-        "areaWorld": 8344730899452
+        "areaWorld": 8703783497186
       }
     },
     {
@@ -1296,7 +328,7 @@
         "isCapital": false,
         "labelRank": 2,
         "styleIndex": 4,
-        "areaWorld": 8483110789702
+        "areaWorld": 9271451854110
       }
     },
     {
@@ -1318,7 +350,7 @@
         "isCapital": false,
         "labelRank": 3,
         "styleIndex": 0,
-        "areaWorld": 2565864909074
+        "areaWorld": 2598935750659
       }
     },
     {
@@ -1341,6 +373,974 @@
         "labelRank": 3,
         "styleIndex": 1,
         "areaWorld": 1522665300554
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          465.50256470588283,
+          794.1341411764712
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-001",
+        "number": 1,
+        "name": "Инсел",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 3837137984343
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-002",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          470.93550588235354,
+          853.1358823529429
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-002",
+        "number": 2,
+        "name": "Хэйлищланд",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 1,
+        "areaWorld": 5141770755648
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          498.91515294117755,
+          893.9916000000024
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-003",
+        "number": 3,
+        "name": "Исгеция",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 21279033216335
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-004",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          548.0832705882374,
+          864.3277411764723
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-004",
+        "number": 4,
+        "name": "Кудос",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 7915429739138
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          511.18001764706025,
+          853.4618588235309
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-005",
+        "number": 5,
+        "name": "Штифтерланд",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 4,
+        "areaWorld": 6364341082559
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-006",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          488.48390588235395,
+          834.8268705882366
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-006",
+        "number": 6,
+        "name": "Револьн",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 0,
+        "areaWorld": 3405613337074
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-007",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          514.1817176470603,
+          825.2105647058834
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-007",
+        "number": 7,
+        "name": "Веренланд",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 1,
+        "areaWorld": 1889555655312
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-008",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          548.9525411764726,
+          826.7317882352953
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-008",
+        "number": 8,
+        "name": "Норланд",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 3093940127320
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-009",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          610.7250823529445,
+          844.6604941176483
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-009",
+        "number": 9,
+        "name": "Кюстен",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 3,
+        "areaWorld": 2526961412695
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-010",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          572.7488235294143,
+          859.6554117647074
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-010",
+        "number": 10,
+        "name": "Интермариум",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 4,
+        "areaWorld": 3446673365677
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-011",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          600.0765176470618,
+          876.2258823529432
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-011",
+        "number": 11,
+        "name": "Джюдион",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 11725367254826
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-012",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          524.2869882352957,
+          843.4652470588251
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-012",
+        "number": 12,
+        "name": "Немланд",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 1,
+        "areaWorld": 583458334503
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-013",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          545.448294117649,
+          845.8014117647074
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-013",
+        "number": 13,
+        "name": "Мительланд",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 2,
+        "areaWorld": 2935410327657
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "country-008-mainland-southwest-region-014",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          528.6333411764722,
+          837.2173647058835
+        ]
+      },
+      "properties": {
+        "id": "country-008-mainland-southwest-region-014",
+        "number": 14,
+        "name": "Немецк",
+        "type": "region",
+        "countryId": "country-008",
+        "isCapital": true,
+        "labelRank": 3,
+        "styleIndex": 3,
+        "areaWorld": 539232231289
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-034",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1090.3224278731523,
+          550.6027491408935
+        ]
+      },
+      "properties": {
+        "id": "region-034",
+        "number": 34,
+        "name": "Гесперидия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 40794379406360
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-028",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1142.9611051502145,
+          711.5
+        ]
+      },
+      "properties": {
+        "id": "region-028",
+        "number": 28,
+        "name": "Монтания",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 42883788882358
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-010",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1204.4645978630188,
+          512.0285223367698
+        ]
+      },
+      "properties": {
+        "id": "region-010",
+        "number": 10,
+        "name": "Клерополь",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": true,
+        "labelRank": 3,
+        "styleIndex": 4,
+        "areaWorld": 2823132546226
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-020",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1242.2719957081545,
+          665.4199312714777
+        ]
+      },
+      "properties": {
+        "id": "region-020",
+        "number": 20,
+        "name": "Астралия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 4,
+        "areaWorld": 15510239515273
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1316.5673283261804,
+          460.5962199312715
+        ]
+      },
+      "properties": {
+        "id": "region-005",
+        "number": 5,
+        "name": "Гесперия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 4,
+        "areaWorld": 5200655403869
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-022",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1169.122921137339,
+          626.3024054982818
+        ]
+      },
+      "properties": {
+        "id": "region-022",
+        "number": 22,
+        "name": "Небулия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 1,
+        "areaWorld": 2098171231261
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-021",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1185.925355418455,
+          677.1914089347079
+        ]
+      },
+      "properties": {
+        "id": "region-021",
+        "number": 21,
+        "name": "Лимнида",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 0,
+        "areaWorld": 17353629203660
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-009",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1191.4930704577966,
+          513.8395189003436
+        ]
+      },
+      "properties": {
+        "id": "region-009",
+        "number": 9,
+        "name": "Наяда",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 3,
+        "areaWorld": 25951116557496
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-030",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1102.4739229884808,
+          753.7171821305842
+        ]
+      },
+      "properties": {
+        "id": "region-030",
+        "number": 30,
+        "name": "Меридиония",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 4,
+        "areaWorld": 29067418267246
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-011",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1178.8863555078683,
+          548.06735395189
+        ]
+      },
+      "properties": {
+        "id": "region-011",
+        "number": 11,
+        "name": "Солария",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 39870248864814
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-018",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1270.102467811159,
+          594.247766323024
+        ]
+      },
+      "properties": {
+        "id": "region-018",
+        "number": 18,
+        "name": "Валентия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 2,
+        "areaWorld": 13982949870456
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-014",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1264.609438228081,
+          569.6182130584193
+        ]
+      },
+      "properties": {
+        "id": "region-014",
+        "number": 14,
+        "name": "Нереида",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 3,
+        "areaWorld": 18967133278034
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-015",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1395.8238789852608,
+          485.42783505154637
+        ]
+      },
+      "properties": {
+        "id": "region-015",
+        "number": 15,
+        "name": "Альтерия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 4,
+        "areaWorld": 26306088090821
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-019",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1236.3051307921928,
+          633.4351226492649
+        ]
+      },
+      "properties": {
+        "id": "region-019",
+        "number": 19,
+        "name": "Иллирия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 3,
+        "areaWorld": 114692579393
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-025",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1072.167580482283,
+          619.2536082474227
+        ]
+      },
+      "properties": {
+        "id": "region-025",
+        "number": 25,
+        "name": "Окцидентия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 4,
+        "areaWorld": 3686517087915
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-008",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1186.7383660331084,
+          453.3522336769759
+        ]
+      },
+      "properties": {
+        "id": "region-008",
+        "number": 8,
+        "name": "Сидерия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 2631337456264
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-013",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1202.3471812410585,
+          594.6099656357387
+        ]
+      },
+      "properties": {
+        "id": "region-013",
+        "number": 13,
+        "name": "Аргезия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 2,
+        "areaWorld": 21534305752367
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-024",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1132.817903126916,
+          661.7979381443299
+        ]
+      },
+      "properties": {
+        "id": "region-024",
+        "number": 24,
+        "name": "Медиолания",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 3,
+        "areaWorld": 17229312802784
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1122.4564150161657,
+          473.9082474226804
+        ]
+      },
+      "properties": {
+        "id": "region-003",
+        "number": 3,
+        "name": "Эндоо",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 2,
+        "areaWorld": 40105643243135
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-004",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1402.136534334764,
+          391.7783505154639
+        ]
+      },
+      "properties": {
+        "id": "region-004",
+        "number": 4,
+        "name": "Калантия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 3,
+        "areaWorld": 64853553339436
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-023",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1117.6655601752504,
+          614.3498281786941
+        ]
+      },
+      "properties": {
+        "id": "region-023",
+        "number": 23,
+        "name": "Кастелия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 2,
+        "areaWorld": 5126286741737
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-012",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1128.0081813304719,
+          563.8230240549829
+        ]
+      },
+      "properties": {
+        "id": "region-012",
+        "number": 12,
+        "name": "Селения",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 1,
+        "areaWorld": 27792697072651
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-016",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1346.2006303648068,
+          515.2883161512027
+        ]
+      },
+      "properties": {
+        "id": "region-016",
+        "number": 16,
+        "name": "Сильвания",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 49822625968062
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-029",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1073.0019079039791,
+          706.8553264604811
+        ]
+      },
+      "properties": {
+        "id": "region-029",
+        "number": 29,
+        "name": "Мариния",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 2,
+        "styleIndex": 3,
+        "areaWorld": 36497936148234
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-026",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1091.541979613734,
+          658.3570446735396
+        ]
+      },
+      "properties": {
+        "id": "region-026",
+        "number": 26,
+        "name": "Виридия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 0,
+        "areaWorld": 3923819081652
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-006",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1271.5562410586554,
+          479.97388316151205
+        ]
+      },
+      "properties": {
+        "id": "region-006",
+        "number": 6,
+        "name": "Ориентия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 0,
+        "areaWorld": 19552135686976
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-027",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1090.9281920600858,
+          685.5219931271477
+        ]
+      },
+      "properties": {
+        "id": "region-027",
+        "number": 27,
+        "name": "Тенебрия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 1,
+        "areaWorld": 12332997382944
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-007",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1246.7941255364808,
+          505.8711340206185
+        ]
+      },
+      "properties": {
+        "id": "region-007",
+        "number": 7,
+        "name": "Люциния",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 1,
+        "styleIndex": 1,
+        "areaWorld": 40763628214459
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-031",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1140,
+          779.6938144329897
+        ]
+      },
+      "properties": {
+        "id": "region-031",
+        "number": 31,
+        "name": "Эстерия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 0,
+        "areaWorld": 7055956150943
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "region-017",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1315.8452253218884,
+          560.2010309278351
+        ]
+      },
+      "properties": {
+        "id": "region-017",
+        "number": 17,
+        "name": "Таврия",
+        "type": "region",
+        "countryId": "country-019",
+        "isCapital": false,
+        "labelRank": 3,
+        "styleIndex": 1,
+        "areaWorld": 23193158456870
       }
     },
     {
