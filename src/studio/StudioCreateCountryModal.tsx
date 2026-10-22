@@ -35,8 +35,16 @@ export function StudioCreateCountryModal({
       setCountryName('')
       setSelectedColorIndex(suggestedColorIndex)
       setCreateCapitalRegion(true)
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose()
+        }
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen, suggestedColorIndex])
+  }, [isOpen, suggestedColorIndex, onClose])
 
   if (!isOpen || !territory) return null
 

@@ -8,6 +8,9 @@ import { mapToWorld, worldToMap } from '../map/worldCoordinates'
 import {
   claimIslandGeometry,
   createCountryFromTerritory,
+  createRegionFromTerritory,
+  findRegionTerritoryAtClick,
+  findRegionTerritoryFromLasso,
   findTerritoryComponentAt,
   findTerritoryFromLasso,
   pixelateLine,
@@ -15,6 +18,7 @@ import {
   splitPolygonGeometry,
 } from './geometryOperations'
 import { StudioCreateCountryModal } from './StudioCreateCountryModal'
+import { StudioCreateRegionModal } from './StudioCreateRegionModal'
 import { StudioDrawingCanvas } from './StudioDrawingCanvas'
 import { StudioPublishModal } from './StudioPublishModal'
 import { StudioRegionPhotoModal } from './StudioRegionPhotoModal'
@@ -60,6 +64,17 @@ export function StudioManager({ map, onExit }: Props) {
     suggestedId: '',
     suggestedColorIndex: 0,
   })
+  const [createRegionModalState, setCreateRegionModalState] = useState<{
+    isOpen: boolean
+    territory: Feature<Polygon | MultiPolygon> | null
+    countryId: string
+    countryName: string
+  }>({
+    isOpen: false,
+    territory: null,
+    countryId: '',
+    countryName: '',
+  })
 
   const dataRef = useRef<GeoJsonDataState | null>(null)
   dataRef.current = data
@@ -102,10 +117,31 @@ export function StudioManager({ map, onExit }: Props) {
         // Ensure countries ALWAYS have their themeColorIndex preserved
         const countries = assignCountryThemeColors(rawCountries) as FeatureCollection<Polygon | MultiPolygon>
 
+        // Ensure every region has a strictly unique id
+        const seenRegionIds = new Set<string>()
+        const sanitizedRegionFeatures = (regions as FeatureCollection<Polygon | MultiPolygon>).features.map((rf) => {
+          let rid = rf.properties?.id || 'region-unknown'
+          if (seenRegionIds.has(rid)) {
+            let suffix = 2
+            while (seenRegionIds.has(`${rid}-${suffix}`)) {
+              suffix++
+            }
+            rid = `${rid}-${suffix}`
+            rf = {
+              ...rf,
+              id: rid,
+              properties: { ...rf.properties, id: rid },
+            }
+          }
+          seenRegionIds.add(rid)
+          return rf
+        })
+        const cleanRegions = { ...regions, features: sanitizedRegionFeatures }
+
         setData({
           countries,
           countryBorders,
-          regions,
+          regions: cleanRegions,
           regionBorders,
           countryLabels,
           regionLabels,
@@ -441,8 +477,8 @@ export function StudioManager({ map, onExit }: Props) {
         }
       }
 
-      // If country has no regions yet (or stroke is on unpartitioned country land):
-      if (!splitResult && targetCountryId) {
+      // If country has no regions yet:
+      if (!splitResult && targetCountryId && countryRegions.length === 0) {
         const country = data.countries.features.find((c) => c.properties?.id === targetCountryId)
         if (country) {
           splitResult = splitPolygonGeometry(country.geometry, pixelatedLine)
@@ -450,14 +486,24 @@ export function StudioManager({ map, onExit }: Props) {
       }
 
       if (!splitResult || !targetCountryId) {
-        addToast('Проведите линию через территорию региона или замкните петлю (лассо)', 'warning')
+        addToast(
+          'Проведите линию через регион от границы до границы (или используйте инструмент «Создать регион»)',
+          'warning',
+        )
         return
       }
 
       const existingInCountry = data.regions.features.filter((r) => r.properties?.countryId === targetCountryId)
-      const targetRegionNumber = existingInCountry.length + 1
-
-      const newRegionId = `${targetCountryId}-region-${String(targetRegionNumber).padStart(2, '0')}`
+      const existingNumbers = existingInCountry.map((r) => {
+        const m = r.properties?.id?.match(/region-(\d+)/)
+        return m ? parseInt(m[1], 10) : (r.properties?.number ?? 0)
+      })
+      let targetRegionNumber = Math.max(...existingNumbers, 0) + 1
+      let newRegionId = `${targetCountryId}-region-${String(targetRegionNumber).padStart(2, '0')}`
+      while (data.regions.features.some((r) => r.properties?.id === newRegionId)) {
+        targetRegionNumber++
+        newRegionId = `${targetCountryId}-region-${String(targetRegionNumber).padStart(2, '0')}`
+      }
       const newRegionName = `Регион ${targetRegionNumber}`
 
       // Determine which part keeps existing region identity (preserving capital and label position)
@@ -871,7 +917,167 @@ export function StudioManager({ map, onExit }: Props) {
     [data, createCountryModalState.territory, applyDataUpdate],
   )
 
-  // 4. Renaming countries
+  // 5. Create region handlers (click or lasso)
+  const handleCreateRegionClick = useCallback(
+    (clickWorldPt: [number, number]) => {
+      if (!data) return
+      let parentCountry = data.countries.features.find((c) =>
+        turf.booleanPointInPolygon(clickWorldPt, c),
+      )
+      if (!parentCountry && (selectedCountryId || fillCountryId)) {
+        parentCountry = data.countries.features.find(
+          (c) => c.properties?.id === (selectedCountryId || fillCountryId),
+        )
+      }
+      if (!parentCountry) {
+        addToast('Кликните по острову или суше внутри государства для создания региона', 'warning')
+        return
+      }
+
+      const territory = findRegionTerritoryAtClick(clickWorldPt, parentCountry, data.land)
+      if (!territory) {
+        addToast('В этой точке нет отдельного острова или суши государства', 'warning')
+        return
+      }
+
+      setCreateRegionModalState({
+        isOpen: true,
+        territory,
+        countryId: parentCountry.properties!.id,
+        countryName: parentCountry.properties?.name || parentCountry.properties!.id,
+      })
+    },
+    [data, selectedCountryId, fillCountryId],
+  )
+
+  const handleCreateRegionLasso = useCallback(
+    (linePoints: [number, number][]) => {
+      if (!data) return
+      const midPt = linePoints[Math.floor(linePoints.length / 2)]
+      let parentCountry = data.countries.features.find((c) =>
+        turf.booleanPointInPolygon(midPt, c),
+      )
+      if (!parentCountry && (selectedCountryId || fillCountryId)) {
+        parentCountry = data.countries.features.find(
+          (c) => c.properties?.id === (selectedCountryId || fillCountryId),
+        )
+      }
+      if (!parentCountry) {
+        addToast('Обведите замкнутым контуром территорию внутри государства', 'warning')
+        return
+      }
+
+      const territory = findRegionTerritoryFromLasso(linePoints, parentCountry)
+      if (!territory) {
+        addToast('Контур лассо должен попадать на территорию выбранного государства', 'warning')
+        return
+      }
+
+      setCreateRegionModalState({
+        isOpen: true,
+        territory,
+        countryId: parentCountry.properties!.id,
+        countryName: parentCountry.properties?.name || parentCountry.properties!.id,
+      })
+    },
+    [data, selectedCountryId, fillCountryId],
+  )
+
+  const handleConfirmCreateRegion = useCallback(
+    ({ name, id, isCapital }: { name: string; id: string; isCapital: boolean }) => {
+      if (!data || !createRegionModalState.territory) return
+
+      const result = createRegionFromTerritory({
+        territory: createRegionModalState.territory,
+        regionName: name,
+        regionId: id,
+        countryId: createRegionModalState.countryId,
+        isCapital,
+        regionsFC: data.regions,
+      })
+
+      applyDataUpdate(() => ({
+        regions: result.regions,
+      }))
+
+      const newId = id
+      setCreateRegionModalState({
+        isOpen: false,
+        territory: null,
+        countryId: '',
+        countryName: '',
+      })
+
+      setSelectedRegionId(newId)
+      setFillRegionId(newId)
+      setSelectedCountryId(createRegionModalState.countryId)
+      setFillCountryId(createRegionModalState.countryId)
+      setActiveTool('select')
+
+      addToast(`🎉 Регион «${name}» успешно создан!`, 'success')
+    },
+    [data, createRegionModalState, applyDataUpdate],
+  )
+
+  // 6. Changing region ID manually
+  const handleRegionIdChange = useCallback(
+    (oldId: string, newId: string) => {
+      if (oldId === newId || !newId.trim()) return
+      const trimmedNewId = newId.trim()
+
+      if (dataRef.current?.regions.features.some((r) => r.properties?.id === trimmedNewId)) {
+        addToast(`ID «${trimmedNewId}» уже занят другим регионом!`, 'warning')
+        return
+      }
+
+      applyDataUpdate((prev) => {
+        const updatedRegions = prev.regions.features.map((r) => {
+          if (r.properties?.id === oldId) {
+            return {
+              ...r,
+              id: trimmedNewId,
+              properties: { ...r.properties, id: trimmedNewId },
+            }
+          }
+          return r
+        })
+
+        const updatedRegionLabels = prev.regionLabels.features.map((l) => {
+          if (l.properties?.id === oldId) {
+            return {
+              ...l,
+              id: trimmedNewId,
+              properties: { ...l.properties, id: trimmedNewId },
+            }
+          }
+          return l
+        })
+
+        const updatedRegionBorders = prev.regionBorders.features.map((b) => {
+          if (b.properties?.regionId === oldId) {
+            return {
+              ...b,
+              properties: { ...b.properties, regionId: trimmedNewId },
+            }
+          }
+          return b
+        })
+
+        return {
+          regions: { ...prev.regions, features: updatedRegions },
+          regionLabels: { ...prev.regionLabels, features: updatedRegionLabels },
+          regionBorders: { ...prev.regionBorders, features: updatedRegionBorders },
+        }
+      })
+
+      setSelectedRegionId(trimmedNewId)
+      if (fillRegionId === oldId) setFillRegionId(trimmedNewId)
+      addToast(`ID региона успешно обновлён: «${trimmedNewId}»`, 'success')
+    },
+    [applyDataUpdate, fillRegionId],
+  )
+
+  // 7. Renaming countries
   const handleCountryNameChange = useCallback(
     (countryId: string, newName: string) => {
       applyDataUpdate((prev) => {
@@ -1124,6 +1330,7 @@ export function StudioManager({ map, onExit }: Props) {
           onSelectRegion={handleSelectRegion}
           onCountryNameChange={handleCountryNameChange}
           onRegionNameChange={handleRegionNameChange}
+          onRegionIdChange={handleRegionIdChange}
           onRegionCapitalToggle={handleRegionCapitalToggle}
           onDeleteRegion={handleDeleteRegion}
           onStartSlice={() => {
@@ -1143,6 +1350,11 @@ export function StudioManager({ map, onExit }: Props) {
             setMode('countries')
             setActiveTool('create-country')
             addToast('Кликните по острову или обведите территорию лассо для отделения в новую страну!', 'info')
+          }}
+          onStartCreateRegion={() => {
+            setMode('regions')
+            setActiveTool('create-region')
+            addToast('Кликните по острову или обведите территорию лассо для создания региона!', 'info')
           }}
         />
       )}
@@ -1164,6 +1376,9 @@ export function StudioManager({ map, onExit }: Props) {
           onCreateCountryClick={handleCreateCountryClick}
           onCreateCountryLasso={handleCreateCountryLasso}
           pendingTerritory={createCountryModalState.territory}
+          onCreateRegionClick={handleCreateRegionClick}
+          onCreateRegionLasso={handleCreateRegionLasso}
+          pendingRegionTerritory={createRegionModalState.territory}
           mapOverlay={mapOverlay}
         />
       )}
@@ -1179,6 +1394,19 @@ export function StudioManager({ map, onExit }: Props) {
         suggestedId={createCountryModalState.suggestedId}
         suggestedColorIndex={createCountryModalState.suggestedColorIndex}
         onConfirm={handleConfirmCreateCountry}
+      />
+
+      {/* Create Region Modal */}
+      <StudioCreateRegionModal
+        isOpen={createRegionModalState.isOpen}
+        onClose={() =>
+          setCreateRegionModalState((prev) => ({ ...prev, isOpen: false, territory: null }))
+        }
+        territory={createRegionModalState.territory}
+        countryId={createRegionModalState.countryId}
+        countryName={createRegionModalState.countryName}
+        existingRegionIds={data ? data.regions.features.map((r) => r.properties?.id).filter(Boolean) : []}
+        onConfirm={handleConfirmCreateRegion}
       />
 
       {/* Photo import modal for automatic region tracing */}

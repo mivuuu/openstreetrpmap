@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Feature, MultiPolygon, Polygon } from 'geojson'
+import { transliterateToSlug } from './transliterate'
 import type { StudioMode, StudioTool } from './types'
 
 type Props = {
@@ -15,12 +16,117 @@ type Props = {
   onSelectRegion: (regionId: string | null) => void
   onCountryNameChange: (countryId: string, newName: string) => void
   onRegionNameChange: (regionId: string, newName: string) => void
+  onRegionIdChange?: (oldId: string, newId: string) => void
   onRegionCapitalToggle: (regionId: string, isCapital: boolean) => void
   onDeleteRegion: (regionId: string) => void
   onStartSlice: () => void
   onStartRedrawBorder: () => void
   onStartMoveLabel: () => void
   onStartCreateCountry?: () => void
+  onStartCreateRegion?: () => void
+}
+
+function RegionIdEditor({
+  countryPrefix,
+  currentId,
+  regionName,
+  onRegionIdChange,
+}: {
+  countryPrefix: string
+  currentId: string
+  regionName: string
+  onRegionIdChange?: (oldId: string, newId: string) => void
+}) {
+  const currentSlug =
+    countryPrefix && currentId.startsWith(countryPrefix)
+      ? currentId.slice(countryPrefix.length)
+      : currentId
+
+  const [slug, setSlug] = useState(currentSlug)
+
+  useEffect(() => {
+    setSlug(currentSlug)
+  }, [currentSlug])
+
+  const commitSlug = (rawSlug: string) => {
+    const cleanSlug = transliterateToSlug(rawSlug)
+    if (!cleanSlug) {
+      setSlug(currentSlug)
+      return
+    }
+    const fullNewId = countryPrefix ? `${countryPrefix}${cleanSlug}` : cleanSlug
+    if (fullNewId !== currentId && onRegionIdChange) {
+      onRegionIdChange(currentId, fullNewId)
+    } else {
+      setSlug(cleanSlug)
+    }
+  }
+
+  const handleAutoSlugFromName = () => {
+    if (!regionName.trim()) return
+    const autoSlug = transliterateToSlug(regionName)
+    if (autoSlug) {
+      commitSlug(autoSlug)
+    }
+  }
+
+  return (
+    <div className="studio-field">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+        <label htmlFor="region-id-input" style={{ margin: 0 }}>Идентификатор (ID региона)</label>
+        {regionName.trim() && (
+          <button
+            type="button"
+            className="studio-btn studio-btn--sm"
+            onClick={handleAutoSlugFromName}
+            title="Автоматически сформировать slug из русского названия"
+            style={{
+              padding: '2px 8px',
+              fontSize: '11px',
+              background: 'rgba(59, 130, 246, 0.15)',
+              borderColor: 'rgba(59, 130, 246, 0.4)',
+              color: '#93c5fd',
+            }}
+          >
+            ↺ из названия
+          </button>
+        )}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {countryPrefix && (
+          <span
+            className="studio-code-badge"
+            style={{
+              padding: '8px 10px',
+              fontSize: '12px',
+              background: 'rgba(255, 255, 255, 0.08)',
+              borderColor: 'rgba(255, 255, 255, 0.2)',
+              userSelect: 'none',
+              whiteSpace: 'nowrap',
+            }}
+            title="Префикс родительской страны зафиксирован"
+          >
+            {countryPrefix}
+          </span>
+        )}
+        <input
+          id="region-id-input"
+          type="text"
+          className="studio-input"
+          style={{ fontFamily: 'monospace', fontSize: '13px' }}
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+          onBlur={() => commitSlug(slug)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.currentTarget.blur()
+            }
+          }}
+          placeholder="slug-region"
+        />
+      </div>
+    </div>
+  )
 }
 
 export function StudioSidebar({
@@ -36,12 +142,14 @@ export function StudioSidebar({
   onSelectRegion,
   onCountryNameChange,
   onRegionNameChange,
+  onRegionIdChange,
   onRegionCapitalToggle,
   onDeleteRegion,
   onStartSlice,
   onStartRedrawBorder,
   onStartMoveLabel,
   onStartCreateCountry,
+  onStartCreateRegion,
 }: Props) {
   const [search, setSearch] = useState('')
 
@@ -65,6 +173,25 @@ export function StudioSidebar({
             <strong style={{ color: '#6ee7b7' }}>Создание нового государства</strong>
             <p>
               Кликните по острову или участку суши, либо обведите петлёй лассо территорию на карте, чтобы отделить её в независимое государство.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Create Region Helper Banner */}
+      {activeTool === 'create-region' && (
+        <div
+          className="studio-sidebar__banner"
+          style={{
+            borderColor: 'rgba(56, 189, 248, 0.4)',
+            background: 'linear-gradient(135deg, rgba(3, 105, 161, 0.3) 0%, rgba(2, 132, 199, 0.15) 100%)',
+          }}
+        >
+          <span className="studio-banner-icon">✨</span>
+          <div>
+            <strong style={{ color: '#38bdf8' }}>Создание нового региона</strong>
+            <p>
+              Обведите петлёй лассо область внутри страны или кликните по острову, чтобы выделить его в новый регион.
             </p>
           </div>
         </div>
@@ -301,6 +428,13 @@ export function StudioSidebar({
                 />
               </div>
 
+              <RegionIdEditor
+                countryPrefix={activeRegion.properties?.countryId ? `${activeRegion.properties.countryId}-` : ''}
+                currentId={activeRegion.properties?.id || ''}
+                regionName={activeRegion.properties?.name || ''}
+                onRegionIdChange={onRegionIdChange}
+              />
+
               <div className="studio-field">
                 <label className="studio-checkbox-label">
                   <input
@@ -349,11 +483,29 @@ export function StudioSidebar({
           ) : (
             <div className="studio-list-view">
               <div className="studio-list-header">
-                <h3>
-                  {selectedCountryId
-                    ? `Регионы страны (${countryRegions.length})`
-                    : `Все регионы карты (${regions.length})`}
-                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <h3 style={{ margin: 0 }}>
+                    {selectedCountryId
+                      ? `Регионы страны (${countryRegions.length})`
+                      : `Все регионы карты (${regions.length})`}
+                  </h3>
+                  {onStartCreateRegion && (
+                    <button
+                      type="button"
+                      className="studio-btn studio-btn--primary studio-btn--sm"
+                      onClick={onStartCreateRegion}
+                      title="Обвести контур лассо или кликнуть по острову, чтобы создать новый регион"
+                      style={{
+                        background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                        borderColor: '#38bdf8',
+                        padding: '4px 10px',
+                        fontSize: '12px',
+                      }}
+                    >
+                      ➕ Создать
+                    </button>
+                  )}
+                </div>
                 <input
                   type="search"
                   className="studio-input studio-input--sm"

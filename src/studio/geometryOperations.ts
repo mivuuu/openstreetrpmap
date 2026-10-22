@@ -1106,3 +1106,171 @@ export function createCountryFromTerritory(options: CreateCountryOptions): Creat
   }
 }
 
+export type CreateRegionOptions = {
+  territory: Feature<Polygon | MultiPolygon>
+  regionName: string
+  regionId: string
+  countryId: string
+  isCapital: boolean
+  regionsFC: FeatureCollection<Polygon | MultiPolygon>
+}
+
+export type CreateRegionResult = {
+  regions: FeatureCollection<Polygon | MultiPolygon>
+  newRegionFeature: Feature<Polygon | MultiPolygon>
+}
+
+/**
+ * Extracts a region territory within the parent country using a drawn lasso line.
+ */
+export function findRegionTerritoryFromLasso(
+  lassoPoints: [number, number][],
+  countryFeature: Feature<Polygon | MultiPolygon>,
+): Feature<Polygon | MultiPolygon> | null {
+  const pixelated = pixelateLine(lassoPoints, 1.0)
+  if (pixelated.length < 3) return null
+
+  const closed = [...pixelated, pixelated[0]]
+  let drawnPoly: Feature<Polygon | MultiPolygon>
+  try {
+    const raw = turf.polygon([closed])
+    const unkinked = turf.unkinkPolygon(raw)
+    if (unkinked.features.length > 1) {
+      let merged: Feature<Polygon | MultiPolygon> = unkinked.features[0]
+      for (let i = 1; i < unkinked.features.length; i++) {
+        const u = turf.union(turf.featureCollection([merged, unkinked.features[i]]))
+        if (u) merged = u as Feature<Polygon | MultiPolygon>
+      }
+      drawnPoly = merged
+    } else {
+      drawnPoly = raw
+    }
+  } catch {
+    return null
+  }
+
+  // Intersect with country feature so it stays strictly within parent country
+  const clipped = turf.intersect(turf.featureCollection([countryFeature, drawnPoly]))
+  if (!clipped || turf.area(clipped) <= 0.01) return null
+
+  return clipped as Feature<Polygon | MultiPolygon>
+}
+
+/**
+ * Finds an island or disconnected land component within a country at the click point.
+ */
+export function findRegionTerritoryAtClick(
+  clickPt: [number, number],
+  countryFeature: Feature<Polygon | MultiPolygon>,
+  landFC: FeatureCollection<Polygon | MultiPolygon>,
+): Feature<Polygon | MultiPolygon> | null {
+  if (!turf.booleanPointInPolygon(clickPt, countryFeature)) return null
+
+  // 1. Check if it's an island in land.geojson
+  const landFeature = landFC.features[0]
+  if (landFeature) {
+    const landParts = turf.flatten(landFeature).features
+    const matchedLand = landParts.find((p) => turf.booleanPointInPolygon(clickPt, p))
+    if (matchedLand) {
+      const inter = turf.intersect(turf.featureCollection([countryFeature, matchedLand]))
+      if (inter && turf.area(inter) > 0.01) {
+        return inter as Feature<Polygon | MultiPolygon>
+      }
+    }
+  }
+
+  // 2. Check parts of country feature
+  const countryParts = turf.flatten(countryFeature).features
+  const matchedCountryPart = countryParts.find((p) => turf.booleanPointInPolygon(clickPt, p))
+  if (matchedCountryPart) {
+    return matchedCountryPart
+  }
+
+  return null
+}
+
+/**
+ * Creates a new independent region from the given territory inside a country,
+ * cleanly trimming any underlying existing regions without touching the rest of the country.
+ */
+export function createRegionFromTerritory(options: CreateRegionOptions): CreateRegionResult {
+  const { territory, regionName, regionId, countryId, isCapital, regionsFC } = options
+
+  // Calculate next region number for this country
+  const countryRegions = regionsFC.features.filter((r) => r.properties?.countryId === countryId)
+  const existingNumbers = countryRegions.map((r) => {
+    const m = r.properties?.id?.match(/region-(\d+)/)
+    return m ? parseInt(m[1], 10) : (r.properties?.number ?? 0)
+  })
+  const nextNumber = Math.max(...existingNumbers, 0) + 1
+
+  const updatedRegions: Feature<Polygon | MultiPolygon>[] = []
+
+  for (const reg of regionsFC.features) {
+    const inter = turf.intersect(turf.featureCollection([reg, territory]))
+    if (!inter || turf.area(inter) <= 0.01) {
+      updatedRegions.push(reg)
+      continue
+    }
+
+    const regArea = turf.area(reg)
+    const interArea = turf.area(inter)
+
+    // If existing region was mostly or completely covered by new region, replace it
+    if (interArea / regArea > 0.85) {
+      continue
+    }
+
+    // Safely subtract territory from existing region
+    const parts = turf.flatten(reg).features
+    const remainingParts: (Polygon | MultiPolygon)[] = []
+
+    for (const part of parts) {
+      const partInter = turf.intersect(turf.featureCollection([part, territory]))
+      if (!partInter || turf.area(partInter) <= 0.01) {
+        remainingParts.push(part.geometry)
+      } else {
+        const pDiff = turf.difference(turf.featureCollection([part, territory]))
+        if (pDiff && turf.area(pDiff) > 0.01) {
+          remainingParts.push(pDiff.geometry as Polygon | MultiPolygon)
+        }
+      }
+    }
+
+    if (remainingParts.length > 0) {
+      const combinedGeom = combinePolygons(remainingParts)
+      updatedRegions.push({
+        ...reg,
+        geometry: combinedGeom.geometry as Polygon | MultiPolygon,
+      })
+    }
+  }
+
+  // Create new region feature
+  const newRegionFeature: Feature<Polygon | MultiPolygon> = {
+    type: 'Feature',
+    id: regionId,
+    geometry: territory.geometry,
+    properties: {
+      id: regionId,
+      name: regionName,
+      countryId,
+      number: nextNumber,
+      isCapital,
+      labelRank: 1,
+      styleIndex: nextNumber % 5,
+    },
+  }
+
+  updatedRegions.push(newRegionFeature)
+
+  return {
+    regions: {
+      ...regionsFC,
+      features: updatedRegions,
+    },
+    newRegionFeature,
+  }
+}
+
+

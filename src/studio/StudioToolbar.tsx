@@ -138,6 +138,18 @@ export function StudioToolbar({
         {mode === 'regions' && (
           <button
             type="button"
+            className={`studio-tool-btn studio-tool-btn--accent ${activeTool === 'create-region' ? 'studio-tool-btn--active' : ''}`}
+            onClick={() => onToolChange('create-region')}
+            title="Обвести контур лассо или кликнуть по острову, чтобы создать новый регион"
+          >
+            <span className="studio-tool-icon">➕</span>
+            <span>Создать регион</span>
+          </button>
+        )}
+
+        {mode === 'regions' && (
+          <button
+            type="button"
             className={`studio-tool-btn ${activeTool === 'slice-region' ? 'studio-tool-btn--active' : ''}`}
             onClick={() => onToolChange('slice-region')}
             title="Провести тонкую линию и нарезать регион"

@@ -8,6 +8,7 @@ export type StudioTool =
   | 'move-label'
   | 'erase-region'
   | 'create-country'
+  | 'create-region'
 
 export type StudioMode = 'countries' | 'regions'
 
