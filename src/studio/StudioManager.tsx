@@ -20,11 +20,12 @@ import {
 import { StudioCreateCountryModal } from './StudioCreateCountryModal'
 import { StudioCreateRegionModal } from './StudioCreateRegionModal'
 import { StudioDrawingCanvas } from './StudioDrawingCanvas'
+import { StudioOverlayHud } from './StudioOverlayHud'
 import { StudioPublishModal } from './StudioPublishModal'
 import { StudioRegionPhotoModal } from './StudioRegionPhotoModal'
 import { StudioSidebar } from './StudioSidebar'
 import { StudioToolbar } from './StudioToolbar'
-import type { GeoJsonDataState, StudioMode, StudioToast, StudioTool } from './types'
+import type { GeoJsonDataState, StudioMapOverlay, StudioMode, StudioToast, StudioTool } from './types'
 
 type Props = {
   map: Map | null
@@ -43,11 +44,7 @@ export function StudioManager({ map, onExit }: Props) {
   const [isSaving, setIsSaving] = useState<boolean>(false)
   const [isPublishOpen, setIsPublishOpen] = useState<boolean>(false)
   const [isRegionPhotoModalOpen, setIsRegionPhotoModalOpen] = useState<boolean>(false)
-  const [mapOverlay, setMapOverlay] = useState<{
-    imageUrl: string
-    bounds: [number, number, number, number]
-    opacity: number
-  } | null>(null)
+  const [mapOverlay, setMapOverlay] = useState<StudioMapOverlay | null>(null)
   const [toasts, setToasts] = useState<StudioToast[]>([])
   const [history, setHistory] = useState<GeoJsonDataState[]>([])
   const [future, setFuture] = useState<GeoJsonDataState[]>([])
@@ -92,6 +89,54 @@ export function StudioManager({ map, onExit }: Props) {
       setToasts((prev) => prev.filter((t) => t.id !== id))
     }, 4500)
   }
+
+  const handleToggleLockOverlay = useCallback(() => {
+    if (!mapOverlay) return
+    const nextLocked = !mapOverlay.locked
+    setMapOverlay({
+      ...mapOverlay,
+      locked: nextLocked,
+    })
+    if (nextLocked) {
+      addToast('📌 Фото-подложка закреплена на карте! Инструменты рисования активны поверх неё.', 'success')
+    } else {
+      addToast('🔓 Режим перемещения активен: перетаскивайте фото мышкой или тяните за углы.', 'info')
+    }
+  }, [mapOverlay])
+
+  const handleCenterOverlayOnScreen = useCallback(() => {
+    if (!map || !mapOverlay) return
+    const centerLngLat = map.getCenter()
+    const centerWorld = mapToWorld(centerLngLat.lng, centerLngLat.lat)
+    const [x0, y0, x1, y1] = mapOverlay.bounds
+    const w = x1 - x0
+    const h = y1 - y0
+    const newX0 = Math.round(centerWorld.x - w / 2)
+    const newY0 = Math.round(centerWorld.y - h / 2)
+    setMapOverlay({
+      ...mapOverlay,
+      bounds: [newX0, newY0, newX0 + w, newY0 + h],
+    })
+    addToast('🎯 Фото-подложка перемещена в центр экрана!', 'info')
+  }, [map, mapOverlay])
+
+  const handleScaleOverlay = useCallback((factor: number) => {
+    if (!mapOverlay) return
+    const [x0, y0, x1, y1] = mapOverlay.bounds
+    const cx = (x0 + x1) / 2
+    const cy = (y0 + y1) / 2
+    const halfW = ((x1 - x0) / 2) * factor
+    const halfH = ((y1 - y0) / 2) * factor
+    setMapOverlay({
+      ...mapOverlay,
+      bounds: [
+        Math.round(cx - halfW),
+        Math.round(cy - halfH),
+        Math.round(cx + halfW),
+        Math.round(cy + halfH),
+      ],
+    })
+  }, [mapOverlay])
 
   // Load all map datasets
   useEffect(() => {
@@ -1242,7 +1287,7 @@ export function StudioManager({ map, onExit }: Props) {
     (
       countryId: string,
       newRegions: Feature<Polygon | MultiPolygon>[],
-      overlay: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null,
+      overlay: StudioMapOverlay | null,
     ) => {
       applyDataUpdate((prev) => {
         const otherRegions = prev.regions.features.filter((r) => r.properties?.countryId !== countryId)
@@ -1361,6 +1406,8 @@ export function StudioManager({ map, onExit }: Props) {
           onRedo={handleRedo}
           onOpenRegionPhotoModal={() => setIsRegionPhotoModalOpen(true)}
           hasMapOverlay={!!mapOverlay}
+          isOverlayLocked={mapOverlay?.locked ?? true}
+          onToggleLockOverlay={handleToggleLockOverlay}
           onClearOverlay={() => setMapOverlay(null)}
         />
       )}
@@ -1434,6 +1481,21 @@ export function StudioManager({ map, onExit }: Props) {
           onCreateRegionLasso={handleCreateRegionLasso}
           pendingRegionTerritory={createRegionModalState.territory}
           mapOverlay={mapOverlay}
+          onUpdateMapOverlay={setMapOverlay}
+          onToggleLockOverlay={handleToggleLockOverlay}
+        />
+      )}
+
+      {/* Floating HUD for photo overlay control */}
+      {mapOverlay && (
+        <StudioOverlayHud
+          overlay={mapOverlay}
+          onUpdateOverlay={setMapOverlay}
+          onToggleLock={handleToggleLockOverlay}
+          onCenterOnScreen={handleCenterOverlayOnScreen}
+          onScale={handleScaleOverlay}
+          onClose={() => setMapOverlay(null)}
+          onOpenPhotoModal={() => setIsRegionPhotoModalOpen(true)}
         />
       )}
 
@@ -1482,7 +1544,11 @@ export function StudioManager({ map, onExit }: Props) {
           onApplyRegions={handleApplyImportedRegions}
           onSetMapOverlay={(overlay) => {
             setMapOverlay(overlay)
-            addToast('Фото-подложка закреплена на карте! Теперь вы можете обвести страну лассо или создать регион.', 'info')
+            if (overlay.locked) {
+              addToast('Фото-подложка закреплена на карте! Теперь вы можете обвести страну лассо или создать регион.', 'info')
+            } else {
+              addToast('Фото-подложка добавлена на карту! Вы можете свободно перетаскивать её мышкой и нажать «📌 Закрепить».', 'info')
+            }
           }}
         />
       )}

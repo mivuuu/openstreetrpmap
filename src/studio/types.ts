@@ -33,3 +33,10 @@ export type StudioToast = {
   type: 'info' | 'success' | 'error' | 'warning'
   message: string
 }
+
+export type StudioMapOverlay = {
+  imageUrl: string
+  bounds: [number, number, number, number] // [minX, minY, maxX, maxY]
+  opacity: number
+  locked: boolean
+}

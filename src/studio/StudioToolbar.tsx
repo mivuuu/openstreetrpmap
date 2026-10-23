@@ -23,6 +23,8 @@ type Props = {
   onRedo: () => void
   onOpenRegionPhotoModal: () => void
   hasMapOverlay?: boolean
+  isOverlayLocked?: boolean
+  onToggleLockOverlay?: () => void
   onClearOverlay?: () => void
 }
 
@@ -48,6 +50,8 @@ export function StudioToolbar({
   onRedo,
   onOpenRegionPhotoModal,
   hasMapOverlay,
+  isOverlayLocked,
+  onToggleLockOverlay,
   onClearOverlay,
 }: Props) {
   const currentCountryRegions = regions.filter((r) => r.properties?.countryId === fillCountryId)
@@ -124,6 +128,22 @@ export function StudioToolbar({
           <span>Фото-подложка</span>
         </button>
 
+        {hasMapOverlay && onToggleLockOverlay && (
+          <button
+            type="button"
+            className={`studio-tool-btn ${isOverlayLocked ? '' : 'studio-tool-btn--active'}`}
+            onClick={onToggleLockOverlay}
+            title={
+              isOverlayLocked
+                ? 'Включить режим перемещения подложки мышкой по всей карте'
+                : 'Зафиксировать подложку на карте'
+            }
+          >
+            <span className="studio-tool-icon">{isOverlayLocked ? '🔓' : '📌'}</span>
+            <span>{isOverlayLocked ? 'Переместить подложку' : 'Закрепить подложку'}</span>
+          </button>
+        )}
+
         {hasMapOverlay && onClearOverlay && (
           <button
             type="button"
@@ -133,7 +153,7 @@ export function StudioToolbar({
             style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#fca5a5' }}
           >
             <span className="studio-tool-icon">🖼️✕</span>
-            <span>Скрыть фото-подложку</span>
+            <span>Скрыть</span>
           </button>
         )}
 

@@ -6,6 +6,7 @@ import {
   extractRegionsFromImage,
   type ExtractedRegion,
 } from './regionImageExtractor'
+import type { StudioMapOverlay } from './types'
 
 type Props = {
   isOpen: boolean
@@ -15,10 +16,10 @@ type Props = {
   onApplyRegions: (
     countryId: string,
     regions: Feature<Polygon | MultiPolygon>[],
-    mapOverlay: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null,
+    mapOverlay: StudioMapOverlay | null,
   ) => void
   onSetMapOverlay?: (
-    overlay: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null,
+    overlay: StudioMapOverlay,
   ) => void
 }
 
@@ -250,11 +251,31 @@ export function StudioRegionPhotoModal({
 
   // Render composite preview onto Canvas
   useEffect(() => {
-    if (!isOpen || !canvasRef.current || !currentCountry) return
+    if (!isOpen || !canvasRef.current) return
 
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+
+    if (!currentCountry) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.fillStyle = '#0f172a'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      if (imageElement) {
+        const scale = Math.min(
+          (canvas.width - 40) / imageElement.width,
+          (canvas.height - 40) / imageElement.height,
+        )
+        const dw = imageElement.width * scale
+        const dh = imageElement.height * scale
+        const dx = (canvas.width - dw) / 2
+        const dy = (canvas.height - dh) / 2
+        ctx.globalAlpha = opacity
+        ctx.drawImage(imageElement, dx, dy, dw, dh)
+        ctx.globalAlpha = 1.0
+      }
+      return
+    }
 
     const [minX, minY, maxX, maxY] = turf.bbox(currentCountry)
     const cW = Math.max(1, maxX - minX)
@@ -468,8 +489,8 @@ export function StudioRegionPhotoModal({
       },
     }))
 
-    let overlayData: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null = null
-    if (keepOverlayOnMap && imageDataUrl) {
+    let overlayData: StudioMapOverlay | null = null
+    if (keepOverlayOnMap && imageDataUrl && currentCountry) {
       const [minX, minY, maxX, maxY] = turf.bbox(currentCountry)
       const cW = maxX - minX
       const cH = maxY - minY
@@ -479,8 +500,9 @@ export function StudioRegionPhotoModal({
       const bMaxY = bMinY + cH * scaleY
       overlayData = {
         imageUrl: imageDataUrl,
-        bounds: [bMinX, bMinY, bMaxX, bMaxY],
+        bounds: [Math.round(bMinX), Math.round(bMinY), Math.round(bMaxX), Math.round(bMaxY)],
         opacity,
+        locked: true,
       }
     }
 
@@ -490,18 +512,28 @@ export function StudioRegionPhotoModal({
 
   // Apply map overlay only without modifying existing regions
   const handleApplyOverlayOnly = () => {
-    if (!currentCountry || !imageDataUrl) return
-    const [minX, minY, maxX, maxY] = turf.bbox(currentCountry)
-    const cW = maxX - minX
-    const cH = maxY - minY
-    const bMinX = minX + offsetX
-    const bMinY = minY + offsetY
-    const bMaxX = bMinX + cW * scaleX
-    const bMaxY = bMinY + cH * scaleY
-    const overlayData = {
+    if (!imageDataUrl) return
+    let bMinX: number, bMinY: number, bMaxX: number, bMaxY: number
+    if (currentCountry) {
+      const [minX, minY, maxX, maxY] = turf.bbox(currentCountry)
+      const cW = maxX - minX
+      const cH = maxY - minY
+      bMinX = minX + offsetX
+      bMinY = minY + offsetY
+      bMaxX = bMinX + cW * scaleX
+      bMaxY = bMinY + cH * scaleY
+    } else {
+      // Default to center of world
+      bMinX = 700
+      bMinY = 350
+      bMaxX = 1200
+      bMaxY = 750
+    }
+    const overlayData: StudioMapOverlay = {
       imageUrl: imageDataUrl,
-      bounds: [bMinX, bMinY, bMaxX, bMaxY] as [number, number, number, number],
+      bounds: [Math.round(bMinX), Math.round(bMinY), Math.round(bMaxX), Math.round(bMaxY)],
       opacity,
+      locked: false, // Start unlocked so user can freely position and scale it
     }
     onSetMapOverlay?.(overlayData)
     onClose()
@@ -559,6 +591,9 @@ export function StudioRegionPhotoModal({
                 }}
                 className="studio-input"
               >
+                <option value="__free__">
+                  🗺️ Свободная подложка (любое место на карте)
+                </option>
                 {countries.map((c) => (
                   <option key={c.properties?.id} value={c.properties?.id}>
                     {c.properties?.name || c.properties?.id} ({c.properties?.id})
@@ -592,8 +627,42 @@ export function StudioRegionPhotoModal({
               </div>
             </div>
 
-            {/* 3. Alignment controls */}
-            {imageElement && (
+            {/* Free Overlay instructions when no country selected */}
+            {imageElement && !currentCountry && (
+              <div
+                className="studio-control-group"
+                style={{
+                  padding: '12px',
+                  background: 'rgba(56, 189, 248, 0.06)',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  borderRadius: '8px',
+                }}
+              >
+                <p style={{ margin: 0, fontSize: '12px', color: '#cbd5e1', lineHeight: 1.5 }}>
+                  🗺️ <strong>Свободный режим подложки:</strong>
+                  <br />
+                  Фотография будет добавлена прямо на карту мира. Вы сможете перемещать её мышкой в любую точку планеты, масштабировать за углы и закрепить кнопкой <strong>📌 Закрепить</strong>.
+                </p>
+                <button
+                  type="button"
+                  className="studio-btn"
+                  onClick={handleApplyOverlayOnly}
+                  style={{
+                    width: '100%',
+                    marginTop: '12px',
+                    background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                    borderColor: '#38bdf8',
+                    color: '#ffffff',
+                    fontWeight: 600,
+                  }}
+                >
+                  🖼️ Разместить на карте мира
+                </button>
+              </div>
+            )}
+
+            {/* 3. Alignment controls when country is selected */}
+            {imageElement && currentCountry && (
               <div className="studio-control-group">
                 <div className="studio-group-title">
                   <span>🎯 Совмещение с контуром страны</span>
@@ -1056,7 +1125,7 @@ export function StudioRegionPhotoModal({
               type="button"
               className="studio-btn"
               onClick={handleApplyOverlayOnly}
-              title="Закрепить совмещённую фотографию как подложку на карте мира"
+              title="Разместить фотографию на карте с возможностью свободного перемещения мышкой и фиксации"
               style={{
                 background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
                 borderColor: '#38bdf8',
@@ -1064,7 +1133,7 @@ export function StudioRegionPhotoModal({
                 fontWeight: 600,
               }}
             >
-              🖼️ Закрепить как подложку на карте
+              🖼️ Разместить на карте (свободное перемещение)
             </button>
           )}
           <button

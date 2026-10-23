@@ -3,7 +3,7 @@ import type { Map } from 'maplibre-gl'
 import type { Feature, FeatureCollection, MultiPolygon, Point, Polygon } from 'geojson'
 import * as turf from '@turf/turf'
 import { mapToWorld, worldToMap } from '../map/worldCoordinates'
-import type { StudioMode, StudioTool } from './types'
+import type { StudioMapOverlay, StudioMode, StudioTool } from './types'
 
 type Props = {
   map: Map | null
@@ -23,7 +23,9 @@ type Props = {
   onCreateRegionClick?: (worldPt: [number, number]) => void
   onCreateRegionLasso?: (points: [number, number][]) => void
   pendingRegionTerritory?: Feature<Polygon | MultiPolygon> | null
-  mapOverlay?: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null
+  mapOverlay?: StudioMapOverlay | null
+  onUpdateMapOverlay?: (overlay: StudioMapOverlay) => void
+  onToggleLockOverlay?: () => void
 }
 
 export function StudioDrawingCanvas({
@@ -45,12 +47,23 @@ export function StudioDrawingCanvas({
   onCreateRegionLasso,
   pendingRegionTerritory,
   mapOverlay,
+  onUpdateMapOverlay,
+  onToggleLockOverlay,
 }: Props) {
   const [isDrawing, setIsDrawing] = useState(false)
   const [screenStroke, setScreenStroke] = useState<[number, number][]>([])
   const worldPointsRef = useRef<[number, number][]>([])
   const containerRef = useRef<SVGSVGElement | null>(null)
   const [, setMapVersion] = useState(0)
+
+  // Dragging / resizing photo overlay state
+  const [overlayDrag, setOverlayDrag] = useState<{
+    type: 'move' | 'resize'
+    handle?: 'tl' | 'tr' | 'bl' | 'br'
+    startScreen: [number, number]
+    startWorld: [number, number]
+    startBounds: [number, number, number, number]
+  } | null>(null)
 
   // Sync canvas with map camera movement
   useEffect(() => {
@@ -172,6 +185,24 @@ export function StudioDrawingCanvas({
     return worldPt
   }
 
+  // Project reference photo overlay if present
+  const overlayPos =
+    mapOverlay && map
+      ? (() => {
+          const [x0, y0, x1, y1] = mapOverlay.bounds
+          const [lng0, lat0] = worldToMap({ x: x0, y: y0 })
+          const [lng1, lat1] = worldToMap({ x: x1, y: y1 })
+          const p0 = map.project([lng0, lat0])
+          const p1 = map.project([lng1, lat1])
+          return {
+            x: Math.min(p0.x, p1.x),
+            y: Math.min(p0.y, p1.y),
+            width: Math.max(1, Math.abs(p1.x - p0.x)),
+            height: Math.max(1, Math.abs(p1.y - p0.y)),
+          }
+        })()
+      : null
+
   const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
     // Right click (2), middle click (1), or Spacebar: start panning map!
     if (e.button === 2 || e.button === 1 || isSpacePressedRef.current) {
@@ -196,6 +227,76 @@ export function StudioDrawingCanvas({
     const [sx, sy] = getScreenCoords(e)
     const world = screenToWorld(sx, sy)
     if (!world) return
+
+    // Interactive Photo Overlay moving / resizing when unlocked
+    if (mapOverlay && !mapOverlay.locked && overlayPos) {
+      // Check Pin/Lock badge at top
+      const bx = overlayPos.x + overlayPos.width / 2
+      const by = Math.max(16, overlayPos.y - 14)
+      if (Math.abs(sx - bx) <= 90 && Math.abs(sy - by) <= 15) {
+        onToggleLockOverlay?.()
+        return
+      }
+
+      // Check 4 corner resize handles
+      const hitDist = 14
+      if (Math.hypot(sx - overlayPos.x, sy - overlayPos.y) <= hitDist) {
+        setOverlayDrag({
+          type: 'resize',
+          handle: 'tl',
+          startScreen: [sx, sy],
+          startWorld: world,
+          startBounds: [...mapOverlay.bounds],
+        })
+        return
+      }
+      if (Math.hypot(sx - (overlayPos.x + overlayPos.width), sy - overlayPos.y) <= hitDist) {
+        setOverlayDrag({
+          type: 'resize',
+          handle: 'tr',
+          startScreen: [sx, sy],
+          startWorld: world,
+          startBounds: [...mapOverlay.bounds],
+        })
+        return
+      }
+      if (Math.hypot(sx - overlayPos.x, sy - (overlayPos.y + overlayPos.height)) <= hitDist) {
+        setOverlayDrag({
+          type: 'resize',
+          handle: 'bl',
+          startScreen: [sx, sy],
+          startWorld: world,
+          startBounds: [...mapOverlay.bounds],
+        })
+        return
+      }
+      if (Math.hypot(sx - (overlayPos.x + overlayPos.width), sy - (overlayPos.y + overlayPos.height)) <= hitDist) {
+        setOverlayDrag({
+          type: 'resize',
+          handle: 'br',
+          startScreen: [sx, sy],
+          startWorld: world,
+          startBounds: [...mapOverlay.bounds],
+        })
+        return
+      }
+
+      // Check interior drag
+      if (
+        sx >= overlayPos.x &&
+        sx <= overlayPos.x + overlayPos.width &&
+        sy >= overlayPos.y &&
+        sy <= overlayPos.y + overlayPos.height
+      ) {
+        setOverlayDrag({
+          type: 'move',
+          startScreen: [sx, sy],
+          startWorld: world,
+          startBounds: [...mapOverlay.bounds],
+        })
+        return
+      }
+    }
 
     // Tool: Bucket fill
     if (activeTool === 'bucket-fill') {
@@ -261,6 +362,53 @@ export function StudioDrawingCanvas({
       return
     }
 
+    // Handle dragging / resizing photo overlay
+    if (overlayDrag && mapOverlay) {
+      e.preventDefault()
+      const [sx, sy] = getScreenCoords(e)
+      const world = screenToWorld(sx, sy)
+      if (!world) return
+
+      if (overlayDrag.type === 'move') {
+        const dx = world[0] - overlayDrag.startWorld[0]
+        const dy = world[1] - overlayDrag.startWorld[1]
+        const [x0, y0, x1, y1] = overlayDrag.startBounds
+        onUpdateMapOverlay?.({
+          ...mapOverlay,
+          bounds: [
+            Math.round(x0 + dx),
+            Math.round(y0 + dy),
+            Math.round(x1 + dx),
+            Math.round(y1 + dy),
+          ],
+        })
+      } else if (overlayDrag.type === 'resize' && overlayDrag.handle) {
+        const [x0, y0, x1, y1] = overlayDrag.startBounds
+        let newBounds: [number, number, number, number] = [x0, y0, x1, y1]
+        const minSize = 10
+
+        switch (overlayDrag.handle) {
+          case 'br':
+            newBounds = [x0, y0, Math.max(x0 + minSize, Math.round(world[0])), Math.max(y0 + minSize, Math.round(world[1]))]
+            break
+          case 'tl':
+            newBounds = [Math.min(x1 - minSize, Math.round(world[0])), Math.min(y1 - minSize, Math.round(world[1])), x1, y1]
+            break
+          case 'tr':
+            newBounds = [x0, Math.min(y1 - minSize, Math.round(world[1])), Math.max(x0 + minSize, Math.round(world[0])), y1]
+            break
+          case 'bl':
+            newBounds = [Math.min(x1 - minSize, Math.round(world[0])), y0, x1, Math.max(y0 + minSize, Math.round(world[1]))]
+            break
+        }
+        onUpdateMapOverlay?.({
+          ...mapOverlay,
+          bounds: newBounds,
+        })
+      }
+      return
+    }
+
     // Handle dragging label
     if (draggingLabel) {
       e.preventDefault()
@@ -295,6 +443,11 @@ export function StudioDrawingCanvas({
     if (isPanning) {
       setIsPanning(false)
       panStartRef.current = null
+      return
+    }
+
+    if (overlayDrag) {
+      setOverlayDrag(null)
       return
     }
 
@@ -373,24 +526,6 @@ export function StudioDrawingCanvas({
       })
     : []
 
-  // Project reference photo overlay if present
-  const overlayPos =
-    mapOverlay && map
-      ? (() => {
-          const [x0, y0, x1, y1] = mapOverlay.bounds
-          const [lng0, lat0] = worldToMap({ x: x0, y: y0 })
-          const [lng1, lat1] = worldToMap({ x: x1, y: y1 })
-          const p0 = map.project([lng0, lat0])
-          const p1 = map.project([lng1, lat1])
-          return {
-            x: Math.min(p0.x, p1.x),
-            y: Math.min(p0.y, p1.y),
-            width: Math.abs(p1.x - p0.x),
-            height: Math.abs(p1.y - p0.y),
-          }
-        })()
-      : null
-
   return (
     <svg
       ref={containerRef}
@@ -412,11 +547,13 @@ export function StudioDrawingCanvas({
         cursor:
           isPanning
             ? 'grabbing'
-            : activeTool === 'bucket-fill'
-              ? 'cell'
-              : activeTool === 'move-label'
-                ? draggingLabel ? 'grabbing' : 'grab'
-                : 'crosshair',
+            : overlayDrag
+              ? overlayDrag.type === 'move' ? 'grabbing' : 'nwse-resize'
+              : activeTool === 'bucket-fill'
+                ? 'cell'
+                : activeTool === 'move-label'
+                  ? draggingLabel ? 'grabbing' : 'grab'
+                  : 'crosshair',
       }}
     >
       <defs>
@@ -431,15 +568,112 @@ export function StudioDrawingCanvas({
 
       {/* Render persistent reference photo overlay on the map */}
       {overlayPos && mapOverlay && (
-        <image
-          href={mapOverlay.imageUrl}
-          x={overlayPos.x}
-          y={overlayPos.y}
-          width={overlayPos.width}
-          height={overlayPos.height}
-          opacity={mapOverlay.opacity}
-          style={{ pointerEvents: 'none' }}
-        />
+        <g className="studio-map-overlay-layer">
+          <image
+            href={mapOverlay.imageUrl}
+            x={overlayPos.x}
+            y={overlayPos.y}
+            width={overlayPos.width}
+            height={overlayPos.height}
+            opacity={mapOverlay.opacity}
+            style={{ pointerEvents: 'none' }}
+          />
+
+          {/* Interactive positioning & resizing controls when unlocked */}
+          {!mapOverlay.locked && (
+            <g className="studio-overlay-transform-frame">
+              {/* Dashed selection rect / move surface */}
+              <rect
+                x={overlayPos.x}
+                y={overlayPos.y}
+                width={overlayPos.width}
+                height={overlayPos.height}
+                fill="rgba(56, 189, 248, 0.08)"
+                stroke="#38bdf8"
+                strokeWidth={2}
+                strokeDasharray="6 4"
+                style={{ cursor: overlayDrag ? 'grabbing' : 'move' }}
+              />
+
+              {/* Pin/Lock Button Badge */}
+              <g
+                transform={`translate(${overlayPos.x + overlayPos.width / 2}, ${Math.max(16, overlayPos.y - 14)})`}
+                style={{ cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onToggleLockOverlay?.()
+                }}
+              >
+                <rect
+                  x={-85}
+                  y={-13}
+                  width={170}
+                  height={26}
+                  rx={13}
+                  fill="#0f172a"
+                  stroke="#38bdf8"
+                  strokeWidth={1.5}
+                />
+                <text
+                  x={0}
+                  y={4}
+                  textAnchor="middle"
+                  fill="#38bdf8"
+                  fontSize={11}
+                  fontWeight={600}
+                >
+                  📌 Нажмите, чтобы закрепить
+                </text>
+              </g>
+
+              {/* 4 Corner resize handles */}
+              <rect
+                x={overlayPos.x - 7}
+                y={overlayPos.y - 7}
+                width={14}
+                height={14}
+                rx={3}
+                fill="#38bdf8"
+                stroke="#ffffff"
+                strokeWidth={2}
+                style={{ cursor: 'nwse-resize' }}
+              />
+              <rect
+                x={overlayPos.x + overlayPos.width - 7}
+                y={overlayPos.y - 7}
+                width={14}
+                height={14}
+                rx={3}
+                fill="#38bdf8"
+                stroke="#ffffff"
+                strokeWidth={2}
+                style={{ cursor: 'nesw-resize' }}
+              />
+              <rect
+                x={overlayPos.x - 7}
+                y={overlayPos.y + overlayPos.height - 7}
+                width={14}
+                height={14}
+                rx={3}
+                fill="#38bdf8"
+                stroke="#ffffff"
+                strokeWidth={2}
+                style={{ cursor: 'nesw-resize' }}
+              />
+              <rect
+                x={overlayPos.x + overlayPos.width - 7}
+                y={overlayPos.y + overlayPos.height - 7}
+                width={14}
+                height={14}
+                rx={3}
+                fill="#38bdf8"
+                stroke="#ffffff"
+                strokeWidth={2}
+                style={{ cursor: 'nwse-resize' }}
+              />
+            </g>
+          )}
+        </g>
       )}
 
       {/* Pending country territory glowing highlight */}
