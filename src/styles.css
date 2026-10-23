@@ -2254,3 +2254,10 @@ button {
   color: #94a3b8;
 }
 
+.studio-field-hint {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+

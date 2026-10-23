@@ -19,6 +19,7 @@ type Props = {
   onRegionIdChange?: (oldId: string, newId: string) => void
   onRegionCapitalToggle: (regionId: string, isCapital: boolean) => void
   onDeleteRegion: (regionId: string) => void
+  onTransferRegionToCountry?: (regionId: string, newCountryId: string) => void
   onStartSlice: () => void
   onStartRedrawBorder: () => void
   onStartMoveLabel: () => void
@@ -146,6 +147,7 @@ export function StudioSidebar({
   onRegionIdChange,
   onRegionCapitalToggle,
   onDeleteRegion,
+  onTransferRegionToCountry,
   onStartSlice,
   onStartRedrawBorder,
   onStartMoveLabel,
@@ -448,13 +450,36 @@ export function StudioSidebar({
                 </label>
               </div>
 
-              <div className="studio-stats">
-                <div className="studio-stat-item">
-                  <span className="studio-stat-item__label">Принадлежит стране:</span>
-                  <span className="studio-stat-item__val">
-                    {countries.find((c) => c.properties?.id === activeRegion.properties?.countryId)?.properties?.name ||
-                      activeRegion.properties?.countryId}
-                  </span>
+              <div className="studio-field">
+                <label htmlFor="region-transfer-country">
+                  <strong>🏳️ Принадлежность государству:</strong>
+                </label>
+                <select
+                  id="region-transfer-country"
+                  className="studio-input"
+                  value={activeRegion.properties?.countryId || ''}
+                  onChange={(e) => {
+                    const newCid = e.target.value
+                    if (newCid && newCid !== activeRegion.properties?.countryId) {
+                      onTransferRegionToCountry?.(activeRegion.properties!.id, newCid)
+                    }
+                  }}
+                  title="Выберите государство, в состав которого переходит этот регион"
+                  style={{
+                    fontWeight: 600,
+                    color: '#f8fafc',
+                    background: 'rgba(30, 41, 59, 0.85)',
+                    border: '1px solid rgba(56, 189, 248, 0.3)',
+                  }}
+                >
+                  {countries.map((c) => (
+                    <option key={c.properties?.id} value={c.properties?.id}>
+                      {c.properties?.name || c.properties?.id} ({c.properties?.id})
+                    </option>
+                  ))}
+                </select>
+                <div className="studio-field-hint">
+                  При смене страны регион и его границы автоматически перейдут в состав выбранного государства.
                 </div>
               </div>
 

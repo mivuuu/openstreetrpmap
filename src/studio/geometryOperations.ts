@@ -1291,4 +1291,146 @@ export function createRegionFromTerritory(options: CreateRegionOptions): CreateR
   }
 }
 
+export interface TransferRegionOptions {
+  regionId: string
+  newCountryId: string
+  countriesFC: FeatureCollection<Polygon | MultiPolygon>
+  regionsFC: FeatureCollection<Polygon | MultiPolygon>
+}
+
+export interface TransferRegionResult {
+  countries: FeatureCollection<Polygon | MultiPolygon>
+  regions: FeatureCollection<Polygon | MultiPolygon>
+  newRegionId: string
+  regionName: string
+  oldCountryName: string
+  newCountryName: string
+}
+
+/**
+ * Transfers a region from its current parent country to a new country.
+ * Updates geometries: subtracts region from old country and unions into new country.
+ * Updates region properties with the new country prefix.
+ */
+export function transferRegionToCountry(
+  options: TransferRegionOptions,
+): TransferRegionResult | null {
+  const { regionId, newCountryId, countriesFC, regionsFC } = options
+
+  const targetRegion = regionsFC.features.find((r) => r.properties?.id === regionId)
+  if (!targetRegion) return null
+
+  const oldCountryId = targetRegion.properties?.countryId
+  if (!oldCountryId || oldCountryId === newCountryId) return null
+
+  const oldCountry = countriesFC.features.find((c) => c.properties?.id === oldCountryId)
+  const newCountry = countriesFC.features.find((c) => c.properties?.id === newCountryId)
+  if (!newCountry) return null
+
+  const regionName = targetRegion.properties?.name || regionId
+  const oldCountryName = oldCountry?.properties?.name || oldCountryId
+  const newCountryName = newCountry.properties?.name || newCountryId
+
+  // 1. Subtract region from old country geometry
+  let updatedOldCountry: Feature<Polygon | MultiPolygon> | null = null
+  if (oldCountry) {
+    const parts = turf.flatten(oldCountry).features
+    const remainingParts: (Polygon | MultiPolygon)[] = []
+
+    for (const part of parts) {
+      const partInter = turf.intersect(turf.featureCollection([part, targetRegion]))
+      if (!partInter || turf.area(partInter) <= 0.01) {
+        remainingParts.push(part.geometry)
+      } else {
+        const pDiff = turf.difference(turf.featureCollection([part, targetRegion]))
+        if (pDiff && turf.area(pDiff) > 0.01) {
+          remainingParts.push(pDiff.geometry as Polygon | MultiPolygon)
+        }
+      }
+    }
+
+    if (remainingParts.length > 0) {
+      const combined = combinePolygons(remainingParts)
+      updatedOldCountry = {
+        ...oldCountry,
+        geometry: combined.geometry as Polygon | MultiPolygon,
+      }
+    }
+  }
+
+  // 2. Union region into new country geometry
+  const unitedGeom = safeUnionPolygons(newCountry, targetRegion)
+  const updatedNewCountry: Feature<Polygon | MultiPolygon> = {
+    ...newCountry,
+    geometry: unitedGeom.geometry,
+  }
+
+  // 3. Assemble updated countries list
+  const updatedCountries: Feature<Polygon | MultiPolygon>[] = []
+  for (const c of countriesFC.features) {
+    if (c.properties?.id === oldCountryId) {
+      if (updatedOldCountry) {
+        updatedCountries.push(updatedOldCountry)
+      }
+    } else if (c.properties?.id === newCountryId) {
+      updatedCountries.push(updatedNewCountry)
+    } else {
+      updatedCountries.push(c)
+    }
+  }
+
+  // 4. Determine new region ID with new country prefix
+  const oldId = targetRegion.properties?.id || ''
+  let slug = ''
+  if (oldId.startsWith(`${oldCountryId}-`)) {
+    slug = oldId.slice(oldCountryId.length + 1)
+  } else {
+    slug = oldId
+  }
+
+  let candidateId = `${newCountryId}-${slug}`
+  if (regionsFC.features.some((r) => r.properties?.id === candidateId && r.properties?.id !== oldId)) {
+    const existingInNewCountry = regionsFC.features.filter((r) => r.properties?.countryId === newCountryId)
+    const nextNum = existingInNewCountry.length + 1
+    candidateId = `${newCountryId}-region-${String(nextNum).padStart(2, '0')}`
+  }
+
+  // 5. Capital logic: if new country already has a capital, set isCapital to false
+  const newCountryAlreadyHasCapital = regionsFC.features.some(
+    (r) => r.properties?.countryId === newCountryId && r.properties?.isCapital,
+  )
+  const isCapital = Boolean(targetRegion.properties?.isCapital && !newCountryAlreadyHasCapital)
+
+  // 6. Update region
+  const updatedRegion: Feature<Polygon | MultiPolygon> = {
+    ...targetRegion,
+    id: candidateId,
+    properties: {
+      ...targetRegion.properties,
+      id: candidateId,
+      countryId: newCountryId,
+      isCapital,
+    },
+  }
+
+  const updatedRegions = regionsFC.features.map((r) =>
+    r.properties?.id === regionId ? updatedRegion : r,
+  )
+
+  return {
+    countries: {
+      ...countriesFC,
+      features: updatedCountries,
+    },
+    regions: {
+      ...regionsFC,
+      features: updatedRegions,
+    },
+    newRegionId: candidateId,
+    regionName,
+    oldCountryName,
+    newCountryName,
+  }
+}
+
 

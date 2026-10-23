@@ -16,6 +16,7 @@ import {
   pixelateLine,
   recalculateBordersAndLabels,
   splitPolygonGeometry,
+  transferRegionToCountry,
 } from './geometryOperations'
 import { StudioCreateCountryModal } from './StudioCreateCountryModal'
 import { StudioCreateRegionModal } from './StudioCreateRegionModal'
@@ -1258,6 +1259,68 @@ export function StudioManager({ map, onExit }: Props) {
     [applyDataUpdate],
   )
 
+  // Transfer region to another country
+  const handleTransferRegionToCountry = useCallback(
+    (regionId: string, newCountryId: string) => {
+      let resultingNewId = regionId
+      let regName = ''
+      let newCName = ''
+
+      applyDataUpdate((prev) => {
+        const res = transferRegionToCountry({
+          regionId,
+          newCountryId,
+          countriesFC: prev.countries,
+          regionsFC: prev.regions,
+        })
+        if (!res) return prev
+
+        resultingNewId = res.newRegionId
+        regName = res.regionName
+        newCName = res.newCountryName
+
+        // Update region label point to keep its position
+        const updatedRegionLabels = prev.regionLabels.features.map((lbl) => {
+          if (
+            lbl.properties?.id === `${regionId}-production-label` ||
+            lbl.properties?.id === regionId
+          ) {
+            return {
+              ...lbl,
+              id: `${res.newRegionId}-production-label`,
+              properties: {
+                ...lbl.properties,
+                id: `${res.newRegionId}-production-label`,
+                countryId: newCountryId,
+              },
+            }
+          }
+          return lbl
+        })
+
+        return {
+          countries: res.countries,
+          regions: res.regions,
+          regionLabels: {
+            ...prev.regionLabels,
+            features: updatedRegionLabels,
+          },
+        }
+      })
+
+      // Keep the transferred region selected in the sidebar
+      setSelectedRegionId(resultingNewId)
+      setSelectedCountryId(newCountryId)
+      setFillCountryId(newCountryId)
+
+      addToast(
+        `Регион «${regName || regionId}» успешно передан государству «${newCName || newCountryId}»!`,
+        'success',
+      )
+    },
+    [applyDataUpdate],
+  )
+
   // Save locally
   const handleSave = useCallback(async () => {
     if (!dataRef.current) return
@@ -1457,6 +1520,7 @@ export function StudioManager({ map, onExit }: Props) {
             addToast('Кликните по острову или обведите территорию лассо для создания региона!', 'info')
           }}
           onCreateCountryFromRegion={handleCreateCountryFromRegion}
+          onTransferRegionToCountry={handleTransferRegionToCountry}
         />
       )}
 
