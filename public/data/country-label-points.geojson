@@ -456,6 +456,25 @@
         "labelRank": 2,
         "areaWorld": 60716996181287
       }
+    },
+    {
+      "type": "Feature",
+      "id": "country-027-production-label",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          179,
+          474.5
+        ]
+      },
+      "properties": {
+        "id": "country-027-production-label",
+        "countryId": "country-027",
+        "name": "Тория",
+        "type": "country-label",
+        "labelRank": 2,
+        "areaWorld": 4268628579864
+      }
     }
   ]
 }

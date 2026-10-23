@@ -106884,6 +106884,71 @@
         "labelRank": 1,
         "styleIndex": 0
       }
+    },
+    {
+      "type": "Feature",
+      "id": "country-027-region-02",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              177,
+              479
+            ],
+            [
+              178,
+              479
+            ],
+            [
+              178,
+              478
+            ],
+            [
+              179,
+              478
+            ],
+            [
+              179,
+              479
+            ],
+            [
+              180,
+              479
+            ],
+            [
+              180,
+              481
+            ],
+            [
+              179,
+              481
+            ],
+            [
+              179,
+              480
+            ],
+            [
+              177,
+              480
+            ],
+            [
+              177,
+              479
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "country-027-region-02",
+        "number": 2,
+        "name": "Ториуберг",
+        "type": "region",
+        "countryId": "country-027",
+        "isCapital": true,
+        "labelRank": 1,
+        "styleIndex": 1
+      }
     }
   ]
 }

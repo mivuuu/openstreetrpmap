@@ -105774,6 +105774,64 @@
         "countryId": "country-009",
         "regionId": "country-009-region-25"
       }
+    },
+    {
+      "type": "Feature",
+      "id": "region-border-113",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            177,
+            479
+          ],
+          [
+            178,
+            479
+          ],
+          [
+            178,
+            478
+          ],
+          [
+            179,
+            478
+          ],
+          [
+            179,
+            479
+          ],
+          [
+            180,
+            479
+          ],
+          [
+            180,
+            481
+          ],
+          [
+            179,
+            481
+          ],
+          [
+            179,
+            480
+          ],
+          [
+            177,
+            480
+          ],
+          [
+            177,
+            479
+          ]
+        ]
+      },
+      "properties": {
+        "type": "region-border",
+        "countryId": "country-027",
+        "regionId": "country-027-region-02"
+      }
     }
   ]
 }
