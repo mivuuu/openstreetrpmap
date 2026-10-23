@@ -24,6 +24,7 @@ type Props = {
   onStartMoveLabel: () => void
   onStartCreateCountry?: () => void
   onStartCreateRegion?: () => void
+  onCreateCountryFromRegion?: (regionId: string) => void
 }
 
 function RegionIdEditor({
@@ -150,6 +151,7 @@ export function StudioSidebar({
   onStartMoveLabel,
   onStartCreateCountry,
   onStartCreateRegion,
+  onCreateCountryFromRegion,
 }: Props) {
   const [search, setSearch] = useState('')
 
@@ -457,6 +459,23 @@ export function StudioSidebar({
               </div>
 
               <div className="studio-card__actions">
+                {onCreateCountryFromRegion && (
+                  <button
+                    type="button"
+                    className="studio-btn"
+                    onClick={() => onCreateCountryFromRegion(activeRegion.properties!.id)}
+                    title="Отделить этот регион и провозгласить его новым независимым государством"
+                    style={{
+                      background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                      borderColor: '#34d399',
+                      color: '#ffffff',
+                      fontWeight: 600,
+                      boxShadow: '0 2px 8px rgba(16, 185, 129, 0.25)',
+                    }}
+                  >
+                    🏛️ Создать страну из региона
+                  </button>
+                )}
                 <button
                   type="button"
                   className="studio-btn studio-btn--primary"

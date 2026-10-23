@@ -110,17 +110,19 @@ export function StudioToolbar({
           </button>
         )}
 
-        {mode === 'regions' && (
-          <button
-            type="button"
-            className="studio-tool-btn studio-tool-btn--accent"
-            onClick={onOpenRegionPhotoModal}
-            title="Автоматически извлечь регионы из фотографии карты"
-          >
-            <span className="studio-tool-icon">📷</span>
-            <span>Импорт по фото</span>
-          </button>
-        )}
+        <button
+          type="button"
+          className="studio-tool-btn studio-tool-btn--accent"
+          onClick={onOpenRegionPhotoModal}
+          title={
+            mode === 'countries'
+              ? 'Наложить фотографию карты как подложку для точной обводки государств'
+              : 'Наложить фотографию карты как подложку или автоматически извлечь регионы'
+          }
+        >
+          <span className="studio-tool-icon">📷</span>
+          <span>Фото-подложка</span>
+        </button>
 
         {hasMapOverlay && onClearOverlay && (
           <button

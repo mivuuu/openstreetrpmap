@@ -17,6 +17,9 @@ type Props = {
     regions: Feature<Polygon | MultiPolygon>[],
     mapOverlay: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null,
   ) => void
+  onSetMapOverlay?: (
+    overlay: { imageUrl: string; bounds: [number, number, number, number]; opacity: number } | null,
+  ) => void
 }
 
 const HISOLIA_PRESET_NAMES = [
@@ -39,6 +42,7 @@ export function StudioRegionPhotoModal({
   countries,
   initialCountryId,
   onApplyRegions,
+  onSetMapOverlay,
 }: Props) {
   const [selectedCountryId, setSelectedCountryId] = useState<string>(
     initialCountryId || (countries[0]?.properties?.id ?? 'country-007'),
@@ -447,6 +451,25 @@ export function StudioRegionPhotoModal({
     }
 
     onApplyRegions(selectedCountryId, newFeatures, overlayData)
+    onClose()
+  }
+
+  // Apply map overlay only without modifying existing regions
+  const handleApplyOverlayOnly = () => {
+    if (!currentCountry || !imageDataUrl) return
+    const [minX, minY, maxX, maxY] = turf.bbox(currentCountry)
+    const cW = maxX - minX
+    const cH = maxY - minY
+    const bMinX = minX + offsetX
+    const bMinY = minY + offsetY
+    const bMaxX = bMinX + cW * scaleX
+    const bMaxY = bMinY + cH * scaleY
+    const overlayData = {
+      imageUrl: imageDataUrl,
+      bounds: [bMinX, bMinY, bMaxX, bMaxY] as [number, number, number, number],
+      opacity,
+    }
+    onSetMapOverlay?.(overlayData)
     onClose()
   }
 
@@ -994,6 +1017,22 @@ export function StudioRegionPhotoModal({
           <button type="button" className="studio-btn studio-btn--secondary" onClick={onClose}>
             Отмена
           </button>
+          {imageElement && (
+            <button
+              type="button"
+              className="studio-btn"
+              onClick={handleApplyOverlayOnly}
+              title="Закрепить совмещённую фотографию как подложку на карте мира"
+              style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                borderColor: '#38bdf8',
+                color: '#ffffff',
+                fontWeight: 600,
+              }}
+            >
+              🖼️ Закрепить как подложку на карте
+            </button>
+          )}
           <button
             type="button"
             className="studio-btn studio-btn--primary"

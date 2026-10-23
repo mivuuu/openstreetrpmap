@@ -55,14 +55,20 @@ export function StudioManager({ map, onExit }: Props) {
     isOpen: boolean
     territory: Feature<Polygon | MultiPolygon> | null
     sourceCountryName: string | null
+    sourceRegionName?: string | null
+    initialName?: string
     suggestedId: string
     suggestedColorIndex: number
+    sourceRegionId?: string
   }>({
     isOpen: false,
     territory: null,
     sourceCountryName: null,
+    sourceRegionName: null,
+    initialName: '',
     suggestedId: '',
     suggestedColorIndex: 0,
+    sourceRegionId: undefined,
   })
   const [createRegionModalState, setCreateRegionModalState] = useState<{
     isOpen: boolean
@@ -865,8 +871,39 @@ export function StudioManager({ map, onExit }: Props) {
         isOpen: true,
         territory: found.territory,
         sourceCountryName: found.sourceCountryName,
+        sourceRegionName: null,
+        initialName: '',
         suggestedId: nextId,
         suggestedColorIndex: colorIndex,
+        sourceRegionId: undefined,
+      })
+    },
+    [data, getNextCountryIdAndColor],
+  )
+
+  const handleCreateCountryFromRegion = useCallback(
+    (regionId: string) => {
+      if (!data) return
+      const reg = data.regions.features.find((r) => r.properties?.id === regionId)
+      if (!reg) {
+        addToast('Регион не найден', 'warning')
+        return
+      }
+
+      const parentCountry = data.countries.features.find(
+        (c) => c.properties?.id === reg.properties?.countryId,
+      )
+      const { nextId, colorIndex } = getNextCountryIdAndColor(reg)
+
+      setCreateCountryModalState({
+        isOpen: true,
+        territory: reg,
+        sourceCountryName: parentCountry?.properties?.name || parentCountry?.properties?.id || 'Соседнее государство',
+        sourceRegionName: reg.properties?.name || reg.properties?.id || 'Выбранный регион',
+        initialName: reg.properties?.name || '',
+        suggestedId: nextId,
+        suggestedColorIndex: colorIndex,
+        sourceRegionId: regionId,
       })
     },
     [data, getNextCountryIdAndColor],
@@ -884,6 +921,9 @@ export function StudioManager({ map, onExit }: Props) {
     }) => {
       if (!data || !createCountryModalState.territory) return
 
+      const sourceRegionId = createCountryModalState.sourceRegionId
+      const sourceRegionName = createCountryModalState.sourceRegionName
+
       const result = createCountryFromTerritory({
         territory: createCountryModalState.territory,
         countryName,
@@ -892,6 +932,7 @@ export function StudioManager({ map, onExit }: Props) {
         countriesFC: data.countries,
         regionsFC: data.regions,
         countryNames: data.countryNames,
+        sourceRegionId,
       })
 
       applyDataUpdate(() => ({
@@ -904,17 +945,29 @@ export function StudioManager({ map, onExit }: Props) {
         isOpen: false,
         territory: null,
         sourceCountryName: null,
+        sourceRegionName: null,
+        initialName: '',
         suggestedId: '',
         suggestedColorIndex: 0,
+        sourceRegionId: undefined,
       })
 
       setSelectedCountryId(result.newCountryId)
       setFillCountryId(result.newCountryId)
+      setSelectedRegionId(null)
+      setMode('countries')
       setActiveTool('select')
 
-      addToast(`🎉 Государство «${countryName}» (${result.newCountryId}) успешно создано!`, 'success')
+      if (sourceRegionName) {
+        addToast(
+          `🎉 Государство «${countryName}» (${result.newCountryId}) успешно создано и отделено из региона «${sourceRegionName}»!`,
+          'success',
+        )
+      } else {
+        addToast(`🎉 Государство «${countryName}» (${result.newCountryId}) успешно создано!`, 'success')
+      }
     },
-    [data, createCountryModalState.territory, applyDataUpdate],
+    [data, createCountryModalState, applyDataUpdate],
   )
 
   // 5. Create region handlers (click or lasso)
@@ -1356,6 +1409,7 @@ export function StudioManager({ map, onExit }: Props) {
             setActiveTool('create-region')
             addToast('Кликните по острову или обведите территорию лассо для создания региона!', 'info')
           }}
+          onCreateCountryFromRegion={handleCreateCountryFromRegion}
         />
       )}
 
@@ -1387,10 +1441,19 @@ export function StudioManager({ map, onExit }: Props) {
       <StudioCreateCountryModal
         isOpen={createCountryModalState.isOpen}
         onClose={() =>
-          setCreateCountryModalState((prev) => ({ ...prev, isOpen: false, territory: null }))
+          setCreateCountryModalState((prev) => ({
+            ...prev,
+            isOpen: false,
+            territory: null,
+            sourceRegionName: null,
+            initialName: '',
+            sourceRegionId: undefined,
+          }))
         }
         territory={createCountryModalState.territory}
         sourceCountryName={createCountryModalState.sourceCountryName}
+        sourceRegionName={createCountryModalState.sourceRegionName}
+        initialCountryName={createCountryModalState.initialName}
         suggestedId={createCountryModalState.suggestedId}
         suggestedColorIndex={createCountryModalState.suggestedColorIndex}
         onConfirm={handleConfirmCreateCountry}
@@ -1417,6 +1480,10 @@ export function StudioManager({ map, onExit }: Props) {
           countries={data.countries.features}
           initialCountryId={selectedCountryId || fillCountryId}
           onApplyRegions={handleApplyImportedRegions}
+          onSetMapOverlay={(overlay) => {
+            setMapOverlay(overlay)
+            addToast('Фото-подложка закреплена на карте! Теперь вы можете обвести страну лассо или создать регион.', 'info')
+          }}
         />
       )}
 

@@ -10,6 +10,7 @@ import type {
   Polygon,
   Position,
 } from 'geojson'
+import { transliterateToSlug } from './transliterate'
 
 export type SplitResult = {
   part1: Polygon | MultiPolygon
@@ -897,6 +898,7 @@ export type CreateCountryOptions = {
   countriesFC: FeatureCollection<Polygon | MultiPolygon>
   regionsFC: FeatureCollection<Polygon | MultiPolygon>
   countryNames?: Record<string, { name: string }>
+  sourceRegionId?: string
 }
 
 export type CreateCountryResult = {
@@ -920,6 +922,7 @@ export function createCountryFromTerritory(options: CreateCountryOptions): Creat
     countriesFC,
     regionsFC,
     countryNames = {},
+    sourceRegionId,
   } = options
 
   // 1. Generate new unique ID
@@ -1008,17 +1011,32 @@ export function createCountryFromTerritory(options: CreateCountryOptions): Creat
 
     const regArea = turf.area(reg)
     const interArea = turf.area(inter)
+    const isExplicitSourceRegion = Boolean(sourceRegionId && reg.properties?.id === sourceRegionId)
 
-    if (interArea / regArea > 0.85) {
+    if (interArea / regArea > 0.85 || isExplicitSourceRegion) {
       // Transfer whole region to new country
       const newRegNum = regionsTransferredToNewCountry.length + 1
+      const oldId = reg.properties?.id || ''
+      let slug = ''
+      const parentCountryId = reg.properties?.countryId
+      if (parentCountryId && oldId.startsWith(`${parentCountryId}-`)) {
+        slug = oldId.slice(parentCountryId.length + 1)
+      } else if (reg.properties?.name) {
+        slug = transliterateToSlug(reg.properties.name)
+      } else {
+        slug = `region-${String(newRegNum).padStart(2, '0')}`
+      }
+      const newId = `${newCountryId}-${slug}`
+
       const newReg: Feature<Polygon | MultiPolygon> = {
         ...reg,
+        id: newId,
         properties: {
           ...reg.properties,
-          id: `${newCountryId}-region-${String(newRegNum).padStart(2, '0')}`,
+          id: newId,
           countryId: newCountryId,
           number: newRegNum,
+          isCapital: createCapitalRegion || Boolean(reg.properties?.isCapital),
         },
       }
       regionsTransferredToNewCountry.push(newReg)

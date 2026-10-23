@@ -8,6 +8,8 @@ type Props = {
   onClose: () => void
   territory: Feature<Polygon | MultiPolygon> | null
   sourceCountryName: string | null
+  sourceRegionName?: string | null
+  initialCountryName?: string
   suggestedId: string
   suggestedColorIndex: number
   onConfirm: (options: {
@@ -22,17 +24,19 @@ export function StudioCreateCountryModal({
   onClose,
   territory,
   sourceCountryName,
+  sourceRegionName,
+  initialCountryName = '',
   suggestedId,
   suggestedColorIndex,
   onConfirm,
 }: Props) {
-  const [countryName, setCountryName] = useState('')
+  const [countryName, setCountryName] = useState(initialCountryName)
   const [selectedColorIndex, setSelectedColorIndex] = useState(suggestedColorIndex)
   const [createCapitalRegion, setCreateCapitalRegion] = useState(true)
 
   useEffect(() => {
     if (isOpen) {
-      setCountryName('')
+      setCountryName(initialCountryName || '')
       setSelectedColorIndex(suggestedColorIndex)
       setCreateCapitalRegion(true)
 
@@ -44,7 +48,7 @@ export function StudioCreateCountryModal({
       window.addEventListener('keydown', handleKeyDown)
       return () => window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen, suggestedColorIndex, onClose])
+  }, [isOpen, initialCountryName, suggestedColorIndex, onClose])
 
   if (!isOpen || !territory) return null
 
@@ -88,8 +92,9 @@ export function StudioCreateCountryModal({
         <form onSubmit={handleSubmit}>
           <div className="studio-modal__body">
             <p>
-              Выделенная территория будет отделена в самостоятельное суверенное государство со
-              своими границами, кодом и названием.
+              {sourceRegionName
+                ? `Территория региона «${sourceRegionName}» будет отделена от государства «${sourceCountryName || 'исходного'}» в самостоятельное суверенное государство со своими границами, кодом и названием.`
+                : 'Выделенная территория будет отделена в самостоятельное суверенное государство со своими границами, кодом и названием.'}
             </p>
 
             <div className="studio-stats" style={{ background: 'rgba(0, 0, 0, 0.35)', padding: '12px' }}>
@@ -99,6 +104,14 @@ export function StudioCreateCountryModal({
                   {sourceCountryName ? `🏛️ ${sourceCountryName}` : '🌊 Ничейная территория'}
                 </span>
               </div>
+              {sourceRegionName && (
+                <div className="studio-stat-item">
+                  <span className="studio-stat-item__label">Отделяемый регион:</span>
+                  <span className="studio-stat-item__val" style={{ color: '#38bdf8' }}>
+                    📍 {sourceRegionName}
+                  </span>
+                </div>
+              )}
               <div className="studio-stat-item">
                 <span className="studio-stat-item__label">Новый ID в системе:</span>
                 <span className="studio-code-badge">{suggestedId}</span>
@@ -184,7 +197,11 @@ export function StudioCreateCountryModal({
                 onChange={(e) => setCreateCapitalRegion(e.target.checked)}
                 style={{ width: '16px', height: '16px', accentColor: '#38bdf8' }}
               />
-              <span>Создать первый регион (столицу) для этого государства</span>
+              <span>
+                {sourceRegionName
+                  ? '⭐ Сохранить этот регион как столичный регион нового государства'
+                  : 'Создать первый регион (столицу) для этого государства'}
+              </span>
             </label>
           </div>
 
