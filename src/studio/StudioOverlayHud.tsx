@@ -23,7 +23,14 @@ export const StudioOverlayHud: React.FC<StudioOverlayHudProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   return (
-    <div className={`studio-overlay-hud ${isCollapsed ? 'studio-overlay-hud--collapsed' : ''}`}>
+    <div
+      className={`studio-overlay-hud ${isCollapsed ? 'studio-overlay-hud--collapsed' : ''}`}
+      style={{ pointerEvents: 'auto' }}
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+      onWheel={(e) => e.stopPropagation()}
+    >
       {/* Header */}
       <div className="studio-overlay-hud__header">
         <div className="studio-overlay-hud__title">
