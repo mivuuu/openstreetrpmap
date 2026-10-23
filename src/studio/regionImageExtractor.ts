@@ -1,6 +1,57 @@
 import * as turf from '@turf/turf'
-import type { Feature, MultiPolygon, Polygon } from 'geojson'
+import type { Feature, MultiPolygon, Polygon, Position } from 'geojson'
 import { pixelateLine } from './geometryOperations'
+
+/**
+ * Renders a country's polygon geometry onto a binary grid mask (1 = inside country, 0 = outside).
+ * Uses hardware-accelerated 2D canvas rasterization, which executes in ~1ms even for complex multipolygons,
+ * replacing hundreds of thousands of point-in-polygon calculations.
+ */
+export function renderCountryMaskToGrid(
+  feature: Feature<Polygon | MultiPolygon>,
+  minX: number,
+  minY: number,
+  gridW: number,
+  gridH: number,
+  resolution: number = 1.0,
+): Uint8Array {
+  const canvas = document.createElement('canvas')
+  canvas.width = gridW
+  canvas.height = gridH
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  if (!ctx) return new Uint8Array(gridW * gridH)
+
+  ctx.fillStyle = '#ffffff'
+  ctx.beginPath()
+
+  const geom = feature.geometry
+  const polygons: Position[][][] =
+    geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates
+
+  for (const poly of polygons) {
+    for (const ring of poly) {
+      for (let i = 0; i < ring.length; i++) {
+        const [wx, wy] = ring[i]
+        const cx = (wx - minX) * resolution
+        const cy = (wy - minY) * resolution
+        if (i === 0) ctx.moveTo(cx, cy)
+        else ctx.lineTo(cx, cy)
+      }
+      ctx.closePath()
+    }
+  }
+
+  ctx.fill('evenodd')
+  const imgData = ctx.getImageData(0, 0, gridW, gridH)
+  const data = imgData.data
+  const mask = new Uint8Array(gridW * gridH)
+  for (let i = 0; i < mask.length; i++) {
+    if (data[i * 4 + 3] > 128) {
+      mask[i] = 1
+    }
+  }
+  return mask
+}
 
 export type ExtractedRegion = {
   id: string
@@ -161,6 +212,7 @@ export function extractRegionsFromImage(options: ExtractionOptions): {
   const imgH = imgCanvas.height
 
   // 1. Build grid: -999 = outside country, 0 = inside country land, -1 = detected border line
+  const countryMask = renderCountryMaskToGrid(countryFeature, minX, minY, gridW, gridH, resolution)
   const grid = new Int32Array(gridW * gridH)
   grid.fill(-999)
 
@@ -170,50 +222,52 @@ export function extractRegionsFromImage(options: ExtractionOptions): {
   const ry = Math.max(1, Math.floor(stepY * 0.55))
 
   for (let gy = 0; gy < gridH; gy++) {
+    const rowOffsetGrid = gy * gridW
     for (let gx = 0; gx < gridW; gx++) {
+      const idx = rowOffsetGrid + gx
+      if (countryMask[idx] !== 1) continue
+
       const worldX = minX + gx / resolution + 0.5
       const worldY = minY + gy / resolution + 0.5
 
-      if (turf.booleanPointInPolygon([worldX, worldY], countryFeature)) {
-        // Map world coordinate to image coordinate based on alignment scale and offset
-        const normX = (worldX - (minX + offsetX)) / (cWidth * sX)
-        const normY = (worldY - (minY + offsetY)) / (cHeight * sY)
+      // Map world coordinate to image coordinate based on alignment scale and offset
+      const normX = (worldX - (minX + offsetX)) / (cWidth * sX)
+      const normY = (worldY - (minY + offsetY)) / (cHeight * sY)
 
-        if (normX >= 0 && normX < 1 && normY >= 0 && normY < 1) {
-          const cx = Math.floor(normX * imgW)
-          const cy = Math.floor(normY * imgH)
+      if (normX >= 0 && normX < 1 && normY >= 0 && normY < 1) {
+        const cx = Math.floor(normX * imgW)
+        const cy = Math.floor(normY * imgH)
 
-          let isBorder = false
-          // Area min-pooling footprint: scan the window of image pixels for any border point
-          for (let dy = -ry; dy <= ry; dy++) {
-            const py = cy + dy
-            if (py < 0 || py >= imgH) continue
-            const rowOffset = py * imgW
-            for (let dx = -rx; dx <= rx; dx++) {
-              const px = cx + dx
-              if (px < 0 || px >= imgW) continue
+        let isBorder = false
+        // Area min-pooling footprint: scan the window of image pixels for any border point
+        for (let dy = -ry; dy <= ry; dy++) {
+          const py = cy + dy
+          if (py < 0 || py >= imgH) continue
+          const rowOffset = py * imgW
+          for (let dx = -rx; dx <= rx; dx++) {
+            const px = cx + dx
+            if (px < 0 || px >= imgW) continue
 
-              const pIdx = (rowOffset + px) * 4
-              const r = pixels[pIdx]
-              const g = pixels[pIdx + 1]
-              const b = pixels[pIdx + 2]
+            const pIdx = (rowOffset + px) * 4
+            const r = pixels[pIdx]
+            const g = pixels[pIdx + 1]
+            const b = pixels[pIdx + 2]
 
-              const isRiver = excludeRivers && b > r + 16 && g > r + 10
-              if (isRiver) continue
+            const isRiver = excludeRivers && b > r + 16 && g > r + 10
+            if (isRiver) continue
 
-              const gray = 0.299 * r + 0.587 * g + 0.114 * b
-              if (gray < threshold) {
-                isBorder = true
-                break
-              }
+            const gray = 0.299 * r + 0.587 * g + 0.114 * b
+            if (gray < threshold) {
+              isBorder = true
+              break
             }
-            if (isBorder) break
           }
-
-          grid[gy * gridW + gx] = isBorder ? -1 : 0
-        } else {
-          grid[gy * gridW + gx] = 0
+          if (isBorder) break
         }
+
+        grid[idx] = isBorder ? -1 : 0
+      } else {
+        grid[idx] = 0
       }
     }
   }
@@ -498,8 +552,15 @@ export function detectBorderGridPoints(options: {
   threshold: number
   excludeRivers: boolean
   cachedImageData?: ImageData | null
+  cachedCountryMask?: Uint8Array | null
   manualBridges?: [number, number][][]
-}): { points: [number, number][]; imageData: ImageData | null } {
+}): {
+  points: [number, number][]
+  borderCanvas: HTMLCanvasElement | null
+  detectedCount: number
+  imageData: ImageData | null
+  countryMask: Uint8Array
+} {
   const {
     countryFeature,
     imageElement,
@@ -510,6 +571,7 @@ export function detectBorderGridPoints(options: {
     threshold,
     excludeRivers,
     cachedImageData,
+    cachedCountryMask,
     manualBridges,
   } = options
 
@@ -520,13 +582,26 @@ export function detectBorderGridPoints(options: {
   const gridW = Math.max(10, Math.ceil(cWidth))
   const gridH = Math.max(10, Math.ceil(cHeight))
 
+  const countryMask =
+    cachedCountryMask && cachedCountryMask.length === gridW * gridH
+      ? cachedCountryMask
+      : renderCountryMaskToGrid(countryFeature, minX, minY, gridW, gridH, 1.0)
+
   let imgData = cachedImageData
   if (!imgData) {
     const imgCanvas = document.createElement('canvas')
     imgCanvas.width = imageElement.naturalWidth || imageElement.width || 800
     imgCanvas.height = imageElement.naturalHeight || imageElement.height || 600
-    const imgCtx = imgCanvas.getContext('2d')
-    if (!imgCtx) return { points: [], imageData: null }
+    const imgCtx = imgCanvas.getContext('2d', { willReadFrequently: true })
+    if (!imgCtx) {
+      return {
+        points: [],
+        borderCanvas: null,
+        detectedCount: 0,
+        imageData: null,
+        countryMask,
+      }
+    }
     imgCtx.drawImage(imageElement, 0, 0)
     imgData = imgCtx.getImageData(0, 0, imgCanvas.width, imgCanvas.height)
   }
@@ -543,47 +618,49 @@ export function detectBorderGridPoints(options: {
   const grid = new Int8Array(gridW * gridH)
 
   for (let gy = 0; gy < gridH; gy++) {
+    const rowOffsetGrid = gy * gridW
     for (let gx = 0; gx < gridW; gx++) {
+      const gridIdx = rowOffsetGrid + gx
+      if (countryMask[gridIdx] !== 1) continue
+
       const worldX = minX + gx + 0.5
       const worldY = minY + gy + 0.5
 
-      if (turf.booleanPointInPolygon([worldX, worldY], countryFeature)) {
-        const normX = (worldX - (minX + offsetX)) / (cWidth * scaleX)
-        const normY = (worldY - (minY + offsetY)) / (cHeight * scaleY)
+      const normX = (worldX - (minX + offsetX)) / (cWidth * scaleX)
+      const normY = (worldY - (minY + offsetY)) / (cHeight * scaleY)
 
-        if (normX >= 0 && normX < 1 && normY >= 0 && normY < 1) {
-          const cx = Math.floor(normX * imgW)
-          const cy = Math.floor(normY * imgH)
+      if (normX >= 0 && normX < 1 && normY >= 0 && normY < 1) {
+        const cx = Math.floor(normX * imgW)
+        const cy = Math.floor(normY * imgH)
 
-          let isBorder = false
-          for (let dy = -ry; dy <= ry; dy++) {
-            const py = cy + dy
-            if (py < 0 || py >= imgH) continue
-            const rowOffset = py * imgW
-            for (let dx = -rx; dx <= rx; dx++) {
-              const px = cx + dx
-              if (px < 0 || px >= imgW) continue
+        let isBorder = false
+        for (let dy = -ry; dy <= ry; dy++) {
+          const py = cy + dy
+          if (py < 0 || py >= imgH) continue
+          const rowOffset = py * imgW
+          for (let dx = -rx; dx <= rx; dx++) {
+            const px = cx + dx
+            if (px < 0 || px >= imgW) continue
 
-              const pIdx = (rowOffset + px) * 4
-              const r = pixels[pIdx]
-              const g = pixels[pIdx + 1]
-              const b = pixels[pIdx + 2]
+            const pIdx = (rowOffset + px) * 4
+            const r = pixels[pIdx]
+            const g = pixels[pIdx + 1]
+            const b = pixels[pIdx + 2]
 
-              const isRiver = excludeRivers && b > r + 16 && g > r + 10
-              if (isRiver) continue
+            const isRiver = excludeRivers && b > r + 16 && g > r + 10
+            if (isRiver) continue
 
-              const gray = 0.299 * r + 0.587 * g + 0.114 * b
-              if (gray < threshold) {
-                isBorder = true
-                break
-              }
+            const gray = 0.299 * r + 0.587 * g + 0.114 * b
+            if (gray < threshold) {
+              isBorder = true
+              break
             }
-            if (isBorder) break
           }
+          if (isBorder) break
+        }
 
-          if (isBorder) {
-            grid[gy * gridW + gx] = 1
-          }
+        if (isBorder) {
+          grid[gridIdx] = 1
         }
       }
     }
@@ -628,14 +705,34 @@ export function detectBorderGridPoints(options: {
     }
   }
 
+  // Build offscreen border canvas with neon cyan pixels
+  const borderCanvas = document.createElement('canvas')
+  borderCanvas.width = gridW
+  borderCanvas.height = gridH
+  const bCtx = borderCanvas.getContext('2d')
+  let detectedCount = 0
   const points: [number, number][] = []
-  for (let gy = 0; gy < gridH; gy++) {
-    for (let gx = 0; gx < gridW; gx++) {
-      if (grid[gy * gridW + gx] === 1) {
-        points.push([minX + gx + 0.5, minY + gy + 0.5])
+
+  if (bCtx) {
+    const borderImgData = bCtx.createImageData(gridW, gridH)
+    const bData = borderImgData.data
+
+    for (let gy = 0; gy < gridH; gy++) {
+      const rowOffset = gy * gridW
+      for (let gx = 0; gx < gridW; gx++) {
+        const idx = rowOffset + gx
+        if (grid[idx] === 1) {
+          detectedCount++
+          const pIdx = idx * 4
+          bData[pIdx] = 34      // R: #22d3ee
+          bData[pIdx + 1] = 211  // G
+          bData[pIdx + 2] = 238  // B
+          bData[pIdx + 3] = 240  // Alpha
+        }
       }
     }
+    bCtx.putImageData(borderImgData, 0, 0)
   }
 
-  return { points, imageData: imgData }
+  return { points, borderCanvas, detectedCount, imageData: imgData, countryMask }
 }

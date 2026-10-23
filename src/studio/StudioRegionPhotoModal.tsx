@@ -69,8 +69,15 @@ export function StudioRegionPhotoModal({
   const [manualBridges, setManualBridges] = useState<[number, number][][]>([])
   const [isDrawingBridge, setIsDrawingBridge] = useState<boolean>(false)
   const [activeBridgeStroke, setActiveBridgeStroke] = useState<[number, number][]>([])
-  const [detectedPoints, setDetectedPoints] = useState<[number, number][]>([])
+  const [borderCanvas, setBorderCanvas] = useState<HTMLCanvasElement | null>(null)
+  const [detectedPointsCount, setDetectedPointsCount] = useState<number>(0)
   const cachedImageDataRef = useRef<ImageData | null>(null)
+  const cachedCountryMaskRef = useRef<{
+    countryId: string
+    mask: Uint8Array
+    gridW: number
+    gridH: number
+  } | null>(null)
 
   // Overlay option
   const [keepOverlayOnMap, setKeepOverlayOnMap] = useState<boolean>(true)
@@ -88,6 +95,7 @@ export function StudioRegionPhotoModal({
   useEffect(() => {
     if (initialCountryId) {
       setSelectedCountryId(initialCountryId)
+      cachedCountryMaskRef.current = null
     }
   }, [initialCountryId])
 
@@ -126,35 +134,57 @@ export function StudioRegionPhotoModal({
 
   const currentCountry = countries.find((c) => c.properties?.id === selectedCountryId)
 
-  // Live boundary points detection
+  // Live boundary points detection with debouncing and instant raster mask
   useEffect(() => {
     if (!isOpen || !currentCountry || !imageElement) {
-      setDetectedPoints([])
+      setBorderCanvas(null)
+      setDetectedPointsCount(0)
       return
     }
 
-    try {
-      const { points, imageData } = detectBorderGridPoints({
-        countryFeature: currentCountry,
-        imageElement,
-        scaleX,
-        scaleY,
-        offsetX,
-        offsetY,
-        threshold,
-        excludeRivers,
-        cachedImageData: cachedImageDataRef.current,
-        manualBridges,
-      })
+    const timer = setTimeout(() => {
+      try {
+        const maskObj =
+          cachedCountryMaskRef.current?.countryId === currentCountry.properties?.id
+            ? cachedCountryMaskRef.current
+            : null
 
-      if (imageData && !cachedImageDataRef.current) {
-        cachedImageDataRef.current = imageData
+        const result = detectBorderGridPoints({
+          countryFeature: currentCountry,
+          imageElement,
+          scaleX,
+          scaleY,
+          offsetX,
+          offsetY,
+          threshold,
+          excludeRivers,
+          cachedImageData: cachedImageDataRef.current,
+          cachedCountryMask: maskObj ? maskObj.mask : null,
+          manualBridges,
+        })
+
+        if (result.imageData && !cachedImageDataRef.current) {
+          cachedImageDataRef.current = result.imageData
+        }
+
+        if (result.countryMask && (!maskObj || maskObj.countryId !== currentCountry.properties?.id)) {
+          const [minX, minY, maxX, maxY] = turf.bbox(currentCountry)
+          cachedCountryMaskRef.current = {
+            countryId: currentCountry.properties?.id || '',
+            mask: result.countryMask,
+            gridW: Math.max(10, Math.ceil(maxX - minX)),
+            gridH: Math.max(10, Math.ceil(maxY - minY)),
+          }
+        }
+
+        setBorderCanvas(result.borderCanvas)
+        setDetectedPointsCount(result.detectedCount)
+      } catch (err) {
+        console.warn('Border detection preview error:', err)
       }
+    }, 16)
 
-      setDetectedPoints(points)
-    } catch (err) {
-      console.warn('Border detection preview error:', err)
-    }
+    return () => clearTimeout(timer)
   }, [
     isOpen,
     currentCountry,
@@ -261,13 +291,17 @@ export function StudioRegionPhotoModal({
     }
 
     // 1.5 Draw live detected boundary lines in neon cyan
-    if (showDetectedLines && detectedPoints.length > 0) {
-      ctx.fillStyle = '#22d3ee'
-      const ptSize = Math.max(2.0, scaleFactor * 1.05)
-      for (let i = 0; i < detectedPoints.length; i++) {
-        const [wx, wy] = detectedPoints[i]
-        ctx.fillRect(toCanvasX(wx) - ptSize / 2, toCanvasY(wy) - ptSize / 2, ptSize, ptSize)
-      }
+    if (showDetectedLines && borderCanvas) {
+      ctx.save()
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(
+        borderCanvas,
+        toCanvasX(minX),
+        toCanvasY(minY),
+        cW * scaleFactor,
+        cH * scaleFactor,
+      )
+      ctx.restore()
     }
 
     // 1.6 Draw manual user bridge strokes in rose-red
@@ -367,7 +401,7 @@ export function StudioRegionPhotoModal({
     opacity,
     extractedRegions,
     showDetectedLines,
-    detectedPoints,
+    borderCanvas,
     manualBridges,
     activeBridgeStroke,
   ])
@@ -896,7 +930,7 @@ export function StudioRegionPhotoModal({
                   </span>
                   {showDetectedLines && (
                     <span className="legend-item">
-                      <span className="legend-dot legend-dot--cyan" /> Неон — найденные границы ({detectedPoints.length})
+                      <span className="legend-dot legend-dot--cyan" /> Неон — найденные границы ({detectedPointsCount})
                     </span>
                   )}
                   {manualBridges.length > 0 && (
